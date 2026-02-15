@@ -303,14 +303,14 @@ Configurar variables de entorno
 Especificar comando de build: npm run build
 Comando de inicio: npm start
 
-Frontend (Vercel/Netlify)
+Frontend
 
 Conectar repositorio GitHub
 Configurar build command: npm run build
 Output directory: dist
 Variables de entorno: VITE_API_URL=https://tu-backend.render.com
 
-Base de Datos (Supabase/Neon)
+Base de Datos (PostgreSQL)
 
 Crear proyecto
 Ejecutar schema.sql
