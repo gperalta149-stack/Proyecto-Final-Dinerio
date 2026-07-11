@@ -1,15 +1,12 @@
 import { Response } from "express"
+import { validationResult } from "express-validator"
 import { pool } from "../config/database.js"
+import { createAuditLog } from "../middleware/auditLog.js"
 import type { AuthRequest } from "../types/index.js"
 
-
+// Lista de suscripciones. Soporta ?status=... (por defecto solo 'active')
 export const getSubscriptions = async (req: AuthRequest, res: Response): Promise<void> => {
   const { status } = req.query
-
-  if (!req.user?.userId) {
-    res.status(401).json({ error: "User not authenticated" })
-    return
-  }
 
   try {
     let query = `
@@ -22,49 +19,66 @@ export const getSubscriptions = async (req: AuthRequest, res: Response): Promise
       LEFT JOIN categories c ON s.category_id = c.id
       WHERE s.user_id = $1
     `
-    const params = [req.user.userId]
+    const params: any[] = [req.user!.userId]
 
-    if (status) {
+    if (status && status !== "all") {
       query += " AND s.status = $2"
       params.push(status as string)
-    } else {
+    } else if (!status) {
       query += " AND s.status = 'active'"
     }
 
     query += " ORDER BY s.next_billing_date ASC"
 
     const result = await pool.query(query, params)
-    
-    console.log('[BACKEND] Suscripciones enviadas al frontend:', {
-      count: result.rows.length,
-      statusFilter: status || 'active (default)',
-      sample: result.rows[0]
-    })
-    
+
     res.json({ subscriptions: result.rows })
   } catch (error) {
     console.error("Get subscriptions error:", error)
-    res.status(500).json({ error: "Server error" })
+    res.status(500).json({ error: "Failed to fetch subscriptions" })
   }
 }
 
-// Se crea nueva  suscripción
+export const getSubscriptionById = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params
+    const result = await pool.query(
+      `SELECT s.*, c.name as category_name, c.color as category_color
+        FROM subscriptions s
+        LEFT JOIN categories c ON s.category_id = c.id
+        WHERE s.id = $1 AND s.user_id = $2`,
+      [id, req.user!.userId],
+    )
+
+    if (result.rows.length === 0) {
+      res.status(404).json({ error: "Subscription not found" })
+      return
+    }
+
+    res.json({ subscription: result.rows[0] })
+  } catch (error) {
+    console.error("Get subscription error:", error)
+    res.status(500).json({ error: "Failed to fetch subscription" })
+  }
+}
+
 export const createSubscription = async (req: AuthRequest, res: Response): Promise<void> => {
   const {
     name,
+    description,
     amount,
     currency,
     billing_cycle,
     next_billing_date,
     category_id,
-    description,
-    notes
+    payment_method,
+    website_url,
+    notes,
   } = req.body
 
-  console.log('🔴 [DEBUG] createSubscription llamado con datos:', req.body)
-
-  if (!req.user?.userId) {
-    res.status(401).json({ error: "User not authenticated" })
+  const errors = validationResult(req)
+  if (!errors.isEmpty()) {
+    res.status(400).json({ errors: errors.array() })
     return
   }
 
@@ -77,7 +91,7 @@ export const createSubscription = async (req: AuthRequest, res: Response): Promi
     const categoryCheck = await pool.query(
       `SELECT id FROM categories
         WHERE id = $1 AND (user_id = $2 OR user_id IS NULL)`,
-      [category_id, req.user.userId]
+      [category_id, req.user!.userId]
     )
 
     if (categoryCheck.rows.length === 0) {
@@ -85,173 +99,146 @@ export const createSubscription = async (req: AuthRequest, res: Response): Promi
       return
     }
 
-    const startDate = next_billing_date;
-
-    console.log('🔄 [BACKEND CREATE] Creando suscripción:', {
-      user_id: req.user.userId,
-      name,
-      amount,
-      start_date: startDate,
-      next_billing_date: next_billing_date
-    })
+    const startDate = req.body.start_date || next_billing_date
 
     const result = await pool.query(
       `INSERT INTO subscriptions
-        (user_id, name, amount, currency, billing_cycle, start_date, next_billing_date, category_id, description, notes)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+        (user_id, name, description, amount, currency, billing_cycle, start_date, next_billing_date, category_id, payment_method, website_url, notes)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
        RETURNING *`,
       [
-        req.user.userId,
+        req.user!.userId,
         name,
+        description || "",
         amount,
-        currency,
+        currency || "USD",
         billing_cycle,
         startDate,
         next_billing_date,
         category_id,
-        description || '',
-        notes || ''
+        payment_method,
+        website_url,
+        notes || "",
       ],
     )
 
+    const created = result.rows[0]
+
     const completeSubscription = await pool.query(
-      `SELECT
-        s.*,
-        c.name as category_name,
-        c.color as category_color,
-        c.icon as category_icon
+      `SELECT s.*, c.name as category_name, c.color as category_color, c.icon as category_icon
         FROM subscriptions s
         LEFT JOIN categories c ON s.category_id = c.id
         WHERE s.id = $1`,
-      [result.rows[0].id]
+      [created.id]
     )
 
-    console.log('[BACKEND CREATE] Nueva suscripción creada:', completeSubscription.rows[0])
+    await createAuditLog(req, "CREATE", "subscription", created.id, { name, amount, billing_cycle })
 
-    // ✅ CREAR NOTIFICACIÓN AUTOMÁTICAMENTE - VERSIÓN SIMPLE
+    // Notificación automática de suscripción creada
     try {
-      console.log('🟡 [DEBUG] Intentando crear notificación para suscripción...')
-      
-      const notificationResult = await pool.query(
-        `INSERT INTO notifications 
-          (user_id, subscription_id, type, title, message, is_read, created_at)
-          VALUES ($1, $2, $3, $4, $5, $6, NOW())
-         RETURNING *`,
-        [
-          req.user.userId,
-          result.rows[0].id,
-          'subscription_created',
-          '📱 Nueva suscripción creada',
-          `Has agregado "${name}" por ${currency} ${amount} (${billing_cycle})`,
-          false
-        ]
+      const { NotificationGeneratorService } = await import("../services/notificationService.js")
+      await NotificationGeneratorService.createSubscriptionNotification(
+        req.user!.userId,
+        created.id,
+        name,
+        amount,
+        currency || "USD",
+        billing_cycle
       )
-      
-      console.log('🟢 [DEBUG] Notificación creada exitosamente:', notificationResult.rows[0])
     } catch (notificationError) {
-      console.error('🔴 [DEBUG] Error creando notificación:', notificationError)
+      console.error("Error creando notificación de suscripción:", notificationError)
     }
-    
+
     res.status(201).json({
-      message: "Subscription created successfully",
+      message: "Suscripción creada exitosamente",
       subscription: completeSubscription.rows[0],
     })
   } catch (error) {
-    console.error("[BACKEND CREATE] Error:", error)
-    res.status(500).json({ error: "Server error: " + (error instanceof Error ? error.message : 'Unknown error') })
+    console.error("Create subscription error:", error)
+    res.status(500).json({ error: "Error al crear suscripción: " + (error instanceof Error ? error.message : "Unknown error") })
   }
 }
 
 export const updateSubscription = async (req: AuthRequest, res: Response): Promise<void> => {
-  if (!req.user?.userId) {
-    res.status(401).json({ error: "User not authenticated" })
-    return
-  }
-
   const { id } = req.params
   const {
-    name, amount, currency, billing_cycle,
-    next_billing_date, category_id, description, notes, status
+    name,
+    description,
+    amount,
+    currency,
+    billing_cycle,
+    start_date,
+    next_billing_date,
+    category_id,
+    payment_method,
+    website_url,
+    notes,
+    status,
   } = req.body
 
   try {
-    console.log('🔄 [BACKEND UPDATE] Iniciando actualización:', {
-      id,
-      body: req.body,
-      user: req.user.userId
-    })
-
-    if (category_id !== undefined && !category_id) {
-      console.log('[BACKEND UPDATE] Error: category_id vacío')
-      res.status(400).json({ error: "La categoría es requerida" })
-      return
-    }
-
     const checkResult = await pool.query(
       "SELECT * FROM subscriptions WHERE id = $1 AND user_id = $2",
-      [id, req.user.userId]
+      [id, req.user!.userId]
     )
 
     if (checkResult.rows.length === 0) {
-      console.log('[BACKEND UPDATE] Suscripción no encontrada:', id)
-      res.status(404).json({ error: "Subscription not found" })
+      res.status(404).json({ error: "Suscripción no encontrada" })
       return
     }
 
-    console.log('[BACKEND UPDATE] Suscripción actual:', checkResult.rows[0])
+    if (category_id !== undefined && !category_id) {
+      res.status(400).json({ error: "La categoría es requerida" })
+      return
+    }
 
     if (category_id && category_id !== checkResult.rows[0].category_id) {
       const categoryCheck = await pool.query(
         `SELECT id FROM categories
           WHERE id = $1 AND (user_id = $2 OR user_id IS NULL)`,
-        [category_id, req.user.userId]
+        [category_id, req.user!.userId]
       )
 
       if (categoryCheck.rows.length === 0) {
-        console.log('[BACKEND UPDATE] Categoría no válida:', category_id)
         res.status(400).json({ error: "La categoría seleccionada no es válida" })
         return
       }
     }
 
-    const amountValue = amount !== undefined ? Number(amount) : checkResult.rows[0].amount
-    
-    console.log('[BACKEND UPDATE] Procesando monto:', {
-      amountRecibido: amount,
-      amountConvertido: amountValue,
-      tipo: typeof amountValue
-    })
-
-    const result = await pool.query(
+    await pool.query(
       `UPDATE subscriptions
-        SET name = $1,
-            amount = $2,
-            currency = $3,
-            billing_cycle = $4,
-            next_billing_date = $5,
-            category_id = $6,
-            description = $7,
-            notes = $8,
-            status = $9,
+        SET name = COALESCE($1, name),
+            description = COALESCE($2, description),
+            amount = COALESCE($3, amount),
+            currency = COALESCE($4, currency),
+            billing_cycle = COALESCE($5, billing_cycle),
+            start_date = COALESCE($6, start_date),
+            next_billing_date = COALESCE($7, next_billing_date),
+            category_id = COALESCE($8, category_id),
+            payment_method = COALESCE($9, payment_method),
+            website_url = COALESCE($10, website_url),
+            notes = COALESCE($11, notes),
+            status = COALESCE($12, status),
             updated_at = CURRENT_TIMESTAMP
-        WHERE id = $10 AND user_id = $11
+        WHERE id = $13 AND user_id = $14
        RETURNING *`,
       [
-        name !== undefined ? name : checkResult.rows[0].name,
-        amountValue,
-        currency !== undefined ? currency : checkResult.rows[0].currency,
-        billing_cycle !== undefined ? billing_cycle : checkResult.rows[0].billing_cycle,
-        next_billing_date !== undefined ? next_billing_date : checkResult.rows[0].next_billing_date,
-        category_id !== undefined ? category_id : checkResult.rows[0].category_id,
-        description !== undefined ? description : checkResult.rows[0].description,
-        notes !== undefined ? notes : checkResult.rows[0].notes,
-        status !== undefined ? status : checkResult.rows[0].status,
+        name,
+        description,
+        amount !== undefined ? Number(amount) : undefined,
+        currency,
+        billing_cycle,
+        start_date,
+        next_billing_date,
+        category_id,
+        payment_method,
+        website_url,
+        notes,
+        status,
         id,
-        req.user.userId
-      ]
+        req.user!.userId,
+      ],
     )
-
-    console.log('[BACKEND UPDATE] Suscripción actualizada en BD:', result.rows[0])
 
     const completeSubscription = await pool.query(
       `SELECT s.*, c.name as category_name, c.color as category_color, c.icon as category_icon
@@ -261,69 +248,64 @@ export const updateSubscription = async (req: AuthRequest, res: Response): Promi
       [id]
     )
 
-    console.log('[BACKEND UPDATE] Suscripción con categoría:', completeSubscription.rows[0])
+    await createAuditLog(req, "UPDATE", "subscription", id, req.body)
 
     res.json({
-      message: "Subscription updated successfully",
+      message: "Suscripción actualizada exitosamente",
       subscription: completeSubscription.rows[0],
     })
   } catch (error) {
-    console.error("[BACKEND UPDATE] Error completo:", error)
-    
-    if (error instanceof Error) {
-      console.error("[BACKEND UPDATE] Stack trace:", error.stack)
-      console.error("[BACKEND UPDATE] Mensaje:", error.message)
-    }
-    
-    res.status(500).json({
-      error: "Server error: " + (error instanceof Error ? error.message : 'Unknown error')
-    })
+    console.error("Update subscription error:", error)
+    res.status(500).json({ error: "Error al actualizar suscripción: " + (error instanceof Error ? error.message : "Unknown error") })
   }
 }
 
 export const deleteSubscription = async (req: AuthRequest, res: Response): Promise<void> => {
   const { id } = req.params
 
-  if (!req.user?.userId) {
-    res.status(401).json({ error: "User not authenticated" })
-    return
-  }
-
   try {
+    await pool.query("DELETE FROM debts WHERE subscription_id = $1 AND user_id = $2", [id, req.user!.userId])
+
     const result = await pool.query(
-      "UPDATE subscriptions SET status = $1 WHERE id = $2 AND user_id = $3 RETURNING *",
-      ["cancelled", id, req.user.userId]
+      "DELETE FROM subscriptions WHERE id = $1 AND user_id = $2 RETURNING *",
+      [id, req.user!.userId]
     )
 
     if (result.rows.length === 0) {
-      res.status(404).json({ error: "Subscription not found" })
+      res.status(404).json({ error: "Suscripción no encontrada" })
       return
     }
 
-    const completeSubscription = await pool.query(
-      `SELECT s.*, c.name as category_name, c.color as category_color, c.icon as category_icon
-        FROM subscriptions s
-        LEFT JOIN categories c ON s.category_id = c.id
-        WHERE s.id = $1`,
-      [id]
-    )
+    await createAuditLog(req, "DELETE", "subscription", id, { name: result.rows[0].name })
 
-    res.json({
-      message: "Subscription cancelled successfully",
-      subscription: completeSubscription.rows[0]
-    })
+    res.json({ message: "Suscripción eliminada permanentemente" })
   } catch (error) {
     console.error("Delete subscription error:", error)
-    res.status(500).json({ error: "Server error" })
+    res.status(500).json({ error: "Error al eliminar suscripción" })
+  }
+}
+
+export const getStatsSummary = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const result = await pool.query(
+      `SELECT
+          COUNT(*) as total_subscriptions,
+          SUM(CASE WHEN billing_cycle = 'monthly' THEN amount ELSE 0 END) as monthly_total,
+          SUM(CASE WHEN billing_cycle = 'yearly' THEN amount / 12 ELSE 0 END) as yearly_monthly_avg,
+          SUM(CASE WHEN status = 'active' THEN 1 ELSE 0 END) as active_count
+        FROM subscriptions
+        WHERE user_id = $1`,
+      [req.user!.userId],
+    )
+
+    res.json({ stats: result.rows[0] })
+  } catch (error) {
+    console.error("Get stats error:", error)
+    res.status(500).json({ error: "Failed to fetch statistics" })
   }
 }
 
 export const getDashboardStats = async (req: AuthRequest, res: Response): Promise<void> => {
-  if (!req.user?.userId) {
-    res.status(401).json({ error: "User not authenticated" })
-    return
-  }
-
   try {
     const statsQuery = `
       SELECT
@@ -344,7 +326,7 @@ export const getDashboardStats = async (req: AuthRequest, res: Response): Promis
       WHERE user_id = $1 AND status = 'active'
     `
 
-    const statsResult = await pool.query(statsQuery, [req.user.userId])
+    const statsResult = await pool.query(statsQuery, [req.user!.userId])
     const categoryQuery = `
       SELECT
         c.name,
@@ -362,7 +344,7 @@ export const getDashboardStats = async (req: AuthRequest, res: Response): Promis
       ORDER BY monthly_cost DESC
     `
 
-    const categoryResult = await pool.query(categoryQuery, [req.user.userId])
+    const categoryResult = await pool.query(categoryQuery, [req.user!.userId])
     const upcomingQuery = `
       SELECT s.*, c.name as category_name, c.color as category_color
       FROM subscriptions s
@@ -373,14 +355,26 @@ export const getDashboardStats = async (req: AuthRequest, res: Response): Promis
       ORDER BY s.next_billing_date ASC
     `
 
-    const upcomingResult = await pool.query(upcomingQuery, [req.user.userId])
-    const budgetResult = await pool.query("SELECT monthly_budget FROM users WHERE id = $1", [req.user.userId])
+    const upcomingResult = await pool.query(upcomingQuery, [req.user!.userId])
+    const budgetResult = await pool.query("SELECT monthly_budget FROM users WHERE id = $1", [req.user!.userId])
+
+    const debtResult = await pool.query(
+      `SELECT
+         COALESCE(SUM(amount), 0)::float AS total,
+         COUNT(*)::int AS count
+       FROM debts
+       WHERE user_id = $1 AND status = 'pending'`,
+      [req.user!.userId]
+    )
+
     res.json({
       stats: {
         monthlyTotal: Number.parseFloat(statsResult.rows[0].monthly_total || 0),
         yearlyTotal: Number.parseFloat(statsResult.rows[0].yearly_total || 0),
         totalSubscriptions: Number.parseInt(statsResult.rows[0].total_subscriptions || 0),
         monthlyBudget: Number.parseFloat(budgetResult.rows[0].monthly_budget || 0),
+        totalDebt: debtResult.rows[0].total,
+        pendingDebtCount: debtResult.rows[0].count,
       },
       categoryBreakdown: categoryResult.rows,
       upcomingPayments: upcomingResult.rows,

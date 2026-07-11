@@ -4,7 +4,7 @@ export class NotificationGeneratorService {
   static async generatePaymentReminders(): Promise<void> {
     try {
       console.log("Generando recordatorios de pago...")
-      
+
       const upcomingSubscriptions = await pool.query(
         `SELECT
           s.id, s.user_id, s.name, s.amount, s.currency, s.next_billing_date,
@@ -72,7 +72,7 @@ export class NotificationGeneratorService {
   static async generateBudgetAlerts(): Promise<void> {
     try {
       console.log("Verificando alertas de presupuesto...")
-      
+
       const usersExceedingBudget = await pool.query(
         `SELECT
           u.id as user_id,
@@ -106,9 +106,9 @@ export class NotificationGeneratorService {
 
         const monthlyTotal = Number(user.monthly_total);
         const monthlyBudget = Number(user.monthly_budget);
-        
+
         const usagePercentage = Math.round((monthlyTotal / monthlyBudget) * 100)
-        
+
         const existingAlert = await pool.query(
           `SELECT id FROM notifications
             WHERE user_id = $1 AND type = 'budget_alert'
@@ -138,20 +138,20 @@ export class NotificationGeneratorService {
     }
   }
 
-  // ✅ MÉTODO NUEVO PARA CREAR NOTIFICACIONES AL CREAR SUSCRIPCIONES
+  // Método para crear notificaciones al crear suscripciones
   static async createSubscriptionNotification(
-    userId: string, 
-    subscriptionId: string, 
-    subscriptionName: string, 
-    amount: number, 
-    currency: string, 
+    userId: string,
+    subscriptionId: string,
+    subscriptionName: string,
+    amount: number,
+    currency: string,
     billingCycle: string
   ): Promise<void> {
     try {
-      console.log(`📱 Creando notificación para nueva suscripción: ${subscriptionName}`)
-      
+      console.log(`Creando notificación para nueva suscripción: ${subscriptionName}`)
+
       const message = `Has agregado "${subscriptionName}" por ${currency} ${amount} (${billingCycle})`
-      
+
       await pool.query(
         `INSERT INTO notifications (user_id, subscription_id, type, title, message, created_at)
           VALUES ($1, $2, $3, $4, $5, NOW())`,
@@ -164,9 +164,9 @@ export class NotificationGeneratorService {
         ]
       )
 
-      console.log(`✅ Notificación creada exitosamente para: ${subscriptionName}`)
+      console.log(`Notificación creada exitosamente para: ${subscriptionName}`)
     } catch (error) {
-      console.error("❌ Error creando notificación de suscripción:", error)
+      console.error("Error creando notificación de suscripción:", error)
       throw error
     }
   }

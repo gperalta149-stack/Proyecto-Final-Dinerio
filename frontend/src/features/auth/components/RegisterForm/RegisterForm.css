@@ -1,0 +1,32 @@
+@import '../../styles/auth-variables.css';
+
+.auth-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--auth-spacing-sm);
+}
+
+.auth-field-error {
+  display: block;
+  margin-top: var(--auth-spacing-xs);
+  font-size: var(--text-sm);
+  color: #ef4444;
+}
+
+.auth-hint {
+  display: block;
+  margin-top: var(--auth-spacing-xs);
+  font-size: var(--text-sm);
+  color: var(--auth-text-tertiary);
+}
+
+.auth-valid-icon {
+  color: #22c55e;
+  margin-left: var(--auth-spacing-xs);
+}
+
+@media (max-width: 640px) {
+  .auth-row {
+    grid-template-columns: 1fr;
+  }
+}

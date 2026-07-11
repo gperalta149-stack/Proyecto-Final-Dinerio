@@ -1,0 +1,50 @@
+.ex-wrapper { width: 100%; }
+
+.ex-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 14px;
+}
+
+.ex-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.ex-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 10px 20px;
+  border-radius: 10px;
+  border: 1px solid var(--border-soft);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.ex-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-primary);
+}
+
+.ex-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.ex-btn.csv:hover:not(:disabled) {
+  border-color: var(--accent-1);
+  color: var(--accent-1);
+}
+
+.ex-note {
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+  opacity: 0.5;
+  margin-top: 8px;
+}

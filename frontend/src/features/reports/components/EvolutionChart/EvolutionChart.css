@@ -1,0 +1,68 @@
+/* frontend/src/features/reports/components/EvolutionChart/EvolutionChart.css */
+@import '../../styles/reports-variables.css';
+
+.evolution-chart {
+  width: 100%;
+}
+
+.evolution-empty {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--reports-text-tertiary);
+}
+
+.evolution-empty svg {
+  color: var(--reports-text-tertiary);
+  margin-bottom: 12px;
+}
+
+.evolution-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.evolution-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--reports-text-primary);
+}
+
+.evolution-stats {
+  display: flex;
+  gap: 24px;
+}
+
+.evolution-stat {
+  text-align: right;
+}
+
+.evolution-stat-label {
+  display: block;
+  font-size: 0.7rem;
+  color: var(--reports-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.evolution-stat-value {
+  display: block;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--reports-text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.evolution-chart-container {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.evolution-svg {
+  width: 100%;
+  min-width: 400px;
+  height: 220px;
+}

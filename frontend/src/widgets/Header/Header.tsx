@@ -1,0 +1,159 @@
+// frontend/src/widgets/Header/Header.tsx
+"use client"
+
+import type React from "react"
+import { useState, useEffect } from "react"
+import { Link, useLocation } from "react-router-dom"
+import { Bell, Menu, TrendingUp, TrendingDown, Minus, Loader2 } from "lucide-react"
+import { useExchangeRate } from "../../shared/hooks/useExchangeRate"
+import { notificationService } from "../../features/notifications/service/notificationService"
+import "./Header.css"
+
+// Mapeo de rutas a nombres y descripciones
+const PAGE_INFO: Record<string, { title: string; description: string }> = {
+  "/dashboard": { title: "Inicio", description: "Controla todos tus gastos recurrentes desde un solo lugar." },
+  "/subscriptions": { title: "Suscripciones", description: "Gestiona todas tus suscripciones activas." },
+  "/categories": { title: "Categorías", description: "Organiza tus suscripciones por categorías." },
+  "/calendar": { title: "Calendario", description: "Visualiza todos tus pagos programados." },
+  "/reports": { title: "Análisis", description: "Analiza la evolución de tus gastos." },
+  "/budget": { title: "Presupuesto", description: "Controla tu presupuesto mensual." },
+  "/debts": { title: "Deudas", description: "Gestiona tus pagos pendientes." },
+  "/profile": { title: "Perfil", description: "Administra tu información personal." },
+  "/notifications": { title: "Notificaciones", description: "Centro de notificaciones." },
+}
+
+interface HeaderProps {
+  onMenuToggle?: () => void
+  sidebarCollapsed?: boolean
+}
+
+export const Header: React.FC<HeaderProps> = ({ onMenuToggle, sidebarCollapsed = false }) => {
+  const location = useLocation()
+  const { rates, loading: rateLoading, forceUpdate } = useExchangeRate("oficial")
+  const [unreadCount, setUnreadCount] = useState(0)
+  const [refreshing, setRefreshing] = useState(false)
+  const [oficialAnimated, setOficialAnimated] = useState(false)
+  const [tarjetaAnimated, setTarjetaAnimated] = useState(false)
+
+  const sidebarWidth = sidebarCollapsed ? 64 : 256
+  const pageInfo = PAGE_INFO[location.pathname] || PAGE_INFO["/dashboard"]
+
+  useEffect(() => {
+    let mounted = true
+    const loadUnread = () => {
+      notificationService.getUnreadCount()
+        .then((count) => { if (mounted) setUnreadCount(count) })
+        .catch(() => { if (mounted) setUnreadCount(0) })
+    }
+    loadUnread()
+    const interval = setInterval(loadUnread, 60000)
+    return () => { mounted = false; clearInterval(interval) }
+  }, [])
+
+  // Detectar cambios en el dólar para animación
+  useEffect(() => {
+    if (!rateLoading && rates.oficialTrend && rates.oficialTrend !== 'same') {
+      setOficialAnimated(true)
+      setTimeout(() => setOficialAnimated(false), 500)
+    }
+  }, [rates.oficialTrend, rateLoading])
+
+  useEffect(() => {
+    if (!rateLoading && rates.tarjetaTrend && rates.tarjetaTrend !== 'same') {
+      setTarjetaAnimated(true)
+      setTimeout(() => setTarjetaAnimated(false), 500)
+    }
+  }, [rates.tarjetaTrend, rateLoading])
+
+  const formatRate = (value: number) => {
+    return value.toLocaleString('es-AR', { minimumFractionDigits: 0, maximumFractionDigits: 2 })
+  }
+
+  const handleRefresh = async () => {
+    if (refreshing) return
+    setRefreshing(true)
+    await forceUpdate()
+    setRefreshing(false)
+  }
+
+  // Componente de tendencia
+  const TrendIcon = ({ trend, animated }: { trend: string; animated: boolean }) => {
+    if (trend === 'up') {
+      return <TrendingUp size={12} className={`header-rate-trend up ${animated ? 'animated' : ''}`} />
+    }
+    if (trend === 'down') {
+      return <TrendingDown size={12} className={`header-rate-trend down ${animated ? 'animated' : ''}`} />
+    }
+    return <Minus size={12} className="header-rate-trend same" />
+  }
+
+  return (
+    <header 
+      className="header" 
+      style={{ 
+        left: window.innerWidth <= 768 ? 0 : sidebarWidth 
+      }}
+    >
+      <div className="header-content">
+        {/* HEADER LEFT - Título y descripción */}
+        <div className="header-left">
+          <button className="sidebar-toggle" onClick={onMenuToggle} aria-label="Toggle menu">
+            <Menu size={20} />
+          </button>
+          <div className="header-info">
+            <h1 className="header-title">{pageInfo.title}</h1>
+            <p className="header-description">{pageInfo.description}</p>
+          </div>
+        </div>
+
+        {/* HEADER RIGHT - Cotizaciones y notificaciones */}
+        <div className="header-right">
+          {/* Grupo de cotizaciones - click para actualizar */}
+          <div 
+            className="header-rate-group" 
+            onClick={handleRefresh} 
+            role="button" 
+            title="Actualizar cotización"
+          >
+            {/* Dólar Oficial - Compra y Venta con tendencia */}
+            <div className="header-rate">
+              <span className="header-rate-label">Oficial</span>
+              <div className="header-rate-values">
+                <span className="header-rate-compra">{formatRate(rates.oficialCompra)}</span>
+                <span className="header-rate-sep">/</span>
+                <span className="header-rate-venta">{formatRate(rates.oficialVenta)}</span>
+              </div>
+              <TrendIcon trend={rates.oficialTrend} animated={oficialAnimated} />
+            </div>
+
+            {/* Dólar Tarjeta - Compra y Venta con tendencia */}
+            <div className="header-rate">
+              <span className="header-rate-label">Tarjeta</span>
+              <div className="header-rate-values">
+                <span className="header-rate-compra">{formatRate(rates.tarjetaCompra)}</span>
+                <span className="header-rate-sep">/</span>
+                <span className="header-rate-venta">{formatRate(rates.tarjetaVenta)}</span>
+              </div>
+              <TrendIcon trend={rates.tarjetaTrend} animated={tarjetaAnimated} />
+            </div>
+
+            {/* Spinner de refresco */}
+            {refreshing && (
+              <span className="header-rate-spinner">
+                <Loader2 size={14} className="spinning" />
+              </span>
+            )}
+          </div>
+
+          {/* Notificaciones */}
+          <Link to="/notifications" className="header-notifications">
+            <Bell size={18} />
+            {unreadCount > 0 && (
+              <span className="header-notifications-badge">{unreadCount > 9 ? "9+" : unreadCount}</span>
+            )}
+          </Link>
+        </div>
+      </div>
+    </header>
+  )
+}

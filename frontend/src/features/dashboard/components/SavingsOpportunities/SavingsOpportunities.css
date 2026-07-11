@@ -1,0 +1,155 @@
+/* frontend/src/features/dashboard/components/SavingsOpportunities/SavingsOpportunities.css */
+@import '../../styles/dashboard-variables.css';
+
+.savings-container {
+  width: 100%;
+}
+
+.savings-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: var(--dashboard-text-tertiary);
+  height: 100%;
+  min-height: 140px;
+  padding: 40px 20px;
+}
+
+.savings-empty .empty-icon {
+  font-size: 2.5rem;
+  display: block;
+  margin-bottom: 10px;
+}
+
+.savings-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.savings-header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.savings-icon {
+  color: var(--dashboard-accent-1);
+}
+
+.savings-title {
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--dashboard-text-primary);
+}
+
+.savings-total {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  background: rgba(99, 102, 241, 0.1);
+  padding: 4px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(99, 102, 241, 0.2);
+}
+
+.savings-total-label {
+  font-size: 0.75rem;
+  color: var(--dashboard-text-tertiary);
+}
+
+.savings-total-value {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--dashboard-accent-1);
+  font-variant-numeric: tabular-nums;
+}
+
+.savings-total-period {
+  font-size: 0.75rem;
+  color: var(--dashboard-text-tertiary);
+}
+
+.savings-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.savings-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.savings-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(108, 99, 255, 0.35);
+  box-shadow: 0 0 16px rgba(108, 99, 255, 0.18);
+}
+
+.savings-item-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  flex: 1;
+}
+
+.savings-item-icon {
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+.savings-item-title {
+  font-weight: 500;
+  font-size: 0.9rem;
+  color: var(--dashboard-text-primary);
+}
+
+.savings-item-description {
+  font-size: 0.8rem;
+  color: var(--dashboard-text-tertiary);
+}
+
+.savings-item-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.savings-item-amount {
+  font-weight: 600;
+  font-size: 0.95rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.savings-item-action {
+  background: rgba(255, 255, 255, 0.05);
+  border: none;
+  color: var(--dashboard-text-secondary);
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.savings-item-action:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--dashboard-text-primary);
+}

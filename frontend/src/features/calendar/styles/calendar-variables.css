@@ -1,0 +1,22 @@
+/* frontend/src/features/calendar/styles/calendar-variables.css */
+:root {
+  --calendar-bg-primary: var(--bg-primary);
+  --calendar-bg-secondary: var(--bg-secondary);
+  --calendar-bg-card: var(--bg-card);
+  --calendar-bg-card-hover: var(--bg-card-hover);
+
+  --calendar-text-primary: var(--text-primary);
+  --calendar-text-secondary: var(--text-secondary);
+  --calendar-text-tertiary: var(--text-tertiary);
+
+  --calendar-accent-1: var(--accent-1);
+  --calendar-accent-2: var(--accent-2);
+  --calendar-green: var(--success);
+  --calendar-red: var(--danger);
+  --calendar-orange: var(--warning);
+
+  --calendar-border-subtle: var(--border-subtle);
+  --calendar-border-soft: var(--border-soft);
+
+  --calendar-shadow-card: var(--shadow-xl);
+}

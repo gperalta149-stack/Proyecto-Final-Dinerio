@@ -2,44 +2,50 @@ import { Response } from "express"
 import { pool } from "../config/database.js"
 import type { AuthRequest } from "../types/index.js"
 
-
 export const getNotifications = async (req: AuthRequest, res: Response): Promise<void> => {
-  if (!req.user?.userId) {
-    res.status(401).json({ error: "User not authenticated" })
-    return
-  }
-
   try {
     const result = await pool.query(
-      `SELECT * FROM notifications
-        WHERE user_id = $1
-        ORDER BY created_at DESC
+      `SELECT n.*, s.name as subscription_name
+        FROM notifications n
+        LEFT JOIN subscriptions s ON n.subscription_id = s.id
+        WHERE n.user_id = $1
+        ORDER BY n.created_at DESC
         LIMIT 50`,
-      [req.user.userId]
+      [req.user!.userId],
     )
 
-    res.json(result.rows)
+    res.json({ notifications: result.rows })
   } catch (error) {
     console.error("Get notifications error:", error)
     res.status(500).json({ error: "Error al obtener notificaciones" })
   }
 }
 
-export const markAsRead = async (req: AuthRequest, res: Response): Promise<void> => {
-  if (!req.user?.userId) {
-    res.status(401).json({ error: "User not authenticated" })
-    return
-  }
-
-  const { id } = req.params
-
+export const getUnreadCount = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
+    const result = await pool.query(
+      `SELECT COUNT(*) as count
+        FROM notifications
+        WHERE user_id = $1 AND is_read = false`,
+      [req.user!.userId],
+    )
+
+    res.json({ count: Number.parseInt(result.rows[0].count) })
+  } catch (error) {
+    console.error("Get unread count error:", error)
+    res.status(500).json({ error: "Error al obtener contador" })
+  }
+}
+
+export const markAsRead = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params
     const result = await pool.query(
       `UPDATE notifications
         SET is_read = true
         WHERE id = $1 AND user_id = $2
        RETURNING *`,
-      [id, req.user.userId]
+      [id, req.user!.userId],
     )
 
     if (result.rows.length === 0) {
@@ -50,27 +56,58 @@ export const markAsRead = async (req: AuthRequest, res: Response): Promise<void>
     res.json({ message: "Notificación marcada como leída", notification: result.rows[0] })
   } catch (error) {
     console.error("Mark as read error:", error)
-    res.status(500).json({ error: "Error al marcar notificación como leída" })
+    res.status(500).json({ error: "Error al marcar notificación" })
   }
 }
 
-export const createNotification = async (req: AuthRequest, res: Response): Promise<void> => {
-  if (!req.user?.userId) {
-    res.status(401).json({ error: "User not authenticated" })
-    return
+export const markAllAsRead = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    await pool.query(
+      `UPDATE notifications
+        SET is_read = true
+        WHERE user_id = $1 AND is_read = false`,
+      [req.user!.userId],
+    )
+
+    res.json({ message: "Todas las notificaciones marcadas como leídas" })
+  } catch (error) {
+    console.error("Mark all as read error:", error)
+    res.status(500).json({ error: "Error al marcar notificaciones" })
   }
+}
 
+export const deleteNotification = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params
+    const result = await pool.query("DELETE FROM notifications WHERE id = $1 AND user_id = $2 RETURNING id", [
+      id,
+      req.user!.userId,
+    ])
+
+    if (result.rows.length === 0) {
+      res.status(404).json({ error: "Notificación no encontrada" })
+      return
+    }
+
+    res.json({ message: "Notificación eliminada" })
+  } catch (error) {
+    console.error("Delete notification error:", error)
+    res.status(500).json({ error: "Error al eliminar notificación" })
+  }
+}
+
+// Creación manual de notificaciones (no estaba conectada a ninguna ruta en el código original,
+// se preserva por si el frontend la necesita)
+export const createNotification = async (req: AuthRequest, res: Response): Promise<void> => {
   const { type, title, message, subscription_id } = req.body
-
   try {
     const result = await pool.query(
       `INSERT INTO notifications
         (user_id, subscription_id, type, title, message)
         VALUES ($1, $2, $3, $4, $5)
        RETURNING *`,
-      [req.user.userId, subscription_id, type, title, message]
+      [req.user!.userId, subscription_id, type, title, message]
     )
-
     res.status(201).json({
       message: "Notificación creada exitosamente",
       notification: result.rows[0]
@@ -78,5 +115,37 @@ export const createNotification = async (req: AuthRequest, res: Response): Promi
   } catch (error) {
     console.error("Create notification error:", error)
     res.status(500).json({ error: "Error al crear notificación" })
+  }
+}
+
+export const testGenerateNotifications = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    if (process.env.NODE_ENV !== 'development') {
+      res.status(403).json({ error: "Solo disponible en desarrollo" })
+      return
+    }
+
+    const { NotificationGeneratorService } = await import("../services/notificationService.js")
+
+    await NotificationGeneratorService.generatePaymentReminders()
+    await NotificationGeneratorService.generateBudgetAlerts()
+
+    const result = await pool.query(
+      `SELECT n.*, s.name as subscription_name
+        FROM notifications n
+        LEFT JOIN subscriptions s ON n.subscription_id = s.id
+        WHERE n.user_id = $1
+        ORDER BY n.created_at DESC
+        LIMIT 10`,
+      [req.user!.userId]
+    )
+
+    res.json({
+      message: "Notificaciones de prueba generadas",
+      notifications: result.rows
+    })
+  } catch (error) {
+    console.error("Test generation error:", error)
+    res.status(500).json({ error: "Error generando notificaciones de prueba" })
   }
 }

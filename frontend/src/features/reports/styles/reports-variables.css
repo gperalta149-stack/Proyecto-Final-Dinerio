@@ -1,0 +1,22 @@
+/* frontend/src/features/reports/styles/reports-variables.css */
+.analysis-page {
+  --reports-bg-primary: var(--bg-primary);
+  --reports-bg-secondary: var(--bg-secondary);
+  --reports-bg-card: var(--bg-card);
+
+  --reports-text-primary: var(--text-primary);
+  --reports-text-secondary: var(--text-secondary);
+  --reports-text-tertiary: var(--text-tertiary);
+
+  --reports-border-subtle: var(--border-subtle);
+  --reports-border-soft: var(--border-soft);
+
+  --reports-accent-1: var(--accent-1);
+  --reports-accent-2: var(--accent-2);
+
+  --reports-green: var(--success);
+  --reports-red: var(--danger);
+  --reports-orange: var(--warning);
+
+  --reports-shadow-card: var(--shadow-xl);
+}

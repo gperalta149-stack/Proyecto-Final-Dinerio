@@ -1,0 +1,10 @@
+/* frontend/src/shared/styles/index.css
+   Design System Unificado - Dinerio
+   Importar en main.tsx para activar los estilos globales */
+@import './variables.css';
+@import './utilities.css';
+@import './layout.css';
+@import './cards.css';
+@import './forms.css';
+@import './badges.css';
+@import './empty-state.css';

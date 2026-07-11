@@ -11,7 +11,7 @@ const generateToken = (userId: string, email: string, name?: string): string => 
   if (!jwtSecret) {
     throw new Error("JWT_SECRET no está definido")
   }
-  
+
   return jwt.sign({ userId, email, name }, jwtSecret, {
     expiresIn: "7d",
   })
@@ -44,9 +44,9 @@ export const register = async (req: AuthRequest, res: Response): Promise<void> =
     )
 
     const user = result.rows[0]
-    
+
     const fullName = `${user.first_name} ${user.last_name}`.trim()
-    
+
     const token = generateToken(user.id, user.email, fullName)
 
     res.status(201).json({
@@ -69,9 +69,9 @@ export const login = async (req: AuthRequest, res: Response): Promise<void> => {
 
   try {
     console.log("Login attempt for:", email)
-    
+
     const result = await pool.query(
-      "SELECT id, email, password, first_name, last_name, monthly_budget FROM users WHERE email = $1", 
+      "SELECT id, email, password, first_name, last_name, monthly_budget FROM users WHERE email = $1",
       [email]
     )
 
@@ -82,10 +82,10 @@ export const login = async (req: AuthRequest, res: Response): Promise<void> => {
     }
 
     const user = result.rows[0]
-    
+
     // Crear nombre completo
     const fullName = `${user.first_name} ${user.last_name}`.trim()
-    
+
     console.log("User found:", {
       id: user.id,
       email: user.email,

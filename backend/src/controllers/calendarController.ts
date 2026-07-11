@@ -1,11 +1,10 @@
 import { Request, Response } from 'express';
-import { SubscriptionModel } from '../models/Subscription';
+import { SubscriptionModel } from '../models/Subscription.js';
 
 export const getCalendarEvents = async (req: Request, res: Response) => {
   try {
     const userId = (req as any).user.id;
     const { month, year } = req.query;
-
     let query = `
       SELECT
         s.id,
@@ -22,23 +21,19 @@ export const getCalendarEvents = async (req: Request, res: Response) => {
       LEFT JOIN categories c ON s.category_id = c.id
       WHERE s.user_id = $1 AND s.status = 'active'
     `;
-
     const params: any[] = [userId];
-
     // Se va a filtrar por mes y año si se proporcionan
     if (month && year) {
       const startDate = new Date(parseInt(year as string), parseInt(month as string) - 1, 1);
       const endDate = new Date(parseInt(year as string), parseInt(month as string), 0);
-      
+
       query += ` AND s.next_billing_date BETWEEN $2 AND $3`;
       params.push(startDate.toISOString().split('T')[0]);
       params.push(endDate.toISOString().split('T')[0]);
     }
-
     query += ` ORDER BY s.next_billing_date ASC`;
-
     const result = await SubscriptionModel.findByQuery(query, params);
-    
+
     const events = result.map((sub: any) => ({
       id: sub.id,
       title: sub.name,
@@ -52,7 +47,6 @@ export const getCalendarEvents = async (req: Request, res: Response) => {
       category_color: sub.category_color,
       type: 'payment'
     }));
-
     res.json(events);
   } catch (error) {
     console.error('Error fetching calendar events:', error);
@@ -64,12 +58,10 @@ export const getUpcomingPayments = async (req: Request, res: Response) => {
   try {
     const userId = (req as any).user.id;
     const { days = 30 } = req.query;
-
     const subscriptions = await SubscriptionModel.getUpcomingSubscriptions(
       userId,
       parseInt(days as string)
     );
-
     const payments = subscriptions.map((sub: any) => ({
       id: sub.id,
       name: sub.name,
@@ -80,7 +72,6 @@ export const getUpcomingPayments = async (req: Request, res: Response) => {
       categoryName: sub.category_name,
       categoryColor: sub.category_color
     }));
-
     res.json(payments);
   } catch (error) {
     console.error('Error fetching upcoming payments:', error);

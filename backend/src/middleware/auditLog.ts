@@ -10,7 +10,6 @@ export const createAuditLog = async (
 ) => {
   try {
     const ipAddress = req.ip || req.headers["x-forwarded-for"] || req.connection.remoteAddress
-
     await pool.query(
       `INSERT INTO audit_logs (user_id, action, entity_type, entity_id, details, ip_address)
         VALUES ($1, $2, $3, $4, $5, $6)`,

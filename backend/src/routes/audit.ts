@@ -4,13 +4,11 @@ import { authenticate } from "../middleware/auth.js"
 import type { AuthRequest } from "../types/index.js"
 
 const router = Router()
-
 router.use(authenticate)
 
 router.get("/", async (req: AuthRequest, res: Response) => {
   try {
     const { limit = 50, offset = 0 } = req.query
-
     const result = await pool.query(
       `SELECT a.*, u.email as user_email, u.first_name, u.last_name
         FROM audit_logs a
@@ -20,7 +18,6 @@ router.get("/", async (req: AuthRequest, res: Response) => {
         LIMIT $2 OFFSET $3`,
       [req.user!.userId, limit, offset],
     )
-
     res.json({ audit_logs: result.rows })
   } catch (error) {
     console.error("Get audit logs error:", error)
@@ -31,7 +28,6 @@ router.get("/", async (req: AuthRequest, res: Response) => {
 router.get("/entity/:entityType/:entityId", async (req: AuthRequest, res: Response) => {
   try {
     const { entityType, entityId } = req.params
-
     const result = await pool.query(
       `SELECT a.*, u.email as user_email, u.first_name, u.last_name
         FROM audit_logs a
@@ -40,7 +36,6 @@ router.get("/entity/:entityType/:entityId", async (req: AuthRequest, res: Respon
         ORDER BY a.created_at DESC`,
       [entityType, entityId, req.user!.userId],
     )
-
     res.json({ audit_logs: result.rows })
   } catch (error) {
     console.error("Get entity audit logs error:", error)

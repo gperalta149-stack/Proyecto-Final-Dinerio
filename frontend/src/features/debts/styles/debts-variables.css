@@ -1,0 +1,23 @@
+/* frontend/src/features/debts/styles/debts-variables.css */
+.debt-page {
+  --debt-bg-primary: var(--bg-primary);
+  --debt-bg-secondary: var(--bg-secondary);
+  --debt-bg-card: var(--bg-card);
+  --debt-bg-card-hover: var(--bg-card-hover);
+
+  --debt-text-primary: var(--text-primary);
+  --debt-text-secondary: var(--text-secondary);
+  --debt-text-tertiary: var(--text-tertiary);
+
+  --debt-accent-1: var(--accent-1);
+  --debt-accent-2: var(--accent-2);
+
+  --debt-green: var(--success);
+  --debt-red: var(--danger);
+  --debt-orange: var(--warning);
+  --debt-yellow: #eab308;
+
+  --debt-border-subtle: var(--border-subtle);
+  --debt-border-soft: var(--border-soft);
+  --debt-shadow-card: var(--shadow-xl);
+}

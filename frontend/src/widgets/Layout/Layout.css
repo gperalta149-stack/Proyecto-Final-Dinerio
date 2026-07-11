@@ -1,0 +1,56 @@
+/* frontend/src/widgets/Layout/Layout.css */
+@import '../../shared/styles/variables.css';
+
+.layout {
+  display: flex;
+  min-height: 100vh;
+  background: var(--color-bg-primary);
+}
+
+/* ===== MAIN CONTENT ===== */
+.layout-main {
+  flex: 1;
+  min-height: 100vh;
+  padding-top: 72px;
+  margin-left: 256px;
+  transition: margin-left var(--transition-base);
+  background: var(--color-bg-primary);
+}
+
+.layout-main.collapsed {
+  margin-left: 64px;
+}
+
+/* ===== CONTENT ===== */
+.layout-content {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: var(--space-6);
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .layout-main {
+    padding-top: 64px;
+    margin-left: 0 !important;
+  }
+
+  .layout-content {
+    padding: var(--space-4);
+  }
+
+  .mobile-menu-open::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: var(--bg-overlay);
+    z-index: 49;
+  }
+}
+
+@media (max-width: 480px) {
+  .layout-content {
+    padding: var(--space-3);
+  }
+}

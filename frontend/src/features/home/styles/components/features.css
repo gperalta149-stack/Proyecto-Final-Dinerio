@@ -1,0 +1,120 @@
+/* frontend/src/features/home/styles/components/features.css */
+
+.features {
+  background: var(--bg-secondary);
+  position: relative;
+  overflow: hidden;
+  padding: var(--space-8) 0;
+}
+
+.features .section-header {
+  margin-bottom: var(--space-7);
+  padding-top: var(--space-4);
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: var(--space-4);
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.feature-card {
+  padding: var(--space-5);
+  composes: card card-hover from '../../../shared/styles/utilities.css';
+  position: relative;
+  overflow: hidden;
+}
+
+.feature-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--gradient-primary);
+  opacity: 0;
+  transition: opacity var(--transition-base);
+}
+
+.feature-card:hover::before {
+  opacity: 1;
+}
+
+.feature-card-glow {
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle at center, rgba(99, 102, 241, 0.05), transparent 60%);
+  opacity: 0;
+  transition: opacity var(--transition-base);
+  pointer-events: none;
+}
+
+.feature-card:hover .feature-card-glow {
+  opacity: 1;
+}
+
+.feature-icon-wrapper {
+  width: 56px;
+  height: 56px;
+  background: rgba(99, 102, 241, 0.1);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: var(--space-4);
+  color: var(--accent-1);
+  transition: all var(--transition-base);
+  position: relative;
+  z-index: 1;
+}
+
+.feature-card:hover .feature-icon-wrapper {
+  transform: scale(1.05) rotate(-3deg);
+  background: rgba(99, 102, 241, 0.2);
+  box-shadow: var(--glow-primary);
+}
+
+.feature-title {
+  font-size: var(--text-xl);
+  font-weight: var(--font-semibold);
+  margin-bottom: var(--space-2);
+  position: relative;
+  z-index: 1;
+}
+
+.feature-description {
+  color: var(--text-secondary);
+  line-height: var(--leading-relaxed);
+  font-size: var(--text-base);
+  position: relative;
+  z-index: 1;
+}
+
+.feature-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  color: var(--accent-1);
+  text-decoration: none;
+  font-weight: var(--font-medium);
+  margin-top: var(--space-4);
+  position: relative;
+  z-index: 1;
+  transition: all var(--transition-base);
+}
+
+.feature-link:hover {
+  gap: var(--space-2);
+  color: var(--accent-2);
+}
+
+.feature-link:focus-visible {
+  outline: 2px solid var(--accent-1);
+  outline-offset: 4px;
+}

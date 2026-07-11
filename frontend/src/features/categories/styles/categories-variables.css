@@ -1,0 +1,20 @@
+/* frontend/src/features/categories/styles/categories-variables.css */
+:root {
+  --cat-bg-primary: var(--bg-primary);
+  --cat-bg-secondary: var(--bg-secondary);
+  --cat-bg-card: var(--bg-card);
+  --cat-bg-card-hover: var(--bg-card-hover);
+
+  --cat-text-primary: var(--text-primary);
+  --cat-text-secondary: var(--text-secondary);
+  --cat-text-tertiary: var(--text-tertiary);
+
+  --cat-accent-1: var(--accent-1);
+  --cat-accent-2: var(--accent-2);
+  --cat-green: var(--success);
+  --cat-red: var(--danger);
+
+  --cat-border-subtle: var(--border-subtle);
+  --cat-border-soft: var(--border-soft);
+  --cat-shadow-card: var(--shadow-xl);
+}

@@ -1,0 +1,30 @@
+.dashboard-page {
+  --dashboard-bg-primary: var(--bg-primary);
+  --dashboard-bg-secondary: var(--bg-secondary);
+  --dashboard-bg-card: var(--bg-card);
+  --dashboard-bg-card-hover: var(--bg-card-hover);
+
+  --dashboard-text-primary: var(--text-primary);
+  --dashboard-text-secondary: var(--text-secondary);
+  --dashboard-text-tertiary: var(--text-tertiary);
+
+  --dashboard-accent-1: var(--accent-1);
+  --dashboard-accent-2: var(--accent-2);
+  --dashboard-accent-3: var(--accent-3);
+
+  --dashboard-border-subtle: var(--border-subtle);
+  --dashboard-border-soft: var(--border-soft);
+
+  --dashboard-shadow-card: var(--shadow-xl);
+  --dashboard-shadow-glow: var(--glow-primary);
+
+  --kpi-color-spent: var(--accent-1);
+  --kpi-color-subscriptions: var(--accent-2);
+  --kpi-color-next-payment: var(--accent-3);
+  --kpi-color-budget: var(--success);
+
+  --kpi-bg-spent: rgba(99, 102, 241, 0.1);
+  --kpi-bg-subscriptions: rgba(139, 92, 246, 0.1);
+  --kpi-bg-next-payment: rgba(6, 182, 212, 0.1);
+  --kpi-bg-budget: rgba(34, 197, 94, 0.1);
+}
