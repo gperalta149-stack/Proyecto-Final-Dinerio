@@ -1,0 +1,93 @@
+@import '../../styles/subscriptions-variables.css';
+
+.view-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+.view-modal {
+  background: var(--bg-secondary);
+  border: 1px solid var(--subs-border-soft);
+  border-radius: 16px;
+  width: 100%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.view-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--subs-border-subtle);
+}
+
+.view-modal-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--subs-accent-1);
+}
+
+.view-modal-title h2 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--subs-text-primary);
+  margin: 0;
+}
+
+.view-modal-close {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: var(--subs-text-tertiary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.view-modal-close:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--subs-text-primary);
+}
+
+.view-modal-body {
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.view-modal-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.view-modal-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  color: var(--subs-text-tertiary);
+  white-space: nowrap;
+}
+
+.view-modal-value {
+  font-size: 0.88rem;
+  color: var(--subs-text-primary);
+  font-weight: 500;
+  text-align: right;
+  word-break: break-all;
+}

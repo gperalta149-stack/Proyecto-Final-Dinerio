@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import { getCalendarEvents, getUpcomingPayments } from '../controllers/calendarController';
-import { authenticate } from '../middleware/auth';
+import { getCalendarEvents, getUpcomingPayments } from '../controllers/calendarController.js';
+import { authenticate } from '../middleware/auth.js';
 
 const router = Router();
 

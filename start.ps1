@@ -11,7 +11,7 @@ if (-not (Test-Path "package.json")) {
     exit 1
 }
 
-Write-Host "✅ Directorio correcto: $(Get-Location)" -ForegroundColor Green
+Write-Host "Directorio correcto: $(Get-Location)" -ForegroundColor Green
 
 # Verificar node_modules
 if (-not (Test-Path "node_modules")) {

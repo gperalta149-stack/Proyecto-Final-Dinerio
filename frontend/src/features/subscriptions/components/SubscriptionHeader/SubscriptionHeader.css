@@ -1,0 +1,64 @@
+@import '../../styles/subscriptions-variables.css';
+
+.subs-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 32px;
+}
+
+.subs-header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.subs-header-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: rgba(99, 102, 241, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--subs-accent-1);
+}
+
+.subs-header-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--subs-text-primary);
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+.subs-header-subtitle {
+  color: var(--subs-text-secondary);
+  font-size: 0.95rem;
+  margin-top: 2px;
+}
+
+.subs-add-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 10px;
+  background: var(--subs-accent-1);
+  color: white;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.subs-add-button:hover {
+  background: var(--subs-accent-2);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(99, 102, 241, 0.3);
+}
+
+.subs-add-button:active {
+  transform: scale(0.97);
+}

@@ -1,0 +1,202 @@
+/* frontend/src/features/notifications/components/NotificationCard/NotificationCard.css */
+@import '../../styles/notifications-variables.css';
+
+.notification-card {
+  background: var(--notif-bg-card);
+  border: 1px solid var(--notif-border-subtle);
+  border-radius: 12px;
+  padding: 16px 20px;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.notification-card.unread {
+  border-color: rgba(99, 102, 241, 0.3);
+  background: rgba(99, 102, 241, 0.03);
+}
+
+.notification-card:hover {
+  background: var(--notif-bg-card-hover);
+  border-color: var(--notif-border-soft);
+}
+
+.notification-card-content {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+.notification-card-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.notification-card-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.notification-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+
+.notification-card-title-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.notification-card-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--notif-text-primary);
+  margin: 0;
+}
+
+.notification-card-unread-dot {
+  width: 8px;
+  height: 8px;
+  background: var(--notif-accent-1);
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.notification-card-priority {
+  font-size: 0.6rem;
+  font-weight: 500;
+  padding: 1px 8px;
+  border-radius: 4px;
+}
+
+.notification-card-priority.critical {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+}
+
+.notification-card-priority.high {
+  background: rgba(245, 158, 11, 0.15);
+  color: #f59e0b;
+}
+
+.notification-card-priority.medium {
+  background: rgba(99, 102, 241, 0.15);
+  color: var(--notif-accent-1);
+}
+
+.notification-card-priority.low {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--notif-text-tertiary);
+}
+
+.notification-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.notification-card-time {
+  font-size: 0.75rem;
+  color: var(--notif-text-tertiary);
+}
+
+.notification-card-menu-btn {
+  padding: 4px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: var(--notif-text-tertiary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.notification-card-menu-btn:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--notif-text-primary);
+}
+
+.notification-card-message {
+  color: var(--notif-text-secondary);
+  font-size: 0.9rem;
+  margin: 4px 0 8px 0;
+  line-height: 1.5;
+}
+
+.notification-card-footer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.notification-card-type {
+  font-size: 0.7rem;
+  color: var(--notif-text-tertiary);
+  text-transform: capitalize;
+}
+
+.notification-card-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--notif-border-subtle);
+  background: transparent;
+  color: var(--notif-text-secondary);
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.notification-card-action:hover {
+  border-color: var(--notif-border-soft);
+  color: var(--notif-text-primary);
+}
+
+.notification-card-menu {
+  position: absolute;
+  top: 48px;
+  right: 16px;
+  background: var(--notif-bg-secondary);
+  border: 1px solid var(--notif-border-subtle);
+  border-radius: 8px;
+  padding: 4px;
+  box-shadow: var(--notif-shadow-card);
+  z-index: 10;
+  min-width: 140px;
+}
+
+.notification-card-menu button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 12px;
+  border: none;
+  background: transparent;
+  color: var(--notif-text-secondary);
+  font-size: 0.85rem;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.notification-card-menu button:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--notif-text-primary);
+}
+
+.notification-card-menu button.danger:hover {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--notif-red);
+}

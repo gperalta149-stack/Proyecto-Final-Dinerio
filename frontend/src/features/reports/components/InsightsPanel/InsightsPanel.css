@@ -1,0 +1,49 @@
+.ip-wrapper { width: 100%; }
+
+.ip-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 16px;
+}
+
+.ip-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ip-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.ip-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.ip-text {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.ip-text strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.insight-highlight {
+  color: var(--text-primary);
+  font-weight: 700;
+}

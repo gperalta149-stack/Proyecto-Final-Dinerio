@@ -1,57 +1,48 @@
-
 -- 1. USUARIOS POR DEFECTO
-
-
 -- Eliminar usuarios existentes para evitar conflictos
 DELETE FROM users WHERE email IN ('admin@dinerio.com', 'usuario@ejemplo.com', 'maria.garcia@ejemplo.com');
-
 -- Usuario administrador
 -- Contraseña: Admin2025*
-INSERT INTO users (id, email, password, first_name, last_name, role, monthly_budget, currency) 
+INSERT INTO users (id, email, password, first_name, last_name, role, monthly_budget, currency)
 VALUES (
   'a1b2c3d4-1234-5678-9000-000000000001'::UUID,
   'admin@dinerio.com',
-  '$2a$10$IARX42kkp.OsWCeXJFwAEOi/PHCmeVtyLNlJwy2JxW7UjOjVX.2Le', -- ← Pega aquí el hash de Admin2025*
+  '$2a$10$IARX42kkp.OsWCeXJFwAEOi/PHCmeVtyLNlJwy2JxW7UjOjVX.2Le',
   'Admin',
   'Sistema',
   'admin',
   1500.00,
   'USD'
 );
-
 -- usuario@ejemplo.com
 -- Contraseña: Vane123.
 INSERT INTO users (id, email, password, first_name, last_name, role, monthly_budget, currency)
 VALUES (
   'b2c3d4e5-2345-6789-9000-000000000002'::UUID,
   'usuario@ejemplo.com',
-  '$2a$10$XaoSYdaBDkfQf9wDlWRg7.AaH6zv/1MRnB8W0DsR.g9L57NOjLKkG', -- ← Pega aquí el hash de Password123
+  '$2a$10$XaoSYdaBDkfQf9wDlWRg7.AaH6zv/1MRnB8W0DsR.g9L57NOjLKkG',
   'Juan',
   'Pérez',
   'user',
   800.00,
   'USD'
 );
-
 -- maria.garcia@ejemplo.com
 -- Contraseña: Password123
-INSERT INTO users (id, email, password, first_name, last_name, role, monthly_budget, currency) 
+INSERT INTO users (id, email, password, first_name, last_name, role, monthly_budget, currency)
 VALUES (
   'c3d4e5f6-3456-7890-9000-000000000003'::UUID,
   'maria.garcia@ejemplo.com',
-  '$2a$10$XaoSYdaBDkfQf9wDlWRg7.AaH6zv/1MRnB8W0DsR.g9L57NOjLKkG', -- ← Mismo hash de Password123
+  '$2a$10$XaoSYdaBDkfQf9wDlWRg7.AaH6zv/1MRnB8W0DsR.g9L57NOjLKkG',
   'María',
   'García',
   'user',
   600.00,
   'USD'
 );
-
 -- 2. SUSCRIPCIONES DE EJEMPLO PARA USUARIO
-
 -- Eliminar suscripciones existentes del usuario demo
 DELETE FROM subscriptions WHERE user_id = 'b2c3d4e5-2345-6789-9000-000000000002'::UUID;
-
 INSERT INTO subscriptions (
   user_id,
   category_id,
@@ -79,12 +70,10 @@ SELECT
   'active',
   'Visa **** 1234',
   'https://netflix.com'
-
 UNION ALL
-
 SELECT
   'b2c3d4e5-2345-6789-9000-000000000002'::UUID,
-  (SELECT id FROM categories WHERE name = 'Entretenimiento' LIMIT 1),  -- ✅ EXACTO
+  (SELECT id FROM categories WHERE name = 'Entretenimiento' LIMIT 1),
   'Disney+ Annual',
   'Suscripción anual con todos los contenidos',
   79.99,
@@ -95,9 +84,7 @@ SELECT
   'active',
   'Mastercard **** 5678',
   'https://disneyplus.com'
-
 UNION ALL
-
 SELECT
   'b2c3d4e5-2345-6789-9000-000000000002'::UUID,
   (SELECT id FROM categories WHERE name = 'Música' LIMIT 1),
@@ -112,13 +99,43 @@ SELECT
   'PayPal',
   'https://spotify.com';
 
-  INSERT INTO categories (name, color, icon) VALUES
-  ('Entretenimiento', '#E50914', '🎬'),
-  ('Música', '#1DB954', '🎵'),
+INSERT INTO categories (name, color, icon) VALUES
+  ('Streaming', '#E50914', '🎬'),
   ('Software', '#0078D4', '💻'),
   ('Juegos', '#5865F2', '🎮'),
-  ('Impuestos', '#4285F4', '☁️'),
-  ('Educación', '#FFA500', '📚'),
-  ('Productividad', '#7C3AED', '⚡'),
-  ('Otros', '#6B7280', '📦')
-ON CONFLICT DO NOTHING;
+  ('Educación', '#F59E0B', '📚')
+ON CONFLICT (name) DO NOTHING;
+
+-- 3. DEUDAS DE EJEMPLO (pagos vencidos / no cubiertos)
+DELETE FROM debts WHERE user_id = 'b2c3d4e5-2345-6789-9000-000000000002'::UUID;
+
+INSERT INTO debts (user_id, category_id, name, amount, currency, due_date, status)
+VALUES
+  (
+    'b2c3d4e5-2345-6789-9000-000000000002'::UUID,
+    (SELECT id FROM categories WHERE name = 'Entretenimiento' LIMIT 1),
+    'HBO Max', 4990.00, 'ARS', CURRENT_DATE - INTERVAL '12 days', 'pending'
+  ),
+  (
+    'b2c3d4e5-2345-6789-9000-000000000002'::UUID,
+    (SELECT id FROM categories WHERE name = 'Entretenimiento' LIMIT 1),
+    'Netflix', 3990.00, 'ARS', CURRENT_DATE - INTERVAL '5 days', 'pending'
+  ),
+  (
+    'b2c3d4e5-2345-6789-9000-000000000002'::UUID,
+    (SELECT id FROM categories WHERE name = 'Software' LIMIT 1),
+    'Microsoft 365', 3510.00, 'ARS', CURRENT_DATE + INTERVAL '1 day', 'pending'
+  ),
+  (
+    'b2c3d4e5-2345-6789-9000-000000000002'::UUID,
+    (SELECT id FROM categories WHERE name = 'Música' LIMIT 1),
+    'Spotify', 2100.00, 'ARS', CURRENT_DATE - INTERVAL '20 days', 'paid'
+  ),
+  (
+    'b2c3d4e5-2345-6789-9000-000000000002'::UUID,
+    (SELECT id FROM categories WHERE name = 'Otros' LIMIT 1),
+    'Gym Urbano', 7200.00, 'ARS', CURRENT_DATE - INTERVAL '18 days', 'paid'
+  );
+
+UPDATE debts SET paid_at = due_date + INTERVAL '3 days' WHERE name = 'Spotify' AND status = 'paid';
+UPDATE debts SET paid_at = due_date + INTERVAL '1 day' WHERE name = 'Gym Urbano' AND status = 'paid';

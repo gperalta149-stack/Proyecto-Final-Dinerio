@@ -1,0 +1,13 @@
+/* frontend/src/features/home/styles/homePage.css */
+
+@import '../../../shared/styles/variables.css';
+@import '../../../shared/styles/utilities.css';
+@import './layout.css';
+@import './animations.css';
+@import './components/header.css';
+@import './components/hero.css';
+@import './components/features.css';
+@import './components/steps.css';
+@import './components/cta.css';
+@import './components/footer.css';
+@import './responsive.css';

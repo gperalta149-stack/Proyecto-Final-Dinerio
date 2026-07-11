@@ -1,0 +1,22 @@
+/* frontend/src/features/budget/styles/budget-variables.css */
+:root {
+  --budget-bg-primary: var(--bg-primary);
+  --budget-bg-secondary: var(--bg-secondary);
+  --budget-bg-card: var(--bg-card);
+  --budget-bg-card-hover: var(--bg-card-hover);
+
+  --budget-text-primary: var(--text-primary);
+  --budget-text-secondary: var(--text-secondary);
+  --budget-text-tertiary: var(--text-tertiary);
+
+  --budget-accent-1: var(--accent-1);
+  --budget-accent-2: var(--accent-2);
+
+  --budget-green: var(--success);
+  --budget-red: var(--danger);
+  --budget-orange: var(--warning);
+  --budget-blue: var(--info);
+
+  --budget-border-subtle: var(--border-subtle);
+  --budget-border-soft: var(--border-soft);
+}

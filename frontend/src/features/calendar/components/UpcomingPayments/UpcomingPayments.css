@@ -1,0 +1,86 @@
+/* frontend/src/features/calendar/components/UpcomingPayments/UpcomingPayments.css */
+@import '../../styles/calendar-variables.css';
+
+.upcoming-payments {
+  background: var(--calendar-bg-card);
+  border: 1px solid var(--calendar-border-subtle);
+  border-radius: 12px;
+  padding: 16px 20px;
+  transition: all 0.25s ease;
+}
+
+.upcoming-payments:hover {
+  border-color: var(--calendar-border-soft);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.upcoming-payments-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--calendar-text-primary);
+  margin-bottom: 12px;
+}
+
+.upcoming-payments-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  color: var(--calendar-accent-1);
+  background: rgba(99, 102, 241, 0.12);
+  flex-shrink: 0;
+}
+
+.upcoming-payments-empty {
+  color: var(--calendar-text-tertiary);
+  font-size: 0.85rem;
+  text-align: center;
+  padding: 12px 0;
+}
+
+.upcoming-payments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.upcoming-payments-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.02);
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.upcoming-payments-item:hover {
+  background: rgba(255, 255, 255, 0.045);
+  transform: translateX(2px);
+}
+
+.upcoming-payments-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--calendar-text-primary);
+}
+
+.upcoming-payments-date {
+  font-size: 0.7rem;
+  color: var(--calendar-text-tertiary);
+  text-transform: capitalize;
+}
+
+.upcoming-payments-amount {
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--calendar-text-primary);
+  flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
+}

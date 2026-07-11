@@ -1,0 +1,121 @@
+/* frontend/src/features/categories/components/CategoryFilters/CategoryFilters.css */
+@import '../../styles/categories-variables.css';
+
+.category-filters {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.category-filters-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.search-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-icon {
+  position: absolute;
+  left: 12px;
+  color: var(--cat-text-tertiary);
+}
+
+.search-input {
+  padding: 8px 12px 8px 36px;
+  background: var(--cat-bg-card);
+  border: 1px solid var(--cat-border-subtle);
+  border-radius: 8px;
+  color: var(--cat-text-primary);
+  font-size: 0.9rem;
+  width: 220px;
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+.search-input:focus {
+  border-color: var(--cat-accent-1);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.search-input::placeholder {
+  color: var(--cat-text-tertiary);
+}
+
+.sort-select {
+  padding: 8px 12px;
+  background: var(--cat-bg-card);
+  border: 1px solid var(--cat-border-subtle);
+  border-radius: 8px;
+  color: var(--cat-text-primary);
+  font-size: 0.9rem;
+  outline: none;
+  cursor: pointer;
+}
+
+.sort-select:focus {
+  border-color: var(--cat-accent-1);
+}
+
+.category-filters-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.categories-count {
+  font-size: 0.85rem;
+  color: var(--cat-text-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+
+.view-toggle {
+  display: flex;
+  gap: 4px;
+  background: var(--cat-bg-card);
+  border: 1px solid var(--cat-border-subtle);
+  border-radius: 8px;
+  padding: 4px;
+}
+
+.view-btn {
+  padding: 6px 8px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: var(--cat-text-tertiary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.view-btn:hover {
+  color: var(--cat-text-secondary);
+}
+
+.view-btn.active {
+  background: var(--cat-accent-1);
+  color: white;
+}
+
+@media (max-width: 768px) {
+  .category-filters {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .search-input {
+    width: 100%;
+  }
+
+  .category-filters-right {
+    justify-content: space-between;
+  }
+}

@@ -1,0 +1,55 @@
+.pc-wrapper { width: 100%; }
+
+.pc-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 20px;
+}
+
+.pc-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.pc-row {
+  display: grid;
+  grid-template-columns: 70px 1fr 100px;
+  align-items: center;
+  gap: 14px;
+}
+
+.pc-month {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  text-transform: capitalize;
+}
+
+.pc-track {
+  height: 28px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.pc-fill {
+  height: 100%;
+  border-radius: 8px;
+  animation: pcGrow 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  transform-origin: left;
+}
+
+@keyframes pcGrow {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+
+.pc-value {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}

@@ -1,0 +1,43 @@
+.trends-card {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 24px;
+  width: 100%;
+}
+
+.trends-icon-wrapper {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(34, 197, 94, 0.1);
+  color: #22c55e;
+  flex-shrink: 0;
+}
+
+.trends-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.trends-highlight {
+  font-size: 0.9rem;
+  color: var(--reports-text-secondary, rgba(255,255,255,0.6));
+}
+
+.trends-percentage {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--reports-text-primary, #fff);
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+}
+
+.trends-context {
+  font-size: 0.8rem;
+  color: var(--reports-text-tertiary, rgba(255,255,255,0.4));
+}
