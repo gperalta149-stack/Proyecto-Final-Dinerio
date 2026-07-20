@@ -1,7 +1,4 @@
 // frontend/src/features/categories/index.ts
-export { CategoriesPage } from './pages/CategoriesPage';
-export { default } from './pages/CategoriesPage';
-
 // Components
 export { CategoryCard } from './components/CategoryCard/CategoryCard';
 export { CategoryForm } from './components/CategoryForm/CategoryForm';

@@ -44,6 +44,22 @@
   position: relative;
   flex: 1;
   min-width: 180px;
+  display: flex;
+  align-items: center;
+  background: linear-gradient(
+    145deg,
+    var(--debt-bg-card),
+    var(--debt-bg-secondary)
+  );
+  border: 1px solid rgba(255,255,255,.10);
+  border-radius: 8px;
+  transition: .2s;
+  outline: none;
+}
+
+.debt-history-search:focus-within {
+  border-color: var(--debt-accent-1);
+  box-shadow: 0 0 0 2px rgba(99,102,241,.18);
 }
 
 .debt-history-search-icon {
@@ -56,21 +72,19 @@
 
 .debt-history-search-input {
   width: 100%;
+  border: none;
+  background: transparent;
   padding: 8px 12px 8px 32px;
-  background: linear-gradient(145deg, var(--debt-bg-card) 0%, var(--debt-bg-secondary) 100%);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 8px;
   color: var(--debt-text-primary);
-  font-size: 0.85rem;
-  outline: none;
-  transition: all 0.2s ease;
+  font-size: .85rem;
   font-family: inherit;
-  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.1), 0 4px 12px rgba(0, 0, 0, 0.3);
+  outline: none !important;
+  box-shadow: none !important;
 }
 
 .debt-history-search-input:focus {
-  border-color: var(--debt-accent-1);
-  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.1), 0 0 0 3px rgba(99, 102, 241, 0.15);
+  outline: none !important;
+  box-shadow: none !important;
 }
 
 .debt-history-search-input::placeholder {
@@ -79,39 +93,70 @@
 
 .debt-history-filters {
   display: flex;
-  gap: 8px;
+  gap: 6px;
 }
 
-.debt-history-filter-group {
+.date-spinner {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  background: linear-gradient(
+    145deg,
+    var(--debt-bg-card),
+    var(--debt-bg-secondary)
+  );
+  border: 1px solid rgba(255,255,255,.10);
+  border-radius: 8px;
+  overflow: hidden;
+  transition: .2s;
+}
+
+.date-spinner:focus-within {
+  border-color: var(--debt-accent-1);
+  box-shadow: 0 0 0 2px rgba(99,102,241,.18);
+}
+
+.date-spinner-btn {
   display: flex;
   align-items: center;
-  gap: 6px;
-  background: linear-gradient(145deg, var(--debt-bg-card) 0%, var(--debt-bg-secondary) 100%);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 8px;
-  padding: 0 10px;
-  color: var(--debt-text-secondary);
-  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.1), 0 4px 12px rgba(0, 0, 0, 0.3);
-}
-
-.debt-history-filter-group svg {
-  flex-shrink: 0;
-}
-
-.debt-history-select {
-  background: transparent;
+  justify-content: center;
+  width: 28px;
+  height: 36px;
+  background: none;
   border: none;
+  color: var(--debt-text-secondary);
+  cursor: pointer;
+  transition: .15s;
+}
+
+.date-spinner-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--debt-accent-1);
+}
+
+.date-spinner-input {
+  width: 100px;
+  padding: 8px 4px;
+  background: none;
+  border: none;
+  border-left: 1px solid rgba(255,255,255,.10);
+  border-right: 1px solid rgba(255,255,255,.10);
   color: var(--debt-text-primary);
   font-size: 0.85rem;
-  padding: 8px 4px 8px 0;
+  font-weight: 600;
+  text-align: center;
   outline: none;
-  cursor: pointer;
-  font-family: inherit;
 }
 
-.debt-history-select option {
-  background: #1e1e24;
-  color: var(--debt-text-primary);
+.date-spinner-input[type="number"] {
+  width: 80px;
+  -moz-appearance: textfield;
+}
+
+.date-spinner-input::-webkit-outer-spin-button,
+.date-spinner-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }
 
 .debt-history-empty {

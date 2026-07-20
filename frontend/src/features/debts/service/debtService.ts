@@ -15,7 +15,6 @@ export const debtService = {
     return {
       totalOwed: data.totalOwed || 0,
       pendingCount: data.pendingCount || 0,
-      paidCount: data.paidCount || 0,
       oldestDays: data.oldestDays || 0,
       oldestName: data.oldestName,
       paidThisMonthCount: data.paidThisMonthCount || 0,

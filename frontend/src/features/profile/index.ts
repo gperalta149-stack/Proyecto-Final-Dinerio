@@ -5,9 +5,7 @@ export { default } from './pages/ProfilePage';
 // Components
 export { ProfileInfo } from './components/ProfileInfo/ProfileInfo';
 export { AvatarUpload } from './components/AvatarUpload/AvatarUpload';
-export { PrivacySettings } from './components/PrivacySettings/PrivacySettings';
 export { ChangePassword } from './components/ChangePassword/ChangePassword';
-export { BudgetSettings } from './components/BudgetSettings/BudgetSettings';
 
 // Hooks
 export { useProfile } from './hooks/useProfile';

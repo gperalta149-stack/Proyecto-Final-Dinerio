@@ -1,6 +1,6 @@
 // frontend/src/features/debts/components/DebtEmptyState/DebtEmptyState.tsx
 import React from 'react';
-import { PartyPopper, Plus } from 'lucide-react';
+import { CheckCircle2, Plus } from 'lucide-react';
 import './DebtEmptyState.css';
 
 interface DebtEmptyStateProps {
@@ -11,7 +11,7 @@ export const DebtEmptyState: React.FC<DebtEmptyStateProps> = ({ onAdd }) => {
   return (
     <div className="debt-empty-state">
       <div className="debt-empty-icon">
-        <PartyPopper size={48} />
+        <CheckCircle2 size={48} />
       </div>
       <h3 className="debt-empty-title">Excelente</h3>
       <p className="debt-empty-description">

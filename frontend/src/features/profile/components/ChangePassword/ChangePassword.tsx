@@ -1,8 +1,7 @@
 // frontend/src/features/profile/components/ChangePassword/ChangePassword.tsx
 import React, { useState } from 'react';
-import { Lock, Eye, EyeOff } from 'lucide-react';
+import { Lock, Eye, EyeOff, CheckCircle2, AlertCircle } from 'lucide-react';
 import { userService } from '../../../auth/service/userService';
-import { useToast } from '../../../../shared/hooks/useToast';
 import './ChangePassword.css';
 
 export const ChangePassword: React.FC = () => {
@@ -13,18 +12,19 @@ export const ChangePassword: React.FC = () => {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { showToast } = useToast();
+  const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setMessage(null);
 
     if (formData.newPassword !== formData.confirmPassword) {
-      showToast('Las contraseñas no coinciden', 'error');
+      setMessage({ text: 'Las contraseñas no coinciden', type: 'error' });
       return;
     }
 
     if (formData.newPassword.length < 6) {
-      showToast('La contraseña debe tener al menos 6 caracteres', 'error');
+      setMessage({ text: 'La contraseña debe tener al menos 6 caracteres', type: 'error' });
       return;
     }
 
@@ -34,17 +34,18 @@ export const ChangePassword: React.FC = () => {
         currentPassword: formData.currentPassword,
         newPassword: formData.newPassword,
       });
-      showToast('Contraseña actualizada exitosamente', 'success');
+      setMessage({ text: 'Contraseña actualizada exitosamente', type: 'success' });
       setFormData({ currentPassword: '', newPassword: '', confirmPassword: '' });
-    } catch (error) {
-      showToast('Error al cambiar la contraseña', 'error');
+    } catch (error: any) {
+      const msg = error.response?.data?.error || 'Error al cambiar la contraseña';
+      setMessage({ text: msg, type: 'error' });
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="change-password app-card">
+    <>
       <div className="app-card-header">
         <div>
           <h3 className="app-card-title">Seguridad</h3>
@@ -53,6 +54,13 @@ export const ChangePassword: React.FC = () => {
       </div>
 
       <form onSubmit={handleSubmit} className="app-card-content">
+        {message && (
+          <div className={`change-password-message change-password-message-${message.type}`}>
+            {message.type === 'success' ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />}
+            {message.text}
+          </div>
+        )}
+
         <div className="form-group">
           <label className="form-label">Contraseña actual</label>
           <div className="password-input-wrapper">
@@ -110,7 +118,7 @@ export const ChangePassword: React.FC = () => {
           </button>
         </div>
       </form>
-    </div>
+    </>
   );
 };
 

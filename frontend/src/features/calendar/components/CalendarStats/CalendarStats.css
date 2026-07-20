@@ -2,7 +2,7 @@
 @import '../../styles/calendar-variables.css';
 
 .calendar-stats {
-  background: linear-gradient(150deg, var(--calendar-bg-card) 0%, var(--calendar-bg-secondary) 100%);
+  background: var(--calendar-bg-card);
   border: 1px solid var(--calendar-border-subtle);
   border-radius: 12px;
   padding: 20px 24px;

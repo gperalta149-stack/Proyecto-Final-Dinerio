@@ -1,5 +1,6 @@
 /* frontend/src/features/categories/styles/categories.css */
 @import './categories-variables.css';
+@import '../../../shared/styles/cards.css';
 
 .categories-page {
   padding: 24px;
@@ -130,11 +131,19 @@
   color: #f87171;
 }
 
-.categories-sidebar {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+.categories-stats-tips {
+  display: flex;
   gap: 16px;
   margin-top: 24px;
+  align-items: stretch;
+}
+
+.categories-stats-tips .category-stats-row {
+  flex: 1;
+}
+
+.categories-stats-tips .tips-card {
+  flex: 1;
 }
 
 @media (max-width: 768px) {
@@ -151,7 +160,7 @@
     justify-content: center;
   }
 
-  .categories-sidebar {
-    grid-template-columns: 1fr;
+  .categories-stats-tips {
+    flex-direction: column;
   }
 }

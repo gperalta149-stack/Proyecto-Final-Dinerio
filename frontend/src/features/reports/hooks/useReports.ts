@@ -9,25 +9,25 @@ interface UseReportsReturn {
   loading: boolean;
   error: string | null;
   exportCSV: (month?: number, year?: number) => Promise<void>;
-  getFinancialReport: (month?: number, year?: number) => Promise<void>;
+  getFinancialReport: (month?: number, year?: number, range?: number | null, rangeMode?: string) => Promise<void>;
   getMonthlyEvolution: (year?: number) => Promise<void>;
 }
 
-export const useReports = (month?: number, year?: number): UseReportsReturn => {
+export const useReports = (month?: number, year?: number, range?: number | null, rangeMode?: string): UseReportsReturn => {
   const [report, setReport] = useState<FinancialReport | null>(null);
   const [monthlyEvolution, setMonthlyEvolution] = useState<MonthlyEvolutionData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const loadFinancialReport = async (m?: number, y?: number) => {
+  const loadFinancialReport = async (m?: number, y?: number, r?: number | null, rm?: string) => {
     try {
       setLoading(true);
       setError(null);
       const [financialReport, evolutionData] = await Promise.all([
-        reportService.getFinancialReport(m, y),
+        reportService.getFinancialReport(m, y, r, rm),
         reportService.getMonthlyEvolution(y),
       ]);
-      setReport(financialReport);
+      setReport(financialReport as any);
       setMonthlyEvolution(evolutionData.monthlyEvolution || []);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error al cargar los reportes");
@@ -55,8 +55,8 @@ export const useReports = (month?: number, year?: number): UseReportsReturn => {
   };
 
   useEffect(() => {
-    loadFinancialReport(month, year);
-  }, [month, year]);
+    loadFinancialReport(month, year, range, rangeMode);
+  }, [month, year, range, rangeMode]);
 
   return {
     report,

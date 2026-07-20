@@ -2,6 +2,7 @@
 .subs-page {
   --subs-bg-primary: var(--bg-primary);
   --subs-bg-secondary: var(--bg-secondary);
+  --subs-bg-tertiary: var(--bg-tertiary);
   --subs-bg-card: var(--bg-card);
   --subs-bg-card-hover: var(--bg-card-hover);
 

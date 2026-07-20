@@ -7,7 +7,6 @@ import { Link, useLocation, useNavigate } from "react-router-dom"
 import {
   LayoutDashboard,
   CreditCard,
-  Tags,
   CalendarDays,
   FileBarChart2,
   Wallet,
@@ -25,7 +24,6 @@ import "./Sidebar.css"
 const NAV_ITEMS = [
   { path: "/dashboard", label: "Inicio", icon: Home },
   { path: "/subscriptions", label: "Suscripciones", icon: CreditCard },
-  { path: "/categories", label: "Categorías", icon: Tags },
   { path: "/calendar", label: "Calendario", icon: CalendarDays },
   { path: "/reports", label: "Análisis", icon: FileBarChart2 },
   { path: "/budget", label: "Presupuesto", icon: Wallet },

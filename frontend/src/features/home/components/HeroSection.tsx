@@ -17,11 +17,9 @@ const TOP_SUBS = [
 export const HeroSection: React.FC = () => {
   return (
     <section className="hero">
-      {/* Glow sutil — uno solo bien ubicado */}
       <div className="hero-glow" />
 
       <div className="hero-container">
-        {/* Badge */}
         <motion.div
           className="hero-badge"
           initial={{ opacity: 0, y: 16 }}
@@ -33,7 +31,6 @@ export const HeroSection: React.FC = () => {
           <Sparkles size={13} />
         </motion.div>
 
-        {/* Título */}
         <motion.h1
           className="hero-title"
           initial={{ opacity: 0, y: 24 }}
@@ -44,7 +41,6 @@ export const HeroSection: React.FC = () => {
           <span className="hero-title-accent">finanzas</span>
         </motion.h1>
 
-        {/* Subtítulo */}
         <motion.p
           className="hero-subtitle"
           initial={{ opacity: 0, y: 24 }}
@@ -55,7 +51,6 @@ export const HeroSection: React.FC = () => {
           Nunca más pagues por servicios que no usás.
         </motion.p>
 
-        {/* CTAs */}
         <motion.div
           className="hero-actions"
           initial={{ opacity: 0, y: 20 }}
@@ -72,14 +67,12 @@ export const HeroSection: React.FC = () => {
           </Link>
         </motion.div>
 
-        {/* Dashboard */}
         <motion.div
           className="hero-dashboard"
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5, duration: 0.6 }}
         >
-          {/* KPIs */}
           <div className="hero-kpis">
             <div className="hero-kpi">
               <span className="hero-kpi-label">Total gastado</span>
@@ -98,7 +91,6 @@ export const HeroSection: React.FC = () => {
             </div>
           </div>
 
-          {/* Gráfico */}
           <div className="hero-chart">
             {CHART_DATA.map((h, i) => (
               <motion.div
@@ -112,7 +104,6 @@ export const HeroSection: React.FC = () => {
             ))}
           </div>
 
-          {/* Bottom: top subs + próximo pago */}
           <div className="hero-dashboard-bottom">
             <div className="hero-top-subs">
               {TOP_SUBS.map((sub) => (
@@ -132,7 +123,6 @@ export const HeroSection: React.FC = () => {
           </div>
         </motion.div>
 
-        {/* Stats */}
         <motion.div
           className="hero-stats"
           initial={{ opacity: 0, y: 30 }}

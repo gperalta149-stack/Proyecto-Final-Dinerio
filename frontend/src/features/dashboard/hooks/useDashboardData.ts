@@ -24,24 +24,46 @@ export function useDashboardData(stats: DashboardStats | null, subscriptions: Su
     load();
   }, []);
 
-  const totalMonthly = subscriptions.reduce((sum, sub) => {
-    const amount = parseAmount(sub.amount);
-    let monthly = amount;
-    if (sub.billing_cycle === "yearly") monthly = amount / 12;
-    else if (sub.billing_cycle === "weekly") monthly = amount * 4;
-    return sum + monthly;
-  }, 0);
+  const today = new Date();
+
+  const startOfMonth = new Date(
+    today.getFullYear(),
+    today.getMonth(),
+    1
+  );
+
+  const endOfMonth = new Date(
+    today.getFullYear(),
+    today.getMonth() + 1,
+    1
+  );
+
+  const totalMonthly = subscriptions
+    .filter(sub => {
+      if (sub.status !== "active") return false;
+
+      const paymentDate = new Date(sub.next_billing_date);
+
+      return (
+        paymentDate >= startOfMonth &&
+        paymentDate < endOfMonth
+      );
+    })
+    .reduce((sum, sub) => {
+      return sum + (sub.arsAmount || parseAmount(sub.amount));
+    }, 0);
 
   const activeSubscriptions = subscriptions.filter((s) => s.status === "active").length;
   const pausedSubscriptions = subscriptions.filter((s) => s.status === "paused").length;
 
   const topCategory = useMemo(() => {
     const cats: Record<string, number> = {};
-    subscriptions.forEach((sub) => {
+    subscriptions.filter(s => s.status === "active").forEach((sub) => {
       const category = sub.category_name || "Otros";
-      const amount = parseAmount(sub.amount);
+      const amount = sub.arsAmount || parseAmount(sub.amount);
       let monthly = amount;
       if (sub.billing_cycle === "yearly") monthly = amount / 12;
+      else if (sub.billing_cycle === "quarterly") monthly = amount / 3;
       else if (sub.billing_cycle === "weekly") monthly = amount * 4;
       cats[category] = (cats[category] || 0) + monthly;
     });
