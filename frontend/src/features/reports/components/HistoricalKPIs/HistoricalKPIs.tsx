@@ -1,7 +1,7 @@
 import React, { useMemo } from "react";
 import { DollarSign, BarChart3, TrendingUp, ArrowUp, ArrowDown, Trophy } from "lucide-react";
+import { KpiCard } from "../../../../shared/components/ui/KpiCard";
 import { formatCurrency } from "../../../../shared/utils/formatters";
-import "./HistoricalKPIs.css";
 
 interface MonthlyData {
   month: number;
@@ -41,76 +41,46 @@ export const HistoricalKPIs: React.FC<HistoricalKPIsProps> = ({ monthlyEvolution
 
   if (!stats) return null;
 
-  const kpis = [
-    {
-      icon: <DollarSign size={16} />,
-      label: "Total anual",
-      value: formatCurrency(stats.totalYearly, currency),
-      color: "spent" as const,
-    },
-    {
-      icon: <BarChart3 size={16} />,
-      label: "Promedio mensual",
-      value: formatCurrency(stats.avgMonthly, currency),
-      color: "subscriptions" as const,
-    },
-    {
-      icon: <TrendingUp size={16} />,
-      label: "Variación anual",
-      value: `${stats.annualVariation >= 0 ? "+" : ""}${stats.annualVariation.toFixed(1)}%`,
-      color: "next-payment" as const,
-    },
-    {
-      icon: <ArrowUp size={16} />,
-      label: "Mes más caro",
-      value: stats.mostExpensive?.monthName || "—",
-      sub: formatCurrency(stats.mostExpensive?.monthly_total || 0, currency),
-      color: "spent" as const,
-    },
-    {
-      icon: <ArrowDown size={16} />,
-      label: "Mes más barato",
-      value: stats.cheapest?.monthName || "—",
-      sub: formatCurrency(stats.cheapest?.monthly_total || 0, currency),
-      color: "budget" as const,
-    },
-    {
-      icon: <Trophy size={16} />,
-      label: "Mayor pago",
-      value: formatCurrency(stats.highestPayment, currency),
-      color: "next-payment" as const,
-    },
-  ];
-
   return (
-    <div className="hkpi-wrapper">
-      <div className="hkpi-row">
-        {kpis.slice(0, 3).map((kpi) => (
-          <div key={kpi.label} className={`hkpi-card hkpi-${kpi.color}`}>
-            <div className="hkpi-icon-wrapper">
-              {kpi.icon}
-            </div>
-            <div className="hkpi-content">
-              <span className="hkpi-label">{kpi.label}</span>
-              <span className="hkpi-value">{kpi.value}</span>
-            </div>
-          </div>
-        ))}
-      </div>
-      <div className="hkpi-row">
-        {kpis.slice(3).map((kpi) => (
-          <div key={kpi.label} className={`hkpi-card hkpi-${kpi.color}`}>
-            <div className="hkpi-icon-wrapper">
-              {kpi.icon}
-            </div>
-            <div className="hkpi-content">
-              <span className="hkpi-label">{kpi.label}</span>
-              <span className="hkpi-value">{kpi.value}</span>
-              {kpi.sub && <span className="hkpi-sub">{kpi.sub}</span>}
-            </div>
-          </div>
-        ))}
-      </div>
+    <div className="dashboard-kpis">
+      <KpiCard
+        title="Total anual"
+        value={formatCurrency(stats.totalYearly, currency)}
+        icon={<DollarSign size={16} />}
+        color="spent"
+      />
+      <KpiCard
+        title="Promedio mensual"
+        value={formatCurrency(stats.avgMonthly, currency)}
+        icon={<BarChart3 size={16} />}
+        color="subscriptions"
+      />
+      <KpiCard
+        title="Variación anual"
+        value={`${stats.annualVariation >= 0 ? "+" : ""}${stats.annualVariation.toFixed(1)}%`}
+        icon={<TrendingUp size={16} />}
+        color="next-payment"
+      />
+      <KpiCard
+        title="Mes más caro"
+        value={stats.mostExpensive?.monthName || "—"}
+        subtitle={formatCurrency(stats.mostExpensive?.monthly_total || 0, currency)}
+        icon={<ArrowUp size={16} />}
+        color="budget"
+      />
+      <KpiCard
+        title="Mes más barato"
+        value={stats.cheapest?.monthName || "—"}
+        subtitle={formatCurrency(stats.cheapest?.monthly_total || 0, currency)}
+        icon={<ArrowDown size={16} />}
+        color="success"
+      />
+      <KpiCard
+        title="Mayor pago"
+        value={formatCurrency(stats.highestPayment, currency)}
+        icon={<Trophy size={16} />}
+        color="info"
+      />
     </div>
   );
 };

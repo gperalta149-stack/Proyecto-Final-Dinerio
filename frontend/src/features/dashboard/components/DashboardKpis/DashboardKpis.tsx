@@ -3,7 +3,6 @@ import { Wallet, CreditCard, Calendar, Target } from "lucide-react";
 import { KpiCard } from "../KpiCard";
 import { formatCurrency, parseAmount } from "../../../../shared/utils/formatters";
 import type { Subscription } from "../../../../shared/types";
-import "./DashboardKpis.css";
 
 interface DashboardKpisProps {
   totalMonthly: number;

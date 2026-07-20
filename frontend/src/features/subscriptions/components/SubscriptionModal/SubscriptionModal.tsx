@@ -1,7 +1,11 @@
-// frontend/src/features/subscriptions/components/SubscriptionModal/SubscriptionModal.tsx
 import React, { useState, useEffect, useMemo } from "react";
-import { X, Calendar, Tag, RefreshCcw, FileText, Plus, Pencil } from "lucide-react";
+import { X, Plus, Pencil, Calendar, FileText } from "lucide-react";
+import { getCategoryIcon } from '../../../categories/utils/getCategoryIcon';
+import { categoryService } from '../../../categories/service/categoryService';
+import { CategoryForm } from '../../../categories/components/CategoryForm/CategoryForm';
+import type { CategoryFormData } from '../../../categories/types';
 import type { Subscription, Category } from "../../types";
+import { useToast } from '../../../../shared/hooks/useToast';
 import "./SubscriptionModal.css";
 
 const BILLING_CYCLES = [
@@ -11,8 +15,8 @@ const BILLING_CYCLES = [
 ];
 
 const CURRENCIES = [
-  { value: "ARS", label: "Pesos", symbol: "$" },
-  { value: "USD", label: "Dólares", symbol: "US$" },
+  { value: "ARS", label: "ARS", symbol: "$" },
+  { value: "USD", label: "USD", symbol: "US$" },
 ];
 
 const STATUS_OPTIONS = [
@@ -21,42 +25,30 @@ const STATUS_OPTIONS = [
   { value: "cancelled", label: "Cancelada", color: "#ef4444" },
 ];
 
-const AVATAR_COLORS = ["#8B5CF6", "#EC4899", "#3B82F6", "#10B981", "#F59E0B", "#EF4444", "#06B6D4"];
-
-const colorForName = (seed: string) => {
-  let hash = 0;
-  for (let i = 0; i < seed.length; i++) hash = seed.charCodeAt(i) + ((hash << 5) - hash);
-  return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
-};
-
-const formatPreviewAmount = (value: number, currency: string) => {
-  const symbol = currency === "USD" ? "US$" : "$";
-  const formatted = value.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  return `${symbol} ${formatted}`;
-};
-
-const formatPreviewDate = (value: string) => {
-  if (!value) return null;
-  const date = new Date(`${value}T00:00:00`);
-  if (Number.isNaN(date.getTime())) return null;
-  return date.toLocaleDateString("es-AR", { day: "numeric", month: "short" });
-};
-
 interface SubscriptionModalProps {
   subscription?: Subscription;
   categories: Category[];
   onSave: (data: Partial<Subscription>) => Promise<void>;
   onClose: () => void;
+  onCategoriesChanged?: () => Promise<void>;
 }
 
 export const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
   subscription,
-  categories,
+  categories: externalCategories,
   onSave,
   onClose,
+  onCategoriesChanged,
 }) => {
   const isEditing = !!subscription;
   const [loading, setLoading] = useState(false);
+  const [showNotes, setShowNotes] = useState(false);
+  const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
+  const [showCurrencyDropdown, setShowCurrencyDropdown] = useState(false);
+  const [showCreateCategory, setShowCreateCategory] = useState(false);
+  const { showToast } = useToast();
+  const [amountStr, setAmountStr] = useState("");
+  const [creatingCategory, setCreatingCategory] = useState(false);
   const [formData, setFormData] = useState<Partial<Subscription>>({
     name: "",
     amount: 0,
@@ -70,11 +62,12 @@ export const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
 
   useEffect(() => {
     if (subscription) {
+      const amt = typeof subscription.amount === "string"
+        ? parseFloat(subscription.amount)
+        : subscription.amount || 0;
       setFormData({
         name: subscription.name || "",
-        amount: typeof subscription.amount === "string"
-          ? parseFloat(subscription.amount)
-          : subscription.amount || 0,
+        amount: amt,
         currency: subscription.currency || "ARS",
         billing_cycle: subscription.billing_cycle || "monthly",
         category_id: subscription.category_id || "",
@@ -82,16 +75,37 @@ export const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
         status: subscription.status || "active",
         description: subscription.description || "",
       });
+      setAmountStr(amt ? amt.toString().replace('.', ',') : "");
     }
   }, [subscription]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
+      if (e.key === "Escape") {
+        if (showCreateCategory) {
+          setShowCreateCategory(false);
+          return;
+        }
+        onClose();
+      }
     };
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [onClose]);
+  }, [onClose, showCreateCategory]);
+
+  useEffect(() => {
+    if (!showCategoryDropdown) return;
+    const handleClick = () => setShowCategoryDropdown(false);
+    document.addEventListener("click", handleClick);
+    return () => document.removeEventListener("click", handleClick);
+  }, [showCategoryDropdown]);
+
+  useEffect(() => {
+    if (!showCurrencyDropdown) return;
+    const handleClick = () => setShowCurrencyDropdown(false);
+    document.addEventListener("click", handleClick);
+    return () => document.removeEventListener("click", handleClick);
+  }, [showCurrencyDropdown]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -107,11 +121,22 @@ export const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!formData.category_id) {
+      showToast('Seleccioná una categoría', 'error');
+      return;
+    }
+
+    if (!formData.next_billing_date) {
+      showToast('Seleccioná la fecha del próximo pago', 'error');
+      return;
+    }
+
     setLoading(true);
     try {
       const dataToSend = {
         ...formData,
-        category_id: formData.category_id || null,
+        category_id: formData.category_id,
         description: formData.description || "",
       };
       await onSave(dataToSend);
@@ -122,9 +147,53 @@ export const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
     }
   };
 
+  const handleCreateCategory = async (data: CategoryFormData) => {
+    const normalized = data.name.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    const exists = externalCategories.some(
+      (c) => c.name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "") === normalized
+    );
+    if (exists) {
+      showToast("Ya existe una categoría con ese nombre", "error");
+      return;
+    }
+    setCreatingCategory(true);
+    try {
+      const created = await categoryService.create({
+        name: data.name.trim(),
+        color: data.color,
+      });
+
+      await onCategoriesChanged?.();
+      setField("category_id", created.id);
+      setShowCreateCategory(false);
+      setShowCategoryDropdown(false);
+      showToast("Categoría creada", "success");
+    } catch (error) {
+      showToast("Error al crear la categoría", "error");
+    } finally {
+      setCreatingCategory(false);
+    }
+  };
+
+  const handleDeleteCategory = async (categoryId: string) => {
+    try {
+      await categoryService.delete(categoryId);
+
+      await onCategoriesChanged?.();
+
+      if (formData.category_id === categoryId) {
+        setField("category_id", "");
+      }
+      showToast("Categoría eliminada", "success");
+    } catch (error: any) {
+      const msg = error.response?.data?.error || "Error al eliminar la categoría";
+      showToast(msg, "error");
+    }
+  };
+
   const selectedCurrency = CURRENCIES.find((c) => c.value === formData.currency) || CURRENCIES[0];
   const selectedStatus = STATUS_OPTIONS.find((s) => s.value === formData.status) || STATUS_OPTIONS[0];
-  const selectedCategory = categories.find((c) => c.id === formData.category_id);
+  const selectedCategory = externalCategories.find((c) => c.id === formData.category_id);
   const amount = Number(formData.amount) || 0;
 
   const convertedAmount = useMemo(() => {
@@ -135,7 +204,19 @@ export const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
   }, [amount, formData.currency]);
 
   const previewName = formData.name?.trim() || "Nueva suscripción";
-  const previewDate = formatPreviewDate(formData.next_billing_date || "");
+  const previewDate = (() => {
+    if (!formData.next_billing_date) return null;
+    const date = new Date(`${formData.next_billing_date}T00:00:00`);
+    if (Number.isNaN(date.getTime())) return null;
+    return date.toLocaleDateString("es-AR", { day: "numeric", month: "short" });
+  })();
+
+  const formatAmount = (value: number, currency: string) => {
+    const symbol = currency === "USD" ? "US$" : "$";
+    if (value === 0) return `${symbol} 0,00`;
+    const formatted = value.toLocaleString("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    return `${symbol} ${formatted}`;
+  };
 
   return (
     <div className="subs-modal-overlay" onClick={onClose}>
@@ -150,7 +231,7 @@ export const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
                 {isEditing ? "Editar suscripción" : "Nueva suscripción"}
               </h2>
               <p className="subs-modal-subtitle">
-                {isEditing ? "Actualizá los datos de este servicio" : "Sumala a tu lista de gastos recurrentes"}
+                {isEditing ? "Actualizá los datos de este servicio" : "Registrá un nuevo gasto recurrente"}
               </p>
             </div>
           </div>
@@ -159,29 +240,27 @@ export const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
           </button>
         </div>
 
-        {/* Vista previa en vivo: así se va a ver la fila en la tabla */}
-        <div className="subs-modal-preview">
-          <span className="subs-modal-preview-avatar" style={{ background: colorForName(previewName) }}>
-            {previewName.charAt(0).toUpperCase()}
-          </span>
-          <div className="subs-modal-preview-info">
-            <span className="subs-modal-preview-name">{previewName}</span>
-            <span className="subs-modal-preview-meta">
-              {selectedCategory?.name || "Sin categoría"} · {BILLING_CYCLES.find((c) => c.value === formData.billing_cycle)?.label}
+        {/* Preview card */}
+        <div className="subs-preview-card">
+          <div className="subs-preview-name">{previewName}</div>
+          <div className="subs-preview-amount">{formatAmount(amount, formData.currency || 'ARS')}</div>
+          <div className="subs-preview-currency">{formData.currency || 'ARS'}</div>
+          <div className="subs-preview-meta">
+            <span className="subs-preview-category">
+              {selectedCategory ? getCategoryIcon(selectedCategory.name || '') : getCategoryIcon('otros')}
+              {selectedCategory?.name || "Sin categoría"}
+            </span>
+            <span className="subs-preview-status" style={{ color: selectedStatus.color }}>
+              <span className="subs-status-dot" style={{ background: selectedStatus.color }} />
+              {selectedStatus.label}
             </span>
           </div>
-          <div className="subs-modal-preview-amount-block">
-            <span className="subs-modal-preview-amount">{formatPreviewAmount(amount, formData.currency || "ARS")}</span>
-            {previewDate && <span className="subs-modal-preview-date">Próx. {previewDate}</span>}
+          <div className="subs-preview-next">
+            Próximo pago: {previewDate || "—"}
           </div>
-          <span className="subs-modal-preview-status" style={{ color: selectedStatus.color, background: `${selectedStatus.color}1a` }}>
-            <span className="subs-modal-preview-dot" style={{ background: selectedStatus.color }} />
-            {selectedStatus.label}
-          </span>
         </div>
 
         <form onSubmit={handleSubmit} className="subs-modal-form">
-          {/* Nombre + monto: los dos datos que más importan, arriba y grandes */}
           <div className="subs-form-group">
             <label className="subs-form-label" htmlFor="subs-name">
               Nombre del servicio <span className="required">*</span>
@@ -192,8 +271,8 @@ export const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
               name="name"
               value={formData.name || ""}
               onChange={handleChange}
-              className="subs-form-input subs-form-input-hero"
-              placeholder="Netflix, Spotify, GitHub..."
+              className="subs-form-input large"
+              placeholder="Notion, Linear, Vercel..."
               required
               disabled={loading}
               autoFocus
@@ -204,90 +283,141 @@ export const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
             <label className="subs-form-label" htmlFor="subs-amount">
               Monto <span className="required">*</span>
             </label>
-            <div className="subs-amount-row">
-              <div className="subs-form-input-wrapper subs-amount-input">
-                <span className="subs-form-input-prefix">{selectedCurrency.symbol}</span>
-                <input
-                  id="subs-amount"
-                  type="number"
-                  name="amount"
-                  value={formData.amount === 0 ? "" : formData.amount}
-                  onChange={handleChange}
-                  onFocus={(e) => e.currentTarget.select()}
-                  className="subs-form-input subs-form-input-hero"
-                  placeholder="0.00"
-                  min="0"
-                  step="0.01"
-                  required
-                  disabled={loading}
-                />
+            <div className="subs-form-input-wrapper">
+              <span className="subs-form-input-prefix">{selectedCurrency.symbol}</span>
+              <input
+                id="subs-amount"
+                type="text"
+                name="amount"
+                value={amountStr}
+                onChange={(e) => {
+                  const raw = e.target.value.replace(/[^0-9,]/g, '');
+                  setAmountStr(raw);
+                  const parsed = parseFloat(raw.replace(',', '.'));
+                  setFormData((prev) => ({ ...prev, amount: isNaN(parsed) ? 0 : parsed }));
+                }}
+                onFocus={(e) => e.currentTarget.select()}
+                className="subs-form-input large"
+                placeholder="0,00"
+                required
+                disabled={loading}
+              />
+              <div
+                className="subs-currency-trigger"
+                onClick={(e) => { e.stopPropagation(); if (!loading) setShowCurrencyDropdown(!showCurrencyDropdown); }}
+              >
+                <span>{formData.currency || 'ARS'}</span>
+                <svg width="10" height="10" viewBox="0 0 20 20" fill="none" style={{ flexShrink: 0, opacity: 0.5 }}>
+                  <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="m6 8 4 4 4-4" />
+                </svg>
               </div>
-              <div className="subs-pill-group subs-currency-pills" role="radiogroup" aria-label="Moneda">
-                {CURRENCIES.map((curr) => (
-                  <button
-                    key={curr.value}
-                    type="button"
-                    role="radio"
-                    aria-checked={formData.currency === curr.value}
-                    className={`subs-pill ${formData.currency === curr.value ? "active" : ""}`}
-                    onClick={() => setField("currency", curr.value)}
-                    disabled={loading}
-                  >
-                    {curr.value}
-                  </button>
-                ))}
-              </div>
+              {showCurrencyDropdown && (
+                <div className="subs-currency-dropdown" onClick={(e) => e.stopPropagation()}>
+                  {CURRENCIES.map((c) => (
+                    <div
+                      key={c.value}
+                      className={`subs-currency-option${formData.currency === c.value ? ' selected' : ''}`}
+                      onClick={() => { setField("currency", c.value); setShowCurrencyDropdown(false); }}
+                    >
+                      <span>{c.label}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
-
             {formData.currency === "USD" && amount > 0 && convertedAmount && (
               <div className="subs-form-conversion">
-                <span>≈ <strong>{convertedAmount.toLocaleString("es-AR")}</strong> ARS</span>
-                <span className="subs-form-rate-detail">cotización {amount} USD × 1.513 × 1,51</span>
+                ≈ <strong>{convertedAmount.toLocaleString("es-AR")}</strong> ARS
               </div>
             )}
           </div>
 
-          <div className="subs-modal-divider" />
-
-          <div className="subs-modal-grid">
+          <div className="subs-form-grid">
             <div className="subs-form-group">
-              <label className="subs-form-label">
-                <Tag size={13} /> Categoría
-              </label>
-              <select
-                name="category_id"
-                value={formData.category_id || ""}
-                onChange={handleChange}
-                className="subs-form-input select"
-                disabled={loading}
-              >
-                <option value="">Sin categoría</option>
-                {categories.map((cat) => (
-                  <option key={cat.id} value={cat.id}>{cat.name}</option>
-                ))}
-              </select>
+              <label className="subs-form-label">Categoría <span className="required">*</span></label>
+              <div className="subs-category-wrapper">
+                <span className="subs-category-icon" style={{ color: selectedCategory?.color || '#6b6b7b' }}>
+                  {selectedCategory ? getCategoryIcon(selectedCategory.name || '') : getCategoryIcon('otros')}
+                </span>
+                <div
+                  className="subs-category-trigger"
+                  onClick={(e) => { e.stopPropagation(); if (!loading) setShowCategoryDropdown(!showCategoryDropdown); }}
+                >
+                  <span style={{ color: selectedCategory?.color || 'var(--subs-text-tertiary)' }}>
+                    {selectedCategory?.name || "Sin categoría"}
+                  </span>
+                  <svg width="12" height="12" viewBox="0 0 20 20" fill="none" style={{ marginLeft: 'auto', flexShrink: 0, opacity: 0.5 }}>
+                    <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="m6 8 4 4 4-4" />
+                  </svg>
+                </div>
+                {showCategoryDropdown && (
+                  <div className="subs-category-dropdown" onClick={(e) => e.stopPropagation()}>
+                    <div
+                      className={`subs-category-option${!formData.category_id ? ' selected' : ''}`}
+                      onClick={() => { setField("category_id", ""); setShowCategoryDropdown(false); }}
+                    >
+                      <span className="subs-category-option-icon" style={{ color: '#6b6b7b' }}>
+                        {getCategoryIcon('otros')}
+                      </span>
+                      <span>Sin categoría</span>
+                    </div>
+                    {externalCategories.map((cat) => (
+                      <div
+                        key={cat.id}
+                        className={`subs-category-option${formData.category_id === cat.id ? ' selected' : ''}`}
+                        onClick={() => { setField("category_id", cat.id); setShowCategoryDropdown(false); }}
+                      >
+                        <span className="subs-category-option-icon" style={{ color: cat.color }}>
+                          {getCategoryIcon(cat.name || '')}
+                        </span>
+                        <span style={{ flex: 1 }}>{cat.name}</span>
+                        {!cat.is_default && cat.subscription_count === 0 && (
+                          <button
+                            type="button"
+                            className="subs-category-delete"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteCategory(cat.id);
+                            }}
+                            title="Eliminar categoría"
+                          >
+                            <X size={12} />
+                          </button>
+                        )}
+                      </div>
+                    ))}
+                    <div className="subs-category-divider" />
+                    <div
+                      className="subs-category-option subs-category-add"
+                      onClick={(e) => { e.stopPropagation(); setShowCreateCategory(true); setShowCategoryDropdown(false); }}
+                    >
+                      <span className="subs-category-option-icon" style={{ color: 'var(--subs-accent-1)' }}>
+                        <Plus size={16} />
+                      </span>
+                      <span style={{ color: 'var(--subs-accent-1)', fontWeight: 500 }}>Nueva categoría</span>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
-
             <div className="subs-form-group">
-              <label className="subs-form-label" htmlFor="subs-date">
-                <Calendar size={13} /> Próximo pago
-              </label>
-              <input
-                id="subs-date"
-                type="date"
-                name="next_billing_date"
-                value={formData.next_billing_date || ""}
-                onChange={handleChange}
-                className="subs-form-input"
-                disabled={loading}
-              />
+              <label className="subs-form-label">Próximo pago <span className="required">*</span></label>
+              <div className="subs-date-wrapper">
+                <input
+                  type="date"
+                  name="next_billing_date"
+                  value={formData.next_billing_date || ""}
+                  onChange={handleChange}
+                  className="subs-form-input"
+                  disabled={loading}
+                />
+                <Calendar size={15} className="subs-date-icon" />
+              </div>
             </div>
           </div>
 
           <div className="subs-form-group">
-            <label className="subs-form-label">
-              <RefreshCcw size={13} /> Ciclo de facturación
-            </label>
+            <label className="subs-form-label">Frecuencia</label>
             <div className="subs-pill-group" role="radiogroup" aria-label="Ciclo de facturación">
               {BILLING_CYCLES.map((cycle) => (
                 <button
@@ -314,8 +444,8 @@ export const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
                   type="button"
                   role="radio"
                   aria-checked={formData.status === status.value}
-                  className={`subs-pill subs-pill-status ${formData.status === status.value ? "active" : ""}`}
-                  style={formData.status === status.value ? { borderColor: status.color, color: status.color, background: `${status.color}14` } : undefined}
+                  className={`subs-pill ${formData.status === status.value ? "active" : ""}`}
+                  style={formData.status === status.value ? { background: `${status.color}18` } : undefined}
                   onClick={() => setField("status", status.value)}
                   disabled={loading}
                 >
@@ -326,31 +456,44 @@ export const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
             </div>
           </div>
 
-          <div className="subs-form-group">
-            <label className="subs-form-label" htmlFor="subs-description">
-              <FileText size={13} /> Notas <span className="subs-form-label-optional">(opcional)</span>
-            </label>
-            <textarea
-              id="subs-description"
-              name="description"
-              value={formData.description || ""}
-              onChange={handleChange}
-              className="subs-form-input subs-form-textarea"
-              placeholder="Tarjeta registrada, motivo de la baja, recordatorios..."
-              rows={2}
-              disabled={loading}
-            />
+          <div className="subs-form-notes-toggle" onClick={() => setShowNotes(!showNotes)}>
+            <FileText size={14} />
+            <span>Agregar Notas (Opcional)</span>
           </div>
 
+          {showNotes && (
+            <div className="subs-form-notes-expanded">
+              <textarea
+                name="description"
+                value={formData.description || ""}
+                onChange={handleChange}
+                className="subs-form-textarea"
+                placeholder="Tarjeta registrada, motivo de la baja, recordatorios..."
+                rows={3}
+                disabled={loading}
+              />
+            </div>
+          )}
+
           <div className="subs-modal-actions">
-            <button type="button" onClick={onClose} className="subs-modal-btn secondary" disabled={loading}>
-              Cancelar
-            </button>
-            <button type="submit" className="subs-modal-btn primary" disabled={loading}>
-              {loading ? "Guardando..." : isEditing ? "Guardar cambios" : "Crear suscripción"}
-            </button>
+            <div className="subs-modal-actions-buttons">
+              <button type="button" onClick={onClose} className="subs-modal-btn secondary" disabled={loading}>
+                Cancelar
+              </button>
+              <button type="submit" className="subs-modal-btn primary" disabled={loading}>
+                {loading ? "Guardando..." : isEditing ? "Guardar cambios" : "Crear suscripción"}
+              </button>
+            </div>
           </div>
         </form>
+
+        {/* Create Category Modal */}
+        <CategoryForm
+          isOpen={showCreateCategory}
+          onSubmit={handleCreateCategory}
+          onCancel={() => setShowCreateCategory(false)}
+          loading={creatingCategory}
+        />
       </div>
     </div>
   );

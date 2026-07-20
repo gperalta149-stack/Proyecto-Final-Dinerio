@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { Search, CheckCircle2, Calendar } from 'lucide-react';
+import { Search, CheckCircle2, ChevronLeft, ChevronRight } from 'lucide-react';
 import { formatCurrency, formatShortDate, parseAmount } from '../../../../shared/utils/formatters';
 import type { Debt } from '../../types';
 import './DebtHistory.css';
@@ -15,9 +15,10 @@ const MONTHS = [
 ];
 
 export const DebtHistory: React.FC<DebtHistoryProps> = ({ debts }) => {
+  const today = new Date();
   const [search, setSearch] = useState('');
-  const [month, setMonth] = useState<string>('');
-  const [year, setYear] = useState<string>('');
+  const [selectedMonth, setSelectedMonth] = useState(today.getMonth());
+  const [selectedYear, setSelectedYear] = useState(today.getFullYear());
   const [showAll, setShowAll] = useState(false);
 
   const years = useMemo(() => {
@@ -41,28 +42,18 @@ export const DebtHistory: React.FC<DebtHistoryProps> = ({ debts }) => {
       );
     }
 
-    if (month) {
-      const m = parseInt(month, 10);
-      result = result.filter(d => {
-        if (!d.paid_at) return false;
-        return new Date(d.paid_at).getMonth() === m;
-      });
-    }
-
-    if (year) {
-      const y = parseInt(year, 10);
-      result = result.filter(d => {
-        if (!d.paid_at) return false;
-        return new Date(d.paid_at).getFullYear() === y;
-      });
-    }
+    result = result.filter(d => {
+      if (!d.paid_at) return false;
+      const date = new Date(d.paid_at);
+      return date.getMonth() === selectedMonth && date.getFullYear() === selectedYear;
+    });
 
     return result.sort((a, b) => {
       const da = a.paid_at ? new Date(a.paid_at).getTime() : 0;
       const db = b.paid_at ? new Date(b.paid_at).getTime() : 0;
       return db - da;
     });
-  }, [debts, search, month, year]);
+  }, [debts, search, selectedMonth, selectedYear]);
 
   const displayed = showAll ? filtered : filtered.slice(0, 10);
 
@@ -94,23 +85,39 @@ export const DebtHistory: React.FC<DebtHistoryProps> = ({ debts }) => {
           />
         </div>
         <div className="debt-history-filters">
-          <div className="debt-history-filter-group">
-            <Calendar size={14} />
-            <select value={month} onChange={e => setMonth(e.target.value)} className="debt-history-select">
-              <option value="">Mes</option>
-              {MONTHS.map((name, i) => (
-                <option key={i} value={i}>{name}</option>
-              ))}
-            </select>
+          <div className="date-spinner">
+            <button className="date-spinner-btn" onClick={() => {
+              if (selectedMonth === 0) { setSelectedMonth(11); setSelectedYear(selectedYear - 1); }
+              else { setSelectedMonth(selectedMonth - 1); }
+            }}><ChevronLeft size={14} /></button>
+            <input
+              type="text"
+              className="date-spinner-input"
+              value={MONTHS[selectedMonth]}
+              onChange={(e) => {
+                const idx = MONTHS.findIndex(m => m.toLowerCase().startsWith(e.target.value.toLowerCase()));
+                if (idx >= 0) setSelectedMonth(idx);
+                else {
+                  const num = parseInt(e.target.value);
+                  if (num >= 1 && num <= 12) setSelectedMonth(num - 1);
+                }
+              }}
+            />
+            <button className="date-spinner-btn" onClick={() => {
+              if (selectedMonth === 11) { setSelectedMonth(0); setSelectedYear(selectedYear + 1); }
+              else { setSelectedMonth(selectedMonth + 1); }
+            }}><ChevronRight size={14} /></button>
           </div>
-          <div className="debt-history-filter-group">
-            <Calendar size={14} />
-            <select value={year} onChange={e => setYear(e.target.value)} className="debt-history-select">
-              <option value="">Año</option>
-              {years.map(y => (
-                <option key={y} value={y}>{y}</option>
-              ))}
-            </select>
+          <div className="date-spinner">
+            <button className="date-spinner-btn" onClick={() => setSelectedYear(selectedYear - 1)}><ChevronLeft size={14} /></button>
+            <input
+              type="number"
+              className="date-spinner-input"
+              value={selectedYear}
+              onChange={(e) => { const v = parseInt(e.target.value); if (v >= 1900 && v <= 2100) setSelectedYear(v); }}
+              min={1900} max={2100}
+            />
+            <button className="date-spinner-btn" onClick={() => setSelectedYear(selectedYear + 1)}><ChevronRight size={14} /></button>
           </div>
         </div>
       </div>

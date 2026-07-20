@@ -3,6 +3,8 @@ import React from 'react';
 import { Edit3, Trash2 } from 'lucide-react';
 import { getCategoryIcon } from '../../utils/getCategoryIcon';
 import { formatCurrency } from '../../../../shared/utils/formatters';
+import { KpiCard } from '../../../../shared/components/ui/KpiCard';
+import type { KpiCardColor } from '../../../../shared/components/ui/KpiCard';
 import type { Category } from '../../types';
 import './CategoryGrid.css';
 
@@ -13,6 +15,16 @@ interface CategoryGridProps {
   onDelete: (categoryId: string) => void;
   onAdd: () => void;
 }
+
+const COLOR_MAP: Record<string, KpiCardColor> = {
+  '#6366f1': 'spent',
+  '#22c55e': 'budget',
+  '#f59e0b': 'orange',
+  '#8b5cf6': 'subscriptions',
+  '#06b6d4': 'info',
+  '#ef4444': 'red',
+  '#84cc16': 'success',
+};
 
 export const CategoryGrid: React.FC<CategoryGridProps> = ({
   categories,
@@ -34,81 +46,64 @@ export const CategoryGrid: React.FC<CategoryGridProps> = ({
     );
   }
 
+  const getBadge = (category: Category) => {
+    const isDefault = !category.user_id;
+    const hasSubs = (category.subscription_count || 0) > 0;
+    if (isDefault && hasSubs) {
+      return { text: `${category.subscription_count} subs · Predeterminada`, color: "#6366f1" };
+    }
+    if (isDefault) {
+      return { text: "Predeterminada", color: "#6366f1" };
+    }
+    if (hasSubs) {
+      return { text: `${category.subscription_count} ${category.subscription_count === 1 ? 'sub' : 'subs'}`, color: "#6366f1" };
+    }
+    return undefined;
+  };
+
+  const getSubtitle = (percentage: number) => {
+    return percentage > 0 ? `${percentage.toFixed(0)}% del gasto` : undefined;
+  };
+
   return (
     <div className="category-grid">
       {categories.map((category) => {
         const percentage = totalSubscriptions > 0
           ? ((category.subscription_count || 0) / totalSubscriptions) * 100
           : 0;
-
         const monthlySpent = category.monthly_total || 0;
-        const isDefault = !category.user_id;
-        const hasSubscriptions = (category.subscription_count || 0) > 0;
-        const iconColor = category.color || '#6366f1';
+        const color = COLOR_MAP[category.color || ''] || 'info';
 
         return (
-          <div key={category.id} className="category-card">
-            <div className="category-card-header">
-              <div className="header-left">
-                <div
-                  className="icon-container"
-                  style={{
-                    borderColor: `${iconColor}4d`,
-                    color: iconColor,
-                    boxShadow: `inset 0 0 12px ${iconColor}33`,
-                  }}
+          <KpiCard
+            key={category.id}
+            title={category.name}
+            value={formatCurrency(monthlySpent, 'ARS')}
+            subtitle={getSubtitle(percentage)}
+            icon={getCategoryIcon(category.name)}
+            color={color}
+            progress={percentage}
+            badge={getBadge(category)}
+            actions={
+              <>
+                <button
+                  className="category-action edit"
+                  onClick={() => onEdit(category)}
+                  title="Editar"
                 >
-                  {getCategoryIcon(category.name)}
-                </div>
-                <div className="card-title-wrapper">
-                  <h3 className="card-title">{category.name}</h3>
-                  <div className="card-badges-row">
-                    {isDefault && (
-                      <span className="badge-default">Predeterminada</span>
-                    )}
-                    {hasSubscriptions && (
-                      <span className="badge-subscriptions">
-                        {category.subscription_count} {category.subscription_count === 1 ? 'suscripción' : 'suscripciones'}
-                      </span>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="card-body">
-              <span className="amount-text">{formatCurrency(monthlySpent, 'ARS')}</span>
-              <span className="amount-label">/mes</span>
-            </div>
-
-            <div className="card-footer">
-              <div className="progress-container">
-                <div
-                  className="progress-bar"
-                  style={{ width: `${Math.min(percentage, 100)}%` }}
-                />
-                <span className="progress-text">{percentage.toFixed(0)}% del gasto</span>
-              </div>
-            </div>
-
-            <div className="category-card-actions">
-              <button
-                className="category-action edit"
-                onClick={() => onEdit(category)}
-                title="Editar"
-              >
-                <Edit3 size={14} />
-              </button>
-              <button
-                className={`category-action delete ${hasSubscriptions ? 'disabled' : ''}`}
-                onClick={() => onDelete(category.id)}
-                title={hasSubscriptions ? "Tiene suscripciones asignadas" : "Eliminar categoría"}
-                disabled={hasSubscriptions}
-              >
-                <Trash2 size={14} />
-              </button>
-            </div>
-          </div>
+                  <Edit3 size={14} />
+                </button>
+                <button
+                  className={`category-action delete ${(category.subscription_count || 0) > 0 ? 'disabled' : ''}`}
+                  onClick={() => onDelete(category.id)}
+                  title={(category.subscription_count || 0) > 0 ? "Tiene suscripciones asignadas" : "Eliminar categoría"}
+                  disabled={(category.subscription_count || 0) > 0}
+                >
+                  <Trash2 size={14} />
+                </button>
+              </>
+            }
+          />
         );
       })}
 

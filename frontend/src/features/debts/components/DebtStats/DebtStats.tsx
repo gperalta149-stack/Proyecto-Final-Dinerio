@@ -1,9 +1,8 @@
-// frontend/src/features/debts/components/DebtStats/DebtStats.tsx
 import React from 'react';
-import { Wallet, Clock, AlertTriangle, CalendarClock, CheckCircle2, type LucideIcon } from 'lucide-react';
+import { Wallet, Clock, AlertTriangle, CalendarClock, CheckCircle2 } from 'lucide-react';
+import { KpiCard } from '../../../../shared/components/ui/KpiCard';
 import { formatCurrency } from '../../../../shared/utils/formatters';
 import type { DebtsSummary } from '../../types';
-import './DebtStats.css';
 
 interface DebtStatsProps {
   summary: DebtsSummary;
@@ -20,30 +19,38 @@ export const DebtStats: React.FC<DebtStatsProps> = ({
   upcomingCount,
   paidCount,
 }) => {
-  const stats: { label: string; value: string; color: string; icon: LucideIcon }[] = [
-    { label: 'Total adeudado', value: formatCurrency(summary.totalOwed, 'ARS'), color: 'danger', icon: Wallet },
-    { label: 'Pendientes', value: String(pendingCount), color: 'warning', icon: Clock },
-    { label: 'Vencidas', value: String(overdueCount), color: 'danger', icon: AlertTriangle },
-    { label: 'Próximas (7 días)', value: String(upcomingCount), color: 'info', icon: CalendarClock },
-    { label: 'Pagadas', value: String(paidCount), color: 'success', icon: CheckCircle2 },
-  ];
-
   return (
-    <div className="debt-stats">
-      {stats.map((stat) => {
-        const Icon = stat.icon;
-        return (
-            <div key={stat.label} className={`debt-stat ${stat.color}`}>
-              <div className="debt-stat-icon">
-                <Icon size={20} />
-              </div>
-              <div className="debt-stat-info">
-                <span className="debt-stat-value">{stat.value}</span>
-                <span className="debt-stat-label">{stat.label}</span>
-              </div>
-            </div>
-        );
-      })}
+    <div className="dashboard-kpis">
+      <KpiCard
+        title="Total adeudado"
+        value={formatCurrency(summary.totalOwed, "ARS")}
+        icon={<Wallet size={16} />}
+        color="danger"
+      />
+      <KpiCard
+        title="Pendientes"
+        value={String(pendingCount)}
+        icon={<Clock size={16} />}
+        color="warning"
+      />
+      <KpiCard
+        title="Vencidas"
+        value={String(overdueCount)}
+        icon={<AlertTriangle size={16} />}
+        color="red"
+      />
+      <KpiCard
+        title="Próximas (7 días)"
+        value={String(upcomingCount)}
+        icon={<CalendarClock size={16} />}
+        color="info"
+      />
+      <KpiCard
+        title="Pagadas"
+        value={String(paidCount)}
+        icon={<CheckCircle2 size={16} />}
+        color="success"
+      />
     </div>
   );
 };

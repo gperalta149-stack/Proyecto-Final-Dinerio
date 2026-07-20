@@ -82,12 +82,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }
 
+  const updateUser = (data: Partial<User>) => {
+    setUser(prev => prev ? { ...prev, ...data } : null);
+  }
+
   const value: AuthContextType = {
     user,
     login,
     register,
     logout,
     updateBudget,
+    updateUser,
     isAuthenticated: !!user,
     loading,
   }

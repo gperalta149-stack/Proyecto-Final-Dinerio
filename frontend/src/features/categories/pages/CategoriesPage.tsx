@@ -110,8 +110,8 @@ export const CategoriesPage: React.FC = () => {
           onAdd={handleCreate}
         />
 
-        {/* Sidebar con estadísticas y tips */}
-        <div className="categories-sidebar">
+        {/* Stats + Tips en fila */}
+        <div className="categories-stats-tips">
           <CategoryStats stats={stats} />
           <CategoryTips />
         </div>

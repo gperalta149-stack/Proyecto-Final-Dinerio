@@ -45,7 +45,7 @@ export const CategoryChart: React.FC<CategoryChartProps> = ({
         {chartData.map((item, index) => (
           <motion.div
             key={item.name}
-            className="category-item"
+            className="category-item app-card"
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: index * 0.05, duration: 0.3 }}

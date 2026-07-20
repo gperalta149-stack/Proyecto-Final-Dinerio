@@ -1,19 +1,21 @@
 // frontend/src/features/profile/pages/ProfilePage.tsx
 import React, { useState, useEffect } from 'react';
-import { CreditCard, Shield, Bell, Database } from 'lucide-react';
+import { User, Lock, X } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../../shared/contexts/AuthContext';
 import { userService } from '../../auth/service/userService';
 import { ProfileInfo } from '../components/ProfileInfo/ProfileInfo';
-import { AvatarUpload } from '../components/AvatarUpload/AvatarUpload';
-import { PrivacySettings } from '../components/PrivacySettings/PrivacySettings';
 import { ChangePassword } from '../components/ChangePassword/ChangePassword';
-import { BudgetSettings } from '../components/BudgetSettings/BudgetSettings';
-import type { User } from '../types';
+import type { User as UserType } from '../types';
 import '../styles/ProfilePage.css';
 
 
 export const ProfilePage: React.FC = () => {
-  const [user, setUser] = useState<User | null>(null);
+  const navigate = useNavigate();
+  const { updateUser } = useAuth();
+  const [user, setUser] = useState<UserType | null>(null);
   const [loading, setLoading] = useState(true);
+  const [tab, setTab] = useState<'info' | 'password'>('info');
 
   useEffect(() => {
     loadUserData();
@@ -30,20 +32,23 @@ export const ProfilePage: React.FC = () => {
     }
   };
 
-  const handleUpdate = async (data: Partial<User>) => {
+  const handleUpdate = async (data: Partial<UserType>) => {
     await userService.updateProfile(data);
+    updateUser?.(data);
     await loadUserData();
   };
 
-  const handleBudgetUpdate = async (monthlyBudget: number) => {
-    await userService.updateBudget(monthlyBudget);
-    await loadUserData();
+  const handleClose = () => {
+    navigate(-1);
   };
 
   if (loading || !user) {
     return (
-      <div className="profile-page">
-        <div className="profile-container">
+      <div className="profile-modal-overlay" onClick={handleClose}>
+        <div className="profile-modal" onClick={e => e.stopPropagation()}>
+          <button className="profile-modal-close" onClick={handleClose} aria-label="Cerrar" type="button">
+            <X size={18} />
+          </button>
           <div className="profile-loading">
             <div className="loading-spinner" />
           </div>
@@ -53,27 +58,33 @@ export const ProfilePage: React.FC = () => {
   }
 
   return (
-    <div className="profile-page">
-      <div className="profile-container">
-        <div className="profile-header">
-          <div>
-            <h1 className="profile-title">Perfil</h1>
-            <p className="profile-subtitle">Gestiona tu información personal y configuración</p>
-          </div>
+    <div className="profile-modal-overlay" onClick={handleClose}>
+      <div className="profile-modal" onClick={e => e.stopPropagation()}>
+        <button className="profile-modal-close" onClick={handleClose} aria-label="Cerrar" type="button">
+          <X size={18} />
+        </button>
+        <div className="profile-tabs">
+          <button
+            className={`profile-tab ${tab === 'info' ? 'active' : ''}`}
+            onClick={() => setTab('info')}
+          >
+            <User size={16} />
+            Datos personales
+          </button>
+          <button
+            className={`profile-tab ${tab === 'password' ? 'active' : ''}`}
+            onClick={() => setTab('password')}
+          >
+            <Lock size={16} />
+            Contraseña
+          </button>
         </div>
 
-        <div className="profile-grid">
-          <div className="profile-grid-main">
-            <ProfileInfo user={user} onUpdate={handleUpdate} />
-            <AvatarUpload user={user} onUpdate={handleUpdate} />
-            <BudgetSettings user={user} onUpdate={handleBudgetUpdate} />
-            <ChangePassword />
-          </div>
-
-          <div className="profile-grid-sidebar">
-            <PrivacySettings user={user} />
-          </div>
-        </div>
+        {tab === 'info' ? (
+          <ProfileInfo user={user} onUpdate={handleUpdate} />
+        ) : (
+          <ChangePassword />
+        )}
       </div>
     </div>
   );

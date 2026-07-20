@@ -149,6 +149,26 @@
 .app-kpi-icon.color-orange { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
 .app-kpi-icon.color-red { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
 
+/* ===== KPI GRID (shared across all pages) ===== */
+.dashboard-kpis {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+@media (max-width: 1024px) {
+  .dashboard-kpis {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .dashboard-kpis {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* ===== RESPONSIVE ===== */
 @media (max-width: 768px) {
   .app-card { padding: 16px; }

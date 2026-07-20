@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from "react";
-import { ChartLine, TrendingUp } from "lucide-react";
+import { ChartLine, TrendingUp, TrendingDown } from "lucide-react";
 import { formatCurrency } from "../../../../shared/utils/formatters";
 import "./MonthlyEvolution.css";
 
@@ -16,6 +16,8 @@ interface MonthlyEvolutionProps {
   loading?: boolean;
   showAll?: boolean;
   large?: boolean;
+  range?: number | null;
+  onRangeChange?: (range: number | null) => void;
 }
 
 export const MonthlyEvolution: React.FC<MonthlyEvolutionProps> = ({
@@ -24,8 +26,12 @@ export const MonthlyEvolution: React.FC<MonthlyEvolutionProps> = ({
   loading = false,
   showAll = false,
   large = false,
+  range: externalRange,
+  onRangeChange,
 }) => {
-  const [range, setRange] = useState<number | null>(showAll ? null : 6);
+  const [internalRange, setInternalRange] = useState<number | null>(showAll ? null : 6);
+  const range = externalRange !== undefined ? externalRange : internalRange;
+  const setRange = onRangeChange || setInternalRange;
 
   const filtered = useMemo(() => {
     if (range === null) {
@@ -76,46 +82,45 @@ export const MonthlyEvolution: React.FC<MonthlyEvolutionProps> = ({
     );
   }
 
-  const periods: Array<{ label: string; value: number | null }> = [
-    { label: "6M", value: 6 },
-    { label: "12M", value: 12 },
-    { label: "24M", value: 24 },
-    { label: "Todo", value: null },
-  ];
-
   const totalFiltered = filtered.reduce((s, d) => s + d.amount, 0);
   const avgFiltered = filtered.length > 0 ? totalFiltered / filtered.length : 0;
+  const highest = filtered.length > 0 ? [...filtered].sort((a, b) => b.amount - a.amount)[0] : null;
+  const variation = (filtered.length >= 2 && filtered[0].amount > 0) ? ((filtered[filtered.length - 1].amount - filtered[0].amount) / filtered[0].amount) * 100 : null;
 
   return (
     <div className={`me-wrapper${large ? " me-large" : ""}`}>
       <div className="me-header">
         <div className="me-header-left">
           <span className="me-title">
-            <ChartLine size={16} />
+            <ChartLine size={14} />
             Evolución de gastos
           </span>
-          <div className="me-stats">
-            <span className="me-stat">
-              <span className="me-stat-label">Total</span>
-              <span className="me-stat-value">{formatCurrency(totalFiltered, currency)}</span>
-            </span>
-            <span className="me-stat-divider" />
-            <span className="me-stat">
-              <span className="me-stat-label">Promedio</span>
-              <span className="me-stat-value">{formatCurrency(avgFiltered, currency)}</span>
-            </span>
+        </div>
+      </div>
+
+      <div className="me-stats-row">
+        <div className="me-stat-item">
+          <span className="me-stat-icon" style={{ color: variation != null && variation >= 0 ? "#ef4444" : "#22c55e" }}>
+            {variation != null && variation >= 0 ? <TrendingUp size={16} /> : <TrendingDown size={16} />}
+          </span>
+          <div>
+            <div className="me-stat-item-value" style={{ color: variation != null && variation >= 0 ? "#ef4444" : "#22c55e" }}>
+              {variation != null ? `${variation >= 0 ? "+" : ""}${variation.toFixed(0)}%` : "—"}
+            </div>
+            <div className="me-stat-item-label">vs período anterior</div>
           </div>
         </div>
-        <div className="me-periods">
-          {periods.map(p => (
-            <span
-              key={p.label}
-              className={`me-period ${range === p.value ? "active" : ""}`}
-              onClick={() => setRange(p.value)}
-            >
-              {p.label}
-            </span>
-          ))}
+        <div className="me-stat-item">
+          <div>
+            <div className="me-stat-item-value">{formatCurrency(avgFiltered, currency)}</div>
+            <div className="me-stat-item-label">Promedio mensual</div>
+          </div>
+        </div>
+        <div className="me-stat-item">
+          <div>
+            <div className="me-stat-item-value">{highest ? formatCurrency(highest.amount, currency) : "—"}</div>
+            <div className="me-stat-item-label">Mayor gasto</div>
+          </div>
         </div>
       </div>
 

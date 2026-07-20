@@ -5,6 +5,7 @@ import { SubscriptionTabs, type FilterKey } from "../components/SubscriptionTabs
 import { SubscriptionTable } from "../components/SubscriptionTable/SubscriptionTable";
 import { SubscriptionModal } from "../components/SubscriptionModal/SubscriptionModal";
 import { ViewSubscriptionModal } from "../components/ViewSubscriptionModal/ViewSubscriptionModal";
+import { KpiCard } from "../../../shared/components/ui/KpiCard";
 import { subscriptionService } from "../service/subscriptionService";
 import { categoryService } from "../../categories/service/categoryService";
 import { parseAmount, formatCurrency } from "../../../shared/utils/formatters";
@@ -86,9 +87,24 @@ export const SubscriptionsPage: React.FC = () => {
     return list;
   }, [subscriptions, filter, search, sortBy]);
 
-  const totalMonthly = useMemo(() =>
-    subscriptions.filter(s => s.status === "active").reduce((sum, sub) => sum + (sub.arsAmount || parseAmount(sub.amount)), 0),
-  [subscriptions]);
+  const totalMonthly = useMemo(() => {
+    const today = new Date();
+    const currentMonth = today.getMonth();
+    const currentYear = today.getFullYear();
+
+    return subscriptions
+      .filter((sub) => {
+        if (sub.status !== "active") return false;
+
+        const billingDate = new Date(sub.next_billing_date);
+
+        return (
+          billingDate.getMonth() === currentMonth &&
+          billingDate.getFullYear() === currentYear
+        );
+      })
+      .reduce((sum, sub) => sum + (sub.arsAmount || parseAmount(sub.amount)), 0);
+  }, [subscriptions]);
 
   const nextPayment = useMemo(() => {
     const active = subscriptions.filter(s => s.status === "active").sort((a, b) => new Date(a.next_billing_date).getTime() - new Date(b.next_billing_date).getTime());
@@ -118,35 +134,31 @@ export const SubscriptionsPage: React.FC = () => {
         <SubscriptionHeader onAdd={handleCreate} />
 
         {/* KPIs */}
-        <div className="subs-kpis">
-          <div className="subs-kpi">
-            <div className="subs-kpi-icon active"><CreditCard size={16} /></div>
-            <div className="subs-kpi-info">
-              <span className="subs-kpi-value">{counts.active}</span>
-              <span className="subs-kpi-label">Activas</span>
-            </div>
-          </div>
-          <div className="subs-kpi">
-            <div className="subs-kpi-icon spent"><Wallet size={16} /></div>
-            <div className="subs-kpi-info">
-              <span className="subs-kpi-value">{formatCurrency(totalMonthly, "ARS")}</span>
-              <span className="subs-kpi-label">Gasto mensual</span>
-            </div>
-          </div>
-          <div className="subs-kpi">
-            <div className="subs-kpi-icon next"><Calendar size={16} /></div>
-            <div className="subs-kpi-info">
-              <span className="subs-kpi-value">{nextPayment ? new Date(nextPayment.next_billing_date).toLocaleDateString("es-ES", { day: "numeric", month: "short" }) : "—"}</span>
-              <span className="subs-kpi-label">Próximo pago</span>
-            </div>
-          </div>
-          <div className="subs-kpi">
-            <div className="subs-kpi-icon cats"><Layers size={16} /></div>
-            <div className="subs-kpi-info">
-              <span className="subs-kpi-value">{categoryCount}</span>
-              <span className="subs-kpi-label">Categorías</span>
-            </div>
-          </div>
+        <div className="dashboard-kpis">
+          <KpiCard
+            title="Activas"
+            value={counts.active}
+            icon={<CreditCard size={16} />}
+            color="budget"
+          />
+          <KpiCard
+            title="Gasto mensual"
+            value={formatCurrency(totalMonthly, "ARS")}
+            icon={<Wallet size={16} />}
+            color="spent"
+          />
+          <KpiCard
+            title="Próximo pago"
+            value={nextPayment ? new Date(nextPayment.next_billing_date).toLocaleDateString("es-ES", { day: "numeric", month: "short" }) : "—"}
+            icon={<Calendar size={16} />}
+            color="next-payment"
+          />
+          <KpiCard
+            title="Categorías"
+            value={categoryCount}
+            icon={<Layers size={16} />}
+            color="subscriptions"
+          />
         </div>
 
         <div className="subs-summary-bar">
@@ -184,7 +196,7 @@ export const SubscriptionsPage: React.FC = () => {
         </div>
 
         {showModal && (
-          <SubscriptionModal subscription={editingSubscription} categories={categories} onSave={handleSubmit} onClose={() => setShowModal(false)} />
+          <SubscriptionModal subscription={editingSubscription} categories={categories} onSave={handleSubmit} onClose={() => setShowModal(false)} onCategoriesChanged={loadAll} />
         )}
 
         {viewingSubscription && (

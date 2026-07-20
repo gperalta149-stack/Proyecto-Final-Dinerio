@@ -1,4 +1,5 @@
 /* frontend/src/features/reports/components/CategoryChart/CategoryChart.css */
+@import '../../../../shared/styles/cards.css';
 @import '../../styles/reports-variables.css';
 
 .category-chart {
@@ -35,12 +36,6 @@
   align-items: center;
   padding: 10px 14px;
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.02);
-  transition: background 0.3s ease;
-}
-
-.category-item:hover {
-  background: rgba(255, 255, 255, 0.04);
 }
 
 .category-item-left {

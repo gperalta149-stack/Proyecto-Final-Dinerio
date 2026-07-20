@@ -11,16 +11,26 @@
   align-items: center;
   justify-content: center;
   text-align: center;
-  color: var(--dashboard-text-tertiary);
-  height: 100%;
-  min-height: 140px;
-  padding: 40px 20px;
+  color: var(--text-tertiary);
+  font-size: 0.85rem;
+  gap: 12px;
+  min-height: 160px;
 }
 
 .savings-empty .empty-icon {
-  font-size: 2.5rem;
+  font-size: 48px;
   display: block;
-  margin-bottom: 10px;
+  opacity: 0.5;
+}
+
+.savings-empty p {
+  margin: 0;
+}
+
+.savings-empty-sub {
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+  opacity: 0.7;
 }
 
 .savings-header {
@@ -28,6 +38,8 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-soft);
   flex-wrap: wrap;
   gap: 12px;
 }
@@ -39,13 +51,15 @@
 }
 
 .savings-icon {
-  color: var(--dashboard-accent-1);
+  color: var(--text-tertiary);
 }
 
 .savings-title {
   font-weight: 600;
-  font-size: 1rem;
-  color: var(--dashboard-text-primary);
+  font-size: 0.85rem;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .savings-total {
@@ -60,7 +74,7 @@
 
 .savings-total-label {
   font-size: 0.75rem;
-  color: var(--dashboard-text-tertiary);
+  color: var(--text-tertiary);
 }
 
 .savings-total-value {
@@ -72,7 +86,7 @@
 
 .savings-total-period {
   font-size: 0.75rem;
-  color: var(--dashboard-text-tertiary);
+  color: var(--text-tertiary);
 }
 
 .savings-list {

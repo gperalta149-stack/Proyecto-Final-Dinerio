@@ -1,5 +1,57 @@
 /* frontend/src/features/debts/styles/debts.css */
 @import './debts-variables.css';
+@import '../../../shared/styles/cards.css';
+
+/* ===== KPI CONTAINER ===== */
+.debt-kpis-container {
+  border: 1px solid rgba(99, 102, 241, 0.12);
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 24px;
+}
+
+.debt-kpis-container .dashboard-kpis {
+  margin-bottom: 0;
+  grid-template-columns: repeat(5, 1fr);
+}
+
+.debt-kpis-container .kpi-card {
+  padding: 16px 18px;
+  gap: 8px;
+}
+
+.debt-kpis-container .kpi-icon-wrapper {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  margin-bottom: 4px;
+}
+
+.debt-kpis-container .kpi-icon-wrapper svg {
+  width: 16px;
+  height: 16px;
+}
+
+.debt-kpis-container .kpi-title {
+  font-size: 11px;
+}
+
+.debt-kpis-container .kpi-value {
+  font-size: 18px;
+}
+
+.debt-kpis-container .kpi-subtitle {
+  font-size: 12px;
+}
+
+.debt-kpis-container .kpi-progress-bar {
+  height: 3px;
+}
+
+.debt-kpis-container .kpi-badge {
+  font-size: 9px;
+  padding: 1px 5px;
+}
 
 /* ===== PAGE ===== */
 .debt-page {
@@ -258,7 +310,16 @@
 }
 
 /* ===== RESPONSIVE ===== */
+@media (max-width: 1200px) {
+  .debt-kpis-container .dashboard-kpis {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
 @media (max-width: 768px) {
+  .debt-kpis-container .dashboard-kpis {
+    grid-template-columns: repeat(2, 1fr);
+  }
   .debt-page {
     padding: 16px;
   }
@@ -281,8 +342,11 @@
     flex-direction: column;
   }
 
-  .debt-stats {
-    grid-template-columns: repeat(2, 1fr);
+}
+
+@media (max-width: 640px) {
+  .debt-kpis-container .dashboard-kpis {
+    grid-template-columns: 1fr;
   }
 }
 

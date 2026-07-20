@@ -76,6 +76,7 @@ export interface Category {
   color: string;
   icon?: string;
   user_id?: string;
+  is_default?: boolean;
   subscription_count?: number;
   monthly_total?: number;
   created_at?: string;
@@ -163,6 +164,7 @@ export interface FinancialReport {
     subscription_count: number;
     monthly_total: number;
   }[];
+  subscriptions?: any[];
 }
 
 // ===== CALENDAR =====
@@ -211,6 +213,7 @@ export interface AuthContextType {
   register: (email: string, password: string, firstName: string, lastName: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
   updateBudget?: (monthlyBudget: number) => Promise<{ success: boolean; error?: string }>;
+  updateUser?: (data: Partial<User>) => void;
   isAuthenticated: boolean;
   loading: boolean;
 }

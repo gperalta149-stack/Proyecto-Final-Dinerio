@@ -22,10 +22,12 @@ export const reportService = {
     return response.data;
   },
 
-  async getFinancialReport(month?: number, year?: number): Promise<FinancialReport> {
+  async getFinancialReport(month?: number, year?: number, range?: number | null, rangeMode?: string): Promise<FinancialReport> {
     const params: Record<string, any> = {};
     if (month) params.month = month;
     if (year) params.year = year;
+    if (range) params.range = range;
+    if (rangeMode) params.rangeMode = rangeMode;
 
     const response = await api.get("/reports/financial", { params });
     return response.data;

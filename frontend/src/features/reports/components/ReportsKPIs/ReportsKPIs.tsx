@@ -2,7 +2,6 @@
 import React from "react";
 import { DollarSign, TrendingUp, PieChart, Calendar } from "lucide-react";
 import { formatCurrency } from "../../../../shared/utils/formatters";
-import "./ReportsKPIs.css";
 
 interface ReportsKPIsProps {
   monthlyTotal: number;

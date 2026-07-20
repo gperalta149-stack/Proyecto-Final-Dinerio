@@ -2,14 +2,17 @@ import React from "react";
 import { motion } from "framer-motion";
 import "./KpiCard.css";
 
+export type KpiCardColor = "spent" | "subscriptions" | "next-payment" | "budget" | "danger" | "warning" | "success" | "info" | "orange" | "red";
+
 interface KpiCardProps {
   title: string;
   value: string | number;
   subtitle?: string;
   icon: React.ReactNode;
-  color?: "spent" | "subscriptions" | "next-payment" | "budget";
+  color?: KpiCardColor;
   progress?: number;
   badge?: { text: string; color: string };
+  actions?: React.ReactNode;
 }
 
 export const KpiCard: React.FC<KpiCardProps> = ({
@@ -20,12 +23,19 @@ export const KpiCard: React.FC<KpiCardProps> = ({
   color = "spent",
   progress,
   badge,
+  actions,
 }) => {
   const colorMap = {
-    spent: { bg: "var(--kpi-bg-spent)", icon: "var(--kpi-color-spent)", bar: "var(--kpi-color-spent)" },
-    subscriptions: { bg: "var(--kpi-bg-subscriptions)", icon: "var(--kpi-color-subscriptions)", bar: "var(--kpi-color-subscriptions)" },
-    "next-payment": { bg: "var(--kpi-bg-next-payment)", icon: "var(--kpi-color-next-payment)", bar: "var(--kpi-color-next-payment)" },
-    budget: { bg: "var(--kpi-bg-budget)", icon: "var(--kpi-color-budget)", bar: "var(--kpi-color-budget)" },
+    spent: { bg: "rgba(99, 102, 241, 0.1)", icon: "#6366f1", bar: "#6366f1" },
+    subscriptions: { bg: "rgba(139, 92, 246, 0.1)", icon: "#8b5cf6", bar: "#8b5cf6" },
+    "next-payment": { bg: "rgba(6, 182, 212, 0.1)", icon: "#06b6d4", bar: "#06b6d4" },
+    budget: { bg: "rgba(34, 197, 94, 0.1)", icon: "#22c55e", bar: "#22c55e" },
+    danger: { bg: "rgba(239, 68, 68, 0.1)", icon: "#ef4444", bar: "#ef4444" },
+    warning: { bg: "rgba(245, 158, 11, 0.1)", icon: "#f59e0b", bar: "#f59e0b" },
+    success: { bg: "rgba(34, 197, 94, 0.1)", icon: "#22c55e", bar: "#22c55e" },
+    info: { bg: "rgba(99, 102, 241, 0.1)", icon: "#818cf8", bar: "#818cf8" },
+    orange: { bg: "rgba(245, 158, 11, 0.1)", icon: "#f59e0b", bar: "#f59e0b" },
+    red: { bg: "rgba(239, 68, 68, 0.1)", icon: "#ef4444", bar: "#ef4444" },
   };
 
   return (
@@ -34,6 +44,7 @@ export const KpiCard: React.FC<KpiCardProps> = ({
       whileHover={{ y: -4 }}
       transition={{ duration: 0.3 }}
     >
+      {actions && <div className="kpi-actions">{actions}</div>}
       <div className="kpi-icon-wrapper" style={{ background: colorMap[color].bg }}>
         <span style={{ color: colorMap[color].icon }}>{icon}</span>
       </div>
@@ -62,3 +73,4 @@ export const KpiCard: React.FC<KpiCardProps> = ({
 };
 
 export default KpiCard;
+

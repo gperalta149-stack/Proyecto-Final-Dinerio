@@ -11,7 +11,8 @@ export const getCategories = async (req: AuthRequest, res: Response): Promise<vo
   try {
     const result = await pool.query(
       `SELECT c.*,
-        COUNT(s.id) FILTER (WHERE s.user_id = $1) AS subscription_count,
+        (c.user_id IS NULL) AS is_default,
+        COUNT(s.id) FILTER (WHERE s.user_id = $1)::int AS subscription_count,
         COALESCE(SUM(
           CASE s.billing_cycle
             WHEN 'monthly' THEN s.amount
@@ -97,15 +98,45 @@ export const deleteCategory = async (req: AuthRequest, res: Response): Promise<v
   const { id } = req.params
 
   try {
-    const result = await pool.query(
-      "DELETE FROM categories WHERE id = $1 AND user_id = $2 RETURNING id, name",
+    const categoryResult = await pool.query(
+      `SELECT id, name, user_id
+       FROM categories
+       WHERE id = $1
+         AND (user_id = $2 OR user_id IS NULL)`,
       [id, req.user!.userId]
     )
 
-    if (result.rows.length === 0) {
+    if (categoryResult.rows.length === 0) {
       res.status(404).json({ error: "Categoría no encontrada" })
       return
     }
+
+    const category = categoryResult.rows[0]
+
+    if (category.user_id === null) {
+      res.status(400).json({ error: "Las categorías predeterminadas no pueden eliminarse" })
+      return
+    }
+
+    const subscriptionResult = await pool.query(
+      `SELECT COUNT(*)::int AS total
+       FROM subscriptions
+       WHERE category_id = $1
+         AND user_id = $2`,
+      [id, req.user!.userId]
+    )
+
+    if (subscriptionResult.rows[0].total > 0) {
+      res.status(400).json({ error: "No se puede eliminar una categoría que está siendo utilizada por una suscripción" })
+      return
+    }
+
+    await pool.query(
+      `DELETE FROM categories
+       WHERE id = $1
+         AND user_id = $2`,
+      [id, req.user!.userId]
+    )
 
     res.json({ message: "Categoría eliminada exitosamente" })
   } catch (error) {

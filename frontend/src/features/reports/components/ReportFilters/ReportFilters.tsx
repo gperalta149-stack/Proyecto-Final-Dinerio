@@ -1,5 +1,5 @@
 import React from "react";
-import { Calendar, ChevronDown, FileText, FileSpreadsheet, File } from "lucide-react";
+import { FileText, FileSpreadsheet, File } from "lucide-react";
 import "./ReportFilters.css";
 
 interface ReportFiltersProps {
@@ -15,6 +15,8 @@ const MONTHS = [
   "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
 ];
 
+const WEEKDAYS = ["Do", "Lu", "Ma", "Mi", "Ju", "Vi", "Sa"];
+
 export const ReportFilters: React.FC<ReportFiltersProps> = ({
   selectedMonth,
   selectedYear,
@@ -22,48 +24,67 @@ export const ReportFilters: React.FC<ReportFiltersProps> = ({
   onYearChange,
   onExportCSV,
 }) => {
-  const currentYear = new Date().getFullYear();
-  const years = Array.from({ length: 5 }, (_, i) => currentYear - i);
+  const today = new Date();
+  const firstDay = new Date(selectedYear, selectedMonth - 1, 1).getDay();
+  const daysInMonth = new Date(selectedYear, selectedMonth, 0).getDate();
+
+  const goPrev = () => {
+    if (selectedMonth === 1) {
+      onMonthChange(12);
+      onYearChange(selectedYear - 1);
+    } else {
+      onMonthChange(selectedMonth - 1);
+    }
+  };
+
+  const goNext = () => {
+    if (selectedMonth === 12) {
+      onMonthChange(1);
+      onYearChange(selectedYear + 1);
+    } else {
+      onMonthChange(selectedMonth + 1);
+    }
+  };
 
   return (
     <div className="report-filters">
-      <div className="filter-select-wrapper">
-        <Calendar size={16} className="filter-icon" />
-        <select
-          value={`${selectedMonth}-${selectedYear}`}
-          onChange={(e) => {
-            const [month, year] = e.target.value.split('-').map(Number);
-            onMonthChange(month);
-            onYearChange(year);
-          }}
-          className="filter-select"
-        >
-          {years.map(year => (
-            MONTHS.map((month, index) => {
-              const monthNum = index + 1;
-              return (
-                <option key={`${monthNum}-${year}`} value={`${monthNum}-${year}`}>
-                  {month} {year}
-                </option>
-              );
-            })
+      <div className="calendar-picker">
+        <div className="calendar-picker-header">
+          <button className="calendar-nav" onClick={goPrev}>&lsaquo;</button>
+          <span className="calendar-picker-title">{MONTHS[selectedMonth - 1]} {selectedYear}</span>
+          <button className="calendar-nav" onClick={goNext}>&rsaquo;</button>
+        </div>
+        <div className="calendar-grid">
+          {WEEKDAYS.map(d => <span key={d} className="calendar-weekday">{d}</span>)}
+          {Array.from({ length: firstDay }, (_, i) => (
+            <span key={`empty-${i}`} className="calendar-day calendar-day--empty" />
           ))}
-        </select>
-        <ChevronDown size={14} className="filter-chevron" />
+          {Array.from({ length: daysInMonth }, (_, i) => {
+            const day = i + 1;
+            const isToday = day === today.getDate() && selectedMonth === today.getMonth() + 1 && selectedYear === today.getFullYear();
+            return (
+              <span key={day} className={`calendar-day${isToday ? " calendar-day--today" : ""}`}>
+                {day}
+              </span>
+            );
+          })}
+        </div>
       </div>
 
-      <button onClick={onExportCSV} className="export-btn csv-btn" title="Descargar CSV">
-        <FileText size={14} />
-        CSV
-      </button>
-      <button className="export-btn" disabled title="Próximamente">
-        <FileSpreadsheet size={14} />
-        Excel
-      </button>
-      <button className="export-btn" disabled title="Próximamente">
-        <File size={14} />
-        PDF
-      </button>
+      <div className="export-actions">
+        <button onClick={onExportCSV} className="export-btn csv-btn" title="Descargar CSV">
+          <FileText size={14} />
+          CSV
+        </button>
+        <button className="export-btn" disabled title="Próximamente">
+          <FileSpreadsheet size={14} />
+          Excel
+        </button>
+        <button className="export-btn" disabled title="Próximamente">
+          <File size={14} />
+          PDF
+        </button>
+      </div>
     </div>
   );
 };

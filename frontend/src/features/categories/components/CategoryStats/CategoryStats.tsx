@@ -1,6 +1,5 @@
-// frontend/src/features/categories/components/CategoryStats/CategoryStats.tsx
 import React from 'react';
-import { BarChart3, Star } from 'lucide-react';
+import { BarChart3, Layers, CheckCircle2 } from 'lucide-react';
 import type { CategoryStats as CategoryStatsType } from '../../utils/getCategoryStats';
 import './CategoryStats.css';
 
@@ -10,38 +9,23 @@ interface CategoryStatsProps {
 
 export const CategoryStats: React.FC<CategoryStatsProps> = ({ stats }) => {
   const items = [
-    { label: 'Total de categorías', value: String(stats.total), color: '' },
-    { label: 'Con suscripciones', value: String(stats.withSubscriptions), color: 'success' },
-    { label: 'Vacías', value: String(stats.empty), color: '' },
+    { label: 'Total', value: stats.total, icon: BarChart3, color: '#6366f1' },
+    { label: 'Con suscripciones', value: stats.withSubscriptions, icon: Layers, color: '#22c55e' },
+    { label: 'Vacías', value: stats.empty, icon: CheckCircle2, color: '#f59e0b' },
   ];
 
   return (
-    <div className="summary-card">
-      <h3 className="section-title">
-        <BarChart3 size={18} />
-        Resumen
-      </h3>
-      <div className="summary-list">
-        {items.map((item) => (
-          <div key={item.label} className="summary-item">
-            <span className="summary-label">{item.label}</span>
-            <span className={`summary-badge ${item.color}`}>{item.value}</span>
+    <div className="category-stats-row">
+      {items.map((item) => {
+        const Icon = item.icon;
+        return (
+          <div key={item.label} className="category-stat-item">
+            <Icon size={22} style={{ color: item.color }} />
+            <span className="category-stat-value">{item.value}</span>
+            <span className="category-stat-label">{item.label}</span>
           </div>
-        ))}
-        {stats.mostUsed && (
-          <div className="summary-item">
-            <span className="summary-label">Más usada</span>
-            <span className="summary-badge highlight">
-              <Star
-                size={10}
-                color="#ffffff"
-                style={{ marginRight: 4, verticalAlign: -1 }}
-              />
-              {stats.mostUsed.name}
-            </span>
-          </div>
-        )}
-      </div>
+        );
+      })}
     </div>
   );
 };

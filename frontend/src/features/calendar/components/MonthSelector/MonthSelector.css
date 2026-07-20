@@ -5,9 +5,12 @@
   background: var(--calendar-bg-card);
   border: 1px solid var(--calendar-border-subtle);
   border-radius: 12px;
-  padding: 16px 24px;
+  padding: 28px 24px;
   margin-bottom: 24px;
   transition: all 0.25s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .month-selector:hover {

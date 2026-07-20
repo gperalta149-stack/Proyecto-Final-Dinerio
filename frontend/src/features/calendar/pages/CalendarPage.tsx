@@ -49,10 +49,10 @@ export const CalendarPage: React.FC = () => {
           </div>
         </div>
 
-        <MonthSelector currentDate={currentDate} onDateChange={setCurrentDate} />
-
         <div className="calendar-grid-layout">
           <div className="calendar-main">
+            <MonthSelector currentDate={currentDate} onDateChange={setCurrentDate} />
+
             {view === 'month' ? (
               <CalendarView
                 currentDate={currentDate}

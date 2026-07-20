@@ -6,7 +6,6 @@ import { Navigate, Route, Routes } from "react-router-dom"
 import { LoginPage, RegisterPage } from "../features/auth"
 import { BudgetPage } from "../features/budget"
 import { CalendarPage } from "../features/calendar"
-import { CategoriesPage } from "../features/categories"
 import { DashboardPage } from "../features/dashboard"
 import { DebtsPage } from "../features/debts"
 import { HomePage } from "../features/home"
@@ -58,16 +57,6 @@ export const AppRoutes: React.FC = () => {
           <PrivateRoute>
             <Layout>
                 <SubscriptionsPage />
-            </Layout>
-          </PrivateRoute>
-        }
-      />
-      <Route
-        path="/categories"
-        element={
-          <PrivateRoute>
-            <Layout>
-                <CategoriesPage />
             </Layout>
           </PrivateRoute>
         }
