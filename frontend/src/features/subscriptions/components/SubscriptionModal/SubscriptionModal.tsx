@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
+import ExchangeRateService from "../../../../shared/services/exchangeRateService";
 import { X, Plus, Pencil, Calendar, FileText } from "lucide-react";
 import { getCategoryIcon } from '../../../categories/utils/getCategoryIcon';
 import { categoryService } from '../../../categories/service/categoryService';
@@ -198,7 +199,7 @@ export const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
 
   const convertedAmount = useMemo(() => {
     if (formData.currency === "USD" && amount > 0) {
-      return Math.round(amount * 1513 * 1.51);
+      return ExchangeRateService.convertUSDToARS(amount, 'oficial', true);
     }
     return null;
   }, [amount, formData.currency]);
@@ -265,18 +266,20 @@ export const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
             <label className="subs-form-label" htmlFor="subs-name">
               Nombre del servicio <span className="required">*</span>
             </label>
-            <input
-              id="subs-name"
-              type="text"
-              name="name"
-              value={formData.name || ""}
-              onChange={handleChange}
-              className="subs-form-input large"
-              placeholder="Notion, Linear, Vercel..."
-              required
-              disabled={loading}
-              autoFocus
-            />
+            <div className="subs-name-wrapper">
+              <input
+                id="subs-name"
+                type="text"
+                name="name"
+                value={formData.name || ""}
+                onChange={handleChange}
+                className="subs-form-input large"
+                placeholder="Notion, Linear, Vercel..."
+                required
+                disabled={loading}
+                autoFocus
+              />
+            </div>
           </div>
 
           <div className="subs-form-group">

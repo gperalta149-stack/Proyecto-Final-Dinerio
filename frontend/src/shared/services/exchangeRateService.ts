@@ -162,9 +162,9 @@ class ExchangeRateService {
       return Math.round(amountUSD * rate);
     }
     
-    // Official rate - applies 30% impact tax
+    // Official rate - applies IVA 21% + Percepción Ganancias 30% + IIBB Cba 3%
     if (includeTax && type === 'oficial') {
-      return Math.round(amountUSD * rate * 1.30);
+      return Math.round(amountUSD * rate * 1.54);
     }
     
     // Default case: no taxes

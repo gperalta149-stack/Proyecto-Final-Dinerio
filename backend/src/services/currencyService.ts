@@ -1,14 +1,14 @@
 // Servicio para conversión de divisas y cálculos financieros
 
 export interface CurrencyConversionConfig {
-  exchangeRate: number;  // Tipo de cambio USD a ARS
-  taxRate: number;      // Impuesto para compras en USD (ej: 0.75 para 75%)
+  exchangeRate: number;  // Tipo de cambio USD a ARS (Dólar Oficial)
+  taxRate: number;      // Impuesto para compras en USD (IVA 21% + Ganancias 30% + IIBB 3% = 54%)
 }
 
 export class CurrencyService {
   private static config: CurrencyConversionConfig = {
-    exchangeRate: 1450,  // Valor por defecto, debería venir de API o config
-    taxRate: 0.75        // 75% de impuestos para USD
+    exchangeRate: 1470,  // Dólar Oficial (por defecto, se actualiza vía API)
+    taxRate: 0.54        // IVA 21% + Percepción Ganancias 30% + Ingresos Brutos Córdoba 3%
   };
 
   static setConfig(config: Partial<CurrencyConversionConfig>) {

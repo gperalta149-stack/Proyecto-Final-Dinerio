@@ -9,8 +9,8 @@ const calculateSubscriptionWithConversion = async (subscription: Subscription): 
 
   if (subscription.currency === 'USD') {
     try {
-      const currentRate = await ExchangeRateService.getRate('blue');
-      const arsAmount = amount * currentRate * 1.51;
+      const currentRate = await ExchangeRateService.getRate('oficial');
+      const arsAmount = amount * currentRate * 1.54;
       const roundedARS = Math.round(arsAmount * 100) / 100;
 
       return {
@@ -23,8 +23,8 @@ const calculateSubscriptionWithConversion = async (subscription: Subscription): 
         currentExchangeRate: currentRate,
         lastUpdated: new Date().toISOString(),
         hasTax: true,
-        taxAmountUSD: amount * 0.51,
-        totalWithTaxUSD: amount * 1.51,
+        taxAmountUSD: amount * 0.54,
+        totalWithTaxUSD: amount * 1.54,
         totalWithTaxARS: roundedARS
       };
     } catch (error) {

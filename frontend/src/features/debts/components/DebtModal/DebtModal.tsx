@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { X, DollarSign, Calendar, FileText, ChevronDown } from "lucide-react";
 import { getCategoryIcon } from '../../../categories/utils/getCategoryIcon';
+import ExchangeRateService from "../../../../shared/services/exchangeRateService";
 import type { Category } from '../../../categories/types';
 import type { Debt } from '../../types';
 import "./DebtModal.css";
@@ -117,7 +118,7 @@ export const DebtModal: React.FC<DebtModalProps> = ({
 
   const convertedAmount = useMemo(() => {
     if (formData.currency === "USD" && amount > 0) {
-      return Math.round(amount * 1513 * 1.51);
+      return ExchangeRateService.convertUSDToARS(amount, 'oficial', true);
     }
     return null;
   }, [amount, formData.currency]);
