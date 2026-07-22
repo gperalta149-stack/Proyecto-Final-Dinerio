@@ -11,7 +11,8 @@
 }
 
 .notification-card.unread {
-  border-color: rgba(99, 102, 241, 0.3);
+  border-color: var(--notif-accent-1);
+  border-width: 1.5px;
   background: rgba(99, 102, 241, 0.03);
 }
 
@@ -57,7 +58,7 @@
 }
 
 .notification-card-title {
-  font-size: 0.95rem;
+  font-size: 1rem;
   font-weight: 600;
   color: var(--notif-text-primary);
   margin: 0;
@@ -108,6 +109,25 @@
 .notification-card-time {
   font-size: 0.75rem;
   color: var(--notif-text-tertiary);
+}
+
+.notification-card-mark-read {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  border: none;
+  background: var(--notif-accent-1);
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.notification-card-mark-read:hover {
+  background: var(--notif-accent-2);
+  transform: scale(1.1);
 }
 
 .notification-card-menu-btn {

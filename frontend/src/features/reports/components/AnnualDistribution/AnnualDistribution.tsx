@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from "react";
 import { TrendingUp, TrendingDown, ChevronLeft, ChevronRight } from "lucide-react";
 import { formatCurrency } from "../../../../shared/utils/formatters";
+import ExchangeRateService from "../../../../shared/services/exchangeRateService";
 import "./AnnualDistribution.css";
 
 interface CategoryData {
@@ -39,7 +40,7 @@ export const AnnualDistribution: React.FC<AnnualDistributionProps> = ({
     const withTotal = categories.map((cat) => {
       const ars = Number(cat.monthly_total_ars || 0);
       const usd = Number(cat.monthly_total_usd || 0);
-      const converted = ars + usd * 1450 * 1.75;
+      const converted = ars + usd * ExchangeRateService.getTarjetaRate();
       return { ...cat, monthly_total: converted };
     });
     const total = withTotal.reduce((sum, c) => sum + c.monthly_total, 0);

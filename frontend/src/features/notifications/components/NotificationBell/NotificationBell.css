@@ -172,19 +172,19 @@
 }
 
 .notif-bell-item-title {
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   font-weight: 500;
   color: var(--notif-text-primary);
 }
 
 .notif-bell-item-time {
-  font-size: 0.65rem;
+  font-size: 0.7rem;
   color: var(--notif-text-tertiary);
   flex-shrink: 0;
 }
 
 .notif-bell-item-message {
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   color: var(--notif-text-secondary);
   margin: 0 0 4px 0;
   line-height: 1.4;

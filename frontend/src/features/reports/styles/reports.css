@@ -37,7 +37,8 @@
   align-items: center;
   gap: 8px;
   width: 100%;
-  justify-content: space-between;
+  justify-content: flex-start;
+  padding-left: 6px;
 }
 
 .date-spinner {

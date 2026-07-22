@@ -344,12 +344,7 @@ export const DashboardPage: React.FC = () => {
       <div className="dashboard-container">
         <div className="dashboard-hero">
           <h1 className="dashboard-hero-greeting"><Hand size={22} className="dashboard-hero-icon" /> Hola, {user?.name || user?.first_name || "Usuario"}</h1>
-          <div className="quick-actions">
-            <button className="quick-action primary">
-              <Upload size={18} />
-              Importar
-            </button>
-          </div>
+
         </div>
 
         {data.budgetPercentage > 80 && (

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { Search, CreditCard, Calendar, Wallet, Layers } from "lucide-react";
+import { Search, CreditCard, Calendar, Wallet, Layers, PauseCircle, XCircle } from "lucide-react";
 import { SubscriptionHeader } from "../components/SubscriptionHeader/SubscriptionHeader";
 import { SubscriptionTabs, type FilterKey } from "../components/SubscriptionTabs/SubscriptionTabs";
 import { SubscriptionTable } from "../components/SubscriptionTable/SubscriptionTable";
@@ -137,12 +137,24 @@ export const SubscriptionsPage: React.FC = () => {
         <SubscriptionHeader onAdd={handleCreate} />
 
         {/* KPIs */}
-        <div className="dashboard-kpis">
+        <div className="subs-kpis-container"><div className="dashboard-kpis">
           <KpiCard
             title="Activas"
             value={counts.active}
             icon={<CreditCard size={16} />}
             color="budget"
+          />
+          <KpiCard
+            title="Pausadas"
+            value={counts.paused}
+            icon={<PauseCircle size={16} />}
+            color="warning"
+          />
+          <KpiCard
+            title="Canceladas"
+            value={counts.cancelled}
+            icon={<XCircle size={16} />}
+            color="danger"
           />
           <KpiCard
             title="Gasto mensual"
@@ -162,7 +174,7 @@ export const SubscriptionsPage: React.FC = () => {
             icon={<Layers size={16} />}
             color="subscriptions"
           />
-        </div>
+        </div></div>
 
         <div className="subs-summary-bar">
           <span className="subs-summary-text">
@@ -170,6 +182,7 @@ export const SubscriptionsPage: React.FC = () => {
           </span>
         </div>
 
+        <div className="subs-filters-wrapper">
         <SubscriptionTabs tabs={tabs} activeFilter={filter} onFilterChange={setFilter} />
 
         <div className="subs-toolbar">
@@ -183,6 +196,7 @@ export const SubscriptionsPage: React.FC = () => {
               {sortOptions.map((o) => <option key={o.key} value={o.key}>{o.label}</option>)}
             </select>
           </div>
+        </div>
         </div>
 
         <div className="subs-card">

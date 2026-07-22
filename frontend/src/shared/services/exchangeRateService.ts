@@ -16,13 +16,13 @@ export interface ExchangeRates {
 class ExchangeRateService {
 
   private static currentRates: ExchangeRates = {
-    oficial: 1470,
-    oficialCompra: 1440,
-    oficialVenta: 1470,
+    oficial: 1450,
+    oficialCompra: 1420,
+    oficialVenta: 1450,
     oficialTrend: 'same',
-    tarjeta: 1911,
-    tarjetaCompra: 1811,
-    tarjetaVenta: 1911,
+    tarjeta: 2218.5,
+    tarjetaCompra: 2218.5,
+    tarjetaVenta: 2218.5,
     tarjetaTrend: 'same',
     lastUpdate: new Date(0)
   };
@@ -66,26 +66,15 @@ class ExchangeRateService {
         }
       }
 
-      try {
-        const tarjetaResponse = await fetch('https://dolarapi.com/v1/dolares/tarjeta');
-        if (tarjetaResponse.ok) {
-          const tarjetaData = await tarjetaResponse.json();
-          tarjetaCompra = tarjetaData.compra;
-          tarjetaVenta = tarjetaData.venta;
-        }
-      } catch (error) {
-        console.warn('No se pudo obtener el dólar tarjeta');
-      }
-
       if (!oficialVenta) {
-        oficialCompra = oficialCompra || 1440;
-        oficialVenta = oficialVenta || 1470;
+        oficialCompra = oficialCompra || 1420;
+        oficialVenta = oficialVenta || 1450;
       }
 
-      if (!tarjetaVenta) {
-        tarjetaCompra = tarjetaCompra || 1811;
-        tarjetaVenta = tarjetaVenta || 1911;
-      }
+      // tarjeta = oficial + IVA(21%) + PAIS(30%) + IIBB(2%) = oficial * 1.53
+      const computedTarjeta = Number((oficialVenta * 1.53).toFixed(2));
+      tarjetaVenta = computedTarjeta;
+      tarjetaCompra = computedTarjeta;
 
       const previousOficialVenta = this.currentRates.oficialVenta;
       const previousTarjetaVenta = this.currentRates.tarjetaVenta;
@@ -136,6 +125,10 @@ class ExchangeRateService {
   static convertUSDToARS(amountUSD: number, type: 'oficial' | 'tarjeta' = 'tarjeta'): number {
     const rate = this.currentRates[type];
     return Math.round(amountUSD * rate);
+  }
+
+  static getTarjetaRate(): number {
+    return this.currentRates.tarjeta;
   }
 
   private static shouldUpdate(): boolean {

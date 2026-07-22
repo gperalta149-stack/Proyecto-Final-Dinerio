@@ -27,10 +27,11 @@ export const useReports = (month?: number, year?: number, range?: number | null,
       // Determine which years to fetch evolution for
       let yearsToFetch = [y!];
       if (rm === 'range' && r && y && m) {
-        const totalMonths = y * 12 + m;
-        const startTotal = totalMonths - r + 1;
+        const now = new Date();
+        const actualTotal = now.getFullYear() * 12 + (now.getMonth() + 1);
+        const endTotal = Math.min(y * 12 + m, actualTotal);
+        const startTotal = endTotal - r + 1;
         const startYear = Math.floor(startTotal / 12) || 1;
-        const startMonth = startTotal % 12 || 12;
         if (startYear < y) {
           yearsToFetch = [startYear, y];
         }

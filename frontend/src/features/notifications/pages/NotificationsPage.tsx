@@ -122,22 +122,24 @@ export const NotificationsPage: React.FC = () => {
     <div className="notif-page">
       <div className="notif-container">
         <div className="notif-header">
-          <div>
-            <h1 className="notif-title">Centro de Notificaciones</h1>
-            <p className="notif-subtitle">
-              Historial completo de todas tus notificaciones y alertas
-            </p>
-          </div>
-          <div className="notif-actions">
+          <div className="notif-header-left">
+            <div>
+              <h1 className="notif-title">Notificaciones</h1>
+              <p className="notif-subtitle">
+                Historial completo de todas tus notificaciones y alertas
+              </p>
+            </div>
             {counts.unread > 0 && (
               <button
                 className="notif-mark-all-btn"
                 onClick={handleMarkAllAsRead}
               >
                 <CheckCircle2 size={16} />
-                Marcar todas como leídas
+                Marcar como leídos a todos
               </button>
             )}
+          </div>
+          <div className="notif-actions">
             <button
               className="notif-refresh-btn"
               onClick={handleRefresh}

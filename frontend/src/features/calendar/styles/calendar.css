@@ -52,7 +52,7 @@
 /* ===== HEADER ===== */
 .calendar-header {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: center;
   margin-bottom: 24px;
   flex-wrap: wrap;
@@ -81,7 +81,6 @@
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid var(--calendar-border-subtle);
   border-radius: 10px;
-  margin-left: auto;
 }
 
 .calendar-btn {

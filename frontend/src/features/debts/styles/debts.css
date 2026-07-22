@@ -95,7 +95,6 @@
 /* ===== HEADER ===== */
 .debt-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
   margin-bottom: 24px;
   flex-wrap: wrap;
@@ -185,6 +184,13 @@
 }
 
 /* ===== DEBT LIST ===== */
+.debt-filters-wrapper {
+  border: 1px solid rgba(99, 102, 241, 0.12);
+  border-radius: 14px;
+  padding: 4px 10px 4px 6px;
+  margin-bottom: 24px;
+}
+
 .debt-card-list {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));

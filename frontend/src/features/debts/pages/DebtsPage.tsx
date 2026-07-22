@@ -116,12 +116,6 @@ export const DebtsPage: React.FC = () => {
     <div className="debt-page">
       <div className="debt-container">
         <div className="debt-header">
-          <div className="debt-header-left">
-            
-            <div>
-              
-            </div>
-          </div>
           <button className="debt-history-btn" onClick={() => setShowHistory(!showHistory)}>
             <History size={16} />
             {showHistory ? 'Deudas pendientes' : 'Historial de pagos'}
@@ -150,13 +144,13 @@ export const DebtsPage: React.FC = () => {
           <DebtHistory debts={paidDebts} />
         ) : (
           <>
-            <DebtFilters
+            <div className="debt-filters-wrapper"><DebtFilters
               activeFilter={activeFilter}
               onFilterChange={setActiveFilter}
               searchTerm={searchTerm}
               onSearchChange={setSearchTerm}
               counts={counts}
-            />
+            /></div>
 
             <div className={`debt-card-list${filteredDebts.length === 0 ? ' empty' : ''}`}>
               {filteredDebts.length === 0 ? (

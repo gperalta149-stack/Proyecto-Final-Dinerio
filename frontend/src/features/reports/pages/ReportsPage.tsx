@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from "react";
-import { FileText, FileSpreadsheet, File, DollarSign, BarChart3, Trophy, ArrowUp, TrendingDown, TrendingUp, ChevronLeft, ChevronRight, PieChart, Calendar, CalendarRange } from "lucide-react";
+import { DollarSign, BarChart3, Trophy, ArrowUp, TrendingDown, TrendingUp, ChevronLeft, ChevronRight, PieChart, Calendar, CalendarRange } from "lucide-react";
 import { MonthlyEvolution } from "../../dashboard/components/MonthlyEvolution/MonthlyEvolution";
 import { AnnualDistribution } from "../components/AnnualDistribution/AnnualDistribution";
 
@@ -9,6 +9,7 @@ import { KpiCard } from "../../../shared/components/ui/KpiCard";
 import { formatCurrency } from "../../../shared/utils/formatters";
 import { useReports } from "../hooks";
 import type { CategoryData } from "../types";
+import ExchangeRateService from "../../../shared/services/exchangeRateService";
 import "../styles/reports.css";
 
 const MONTHS = [
@@ -24,7 +25,7 @@ export const ReportsPage: React.FC = () => {
   const [range, setRange] = useState<number | null>(12);
   const [selectedCurrency, setSelectedCurrency] = useState<'ARS' | 'USD'>('ARS');
 
-  const { report, monthlyEvolution, loading, error, exportCSV } = useReports(selectedMonth, selectedYear, range, rangeMode);
+  const { report, monthlyEvolution, loading, error } = useReports(selectedMonth, selectedYear, range, rangeMode);
 
   const { monthlyTotal, byCategory, subscriptions } = useMemo(() => {
     if (!report) return { monthlyTotal: 0, byCategory: [] as CategoryData[], subscriptions: [] };
@@ -38,7 +39,7 @@ export const ReportsPage: React.FC = () => {
         subscription_count: c.subscription_count || 0,
         monthly_total_ars: ars,
         monthly_total_usd: usd,
-        monthly_total: ars + usd * 1450 * 1.75,
+        monthly_total: ars + usd * ExchangeRateService.getTarjetaRate(),
       };
     });
     const total = converted.reduce((sum: number, c: any) => sum + (c.monthly_total || 0), 0);
@@ -55,7 +56,9 @@ export const ReportsPage: React.FC = () => {
       return monthlyEvolution.filter((d: any) => d.month === selectedMonth && d.year === selectedYear);
     }
     if (range === null) return [...monthlyEvolution];
-    const cutoffKey = selectedYear * 12 + selectedMonth;
+    const now = new Date();
+    const actualKey = now.getFullYear() * 12 + (now.getMonth() + 1);
+    const cutoffKey = Math.min(selectedYear * 12 + selectedMonth, actualKey);
     return monthlyEvolution.filter((d: any) => {
       const key = d.year * 12 + d.month;
       return key <= cutoffKey && key > cutoffKey - range;
@@ -75,7 +78,7 @@ export const ReportsPage: React.FC = () => {
   }, [filteredEvolution]);
 
   const monthTotalARS = (m: any) =>
-    (Number(m.monthly_total_ars) || 0) + (Number(m.monthly_total_usd) || 0) * 1450 * 1.75;
+    (Number(m.monthly_total_ars) || 0) + (Number(m.monthly_total_usd) || 0) * ExchangeRateService.getTarjetaRate();
 
   const stats = useMemo(() => {
     if (!filteredEvolution || filteredEvolution.length === 0) return null;
@@ -109,10 +112,6 @@ export const ReportsPage: React.FC = () => {
 
   const hasData = filteredEvolution.length > 0;
   const hasCategories = byCategory.length > 0;
-
-  const handleExportCSV = async () => {
-    await exportCSV(selectedMonth, selectedYear);
-  };
 
   if (loading) {
     return (
@@ -198,17 +197,7 @@ export const ReportsPage: React.FC = () => {
                 </div>
               )}
             </div>
-            <div className="export-actions">
-              <button onClick={handleExportCSV} className="export-btn csv-btn" title="Descargar CSV">
-                <FileText size={14} /> CSV
-              </button>
-              <button className="export-btn" disabled title="Próximamente">
-                <FileSpreadsheet size={14} /> Excel
-              </button>
-              <button className="export-btn" disabled title="Próximamente">
-                <File size={14} /> PDF
-              </button>
-            </div>
+
           </div>
         </div>
 
