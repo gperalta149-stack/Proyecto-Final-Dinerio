@@ -1,5 +1,5 @@
 import React from "react";
-import { FileText, FileSpreadsheet, File } from "lucide-react";
+
 import "./ReportFilters.css";
 
 interface ReportFiltersProps {
@@ -7,7 +7,6 @@ interface ReportFiltersProps {
   selectedYear: number;
   onMonthChange: (month: number) => void;
   onYearChange: (year: number) => void;
-  onExportCSV: () => void;
 }
 
 const MONTHS = [
@@ -22,7 +21,6 @@ export const ReportFilters: React.FC<ReportFiltersProps> = ({
   selectedYear,
   onMonthChange,
   onYearChange,
-  onExportCSV,
 }) => {
   const today = new Date();
   const firstDay = new Date(selectedYear, selectedMonth - 1, 1).getDay();
@@ -71,20 +69,7 @@ export const ReportFilters: React.FC<ReportFiltersProps> = ({
         </div>
       </div>
 
-      <div className="export-actions">
-        <button onClick={onExportCSV} className="export-btn csv-btn" title="Descargar CSV">
-          <FileText size={14} />
-          CSV
-        </button>
-        <button className="export-btn" disabled title="Próximamente">
-          <FileSpreadsheet size={14} />
-          Excel
-        </button>
-        <button className="export-btn" disabled title="Próximamente">
-          <File size={14} />
-          PDF
-        </button>
-      </div>
+
     </div>
   );
 };

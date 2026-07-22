@@ -38,7 +38,7 @@ export const NOTIFICATION_COLORS: Record<NotificationType, string> = {
   payment_paid: '#22c55e',
   budget_warning: '#f59e0b',
   budget_exceeded: '#ef4444',
-  subscription_created: '#22c55e',
+  subscription_created: '#e83e8c',
   subscription_deleted: '#ef4444',
   subscription_price_changed: '#8b5cf6',
   system: '#6b7280',

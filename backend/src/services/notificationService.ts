@@ -53,7 +53,7 @@ export class NotificationGeneratorService {
             [
               subscription.user_id,
               subscription.id,
-              'payment_reminder',
+              'payment_due',
               title,
               message
             ]
@@ -122,7 +122,7 @@ export class NotificationGeneratorService {
               VALUES ($1, $2, $3, $4)`,
             [
               user.user_id,
-              'budget_alert',
+              'budget_exceeded',
               'Presupuesto excedido',
               `Has excedido tu presupuesto mensual. Gastos: ${user.currency} ${monthlyTotal.toFixed(2)} (${usagePercentage}% de ${user.currency} ${monthlyBudget.toFixed(2)})`
             ]
@@ -150,7 +150,8 @@ export class NotificationGeneratorService {
     try {
       console.log(`Creando notificación para nueva suscripción: ${subscriptionName}`)
 
-      const message = `Has agregado "${subscriptionName}" por ${currency} ${amount}`
+      const cycleLabel = billingCycle === "monthly" ? "/mes" : billingCycle === "yearly" ? "/año" : billingCycle === "quarterly" ? "/trimestre" : billingCycle === "weekly" ? "/semana" : ""
+      const message = `Has agregado "${subscriptionName}" por ${currency} ${amount}${cycleLabel}`
 
       await pool.query(
         `INSERT INTO notifications (user_id, subscription_id, type, title, message, created_at)
@@ -159,7 +160,7 @@ export class NotificationGeneratorService {
           userId,
           subscriptionId,
           'subscription_created',
-          '📱 Nueva suscripción creada',
+          'Nueva suscripción creada',
           message
         ]
       )

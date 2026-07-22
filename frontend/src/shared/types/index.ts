@@ -110,6 +110,9 @@ export interface Notification {
   message: string;
   is_read: boolean;
   created_at: string;
+  priority?: string;
+  action_url?: string;
+  action_label?: string;
   subscription_name?: string;
   isRead?: boolean;
   createdAt?: string;

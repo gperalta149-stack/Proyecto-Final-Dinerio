@@ -6,6 +6,7 @@ import { notificationService } from '../../service/notificationService';
 import { getRelativeTime } from '../../utils/notificationUtils';
 import { NOTIFICATION_ICONS } from '../../constants/notificationConstants';
 import type { Notification } from '../../types';
+import type { NotificationType } from '../../types';
 import './NotificationBell.css';
 
 export const NotificationBell: React.FC = () => {
@@ -120,7 +121,7 @@ export const NotificationBell: React.FC = () => {
                 </div>
               ) : (
                 notifications.map((notification) => {
-                  const Icon = NOTIFICATION_ICONS[notification.type] || NOTIFICATION_ICONS.system;
+                  const Icon = NOTIFICATION_ICONS[notification.type as NotificationType] || NOTIFICATION_ICONS.system;
                   const isUnread = !notification.is_read;
                   
                   return (

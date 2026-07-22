@@ -3,43 +3,73 @@
 .view-modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 2000;
+  z-index: 1000;
+  padding: 24px;
 }
 
 .view-modal {
-  background: var(--bg-secondary);
+  background: linear-gradient(180deg, var(--subs-bg-card) 0%, var(--subs-bg-secondary) 100%);
   border: 1px solid var(--subs-border-soft);
-  border-radius: 16px;
+  border-radius: 20px;
   width: 100%;
-  max-width: 600px;
+  max-width: 640px;
   max-height: 90vh;
   overflow-y: auto;
+  animation: viewModalSlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes viewModalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-16px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .view-modal-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 20px 24px;
+  padding: 24px 28px 20px;
   border-bottom: 1px solid var(--subs-border-subtle);
 }
 
 .view-modal-title {
   display: flex;
   align-items: center;
-  gap: 10px;
-  color: var(--subs-accent-1);
+  gap: 12px;
 }
 
-.view-modal-title h2 {
-  font-size: 1.1rem;
+.view-modal-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(99, 102, 241, 0.14);
+  color: var(--subs-accent-1);
+  flex-shrink: 0;
+}
+
+.view-modal-title-text h2 {
+  font-size: 1.15rem;
   font-weight: 700;
   color: var(--subs-text-primary);
   margin: 0;
+}
+
+.view-modal-title-text span {
+  font-size: 0.8rem;
+  color: var(--subs-text-tertiary);
 }
 
 .view-modal-close {
@@ -54,6 +84,7 @@
   align-items: center;
   justify-content: center;
   transition: all 0.2s ease;
+  flex-shrink: 0;
 }
 
 .view-modal-close:hover {
@@ -62,32 +93,117 @@
 }
 
 .view-modal-body {
-  padding: 20px 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+  padding: 20px 28px 28px;
 }
 
-.view-modal-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
+.view-modal-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.view-modal-table tr {
+  transition: background 0.2s ease;
+}
+
+.view-modal-table tr:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.view-modal-table tr:not(:last-child) td {
+  border-bottom: 1px solid var(--subs-border-subtle);
+}
+
+.view-modal-table td {
+  padding: 12px 0;
+  vertical-align: middle;
 }
 
 .view-modal-label {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 0.8rem;
+  gap: 8px;
+  font-size: 0.85rem;
   color: var(--subs-text-tertiary);
   white-space: nowrap;
+  width: 1%;
+  padding-right: 24px;
+}
+
+.view-modal-label svg {
+  opacity: 0.6;
+  flex-shrink: 0;
 }
 
 .view-modal-value {
-  font-size: 0.88rem;
+  font-size: 0.95rem;
   color: var(--subs-text-primary);
   font-weight: 500;
   text-align: right;
-  word-break: break-all;
+  word-break: break-word;
+}
+
+.view-modal-amount {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--subs-accent-1);
+}
+
+.view-modal-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 6px;
+  font-size: 0.83rem;
+  font-weight: 600;
+}
+
+.view-modal-status.active {
+  background: rgba(34, 197, 94, 0.12);
+  color: #22c55e;
+}
+
+.view-modal-status.paused {
+  background: rgba(245, 158, 11, 0.12);
+  color: #f59e0b;
+}
+
+.view-modal-status.cancelled {
+  background: rgba(239, 68, 68, 0.12);
+  color: #ef4444;
+}
+
+.view-modal-category {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.view-modal-category-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+@media (max-width: 480px) {
+  .view-modal-overlay {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .view-modal {
+    max-width: 100%;
+    max-height: 85vh;
+    border-radius: 20px 20px 0 0;
+  }
+
+  .view-modal-header {
+    padding: 20px 20px 16px;
+  }
+
+  .view-modal-body {
+    padding: 16px 20px 24px;
+  }
 }

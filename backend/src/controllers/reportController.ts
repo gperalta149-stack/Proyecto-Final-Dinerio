@@ -50,17 +50,24 @@ export const getFinancialReport = async (req: AuthRequest, res: Response) => {
     const currentYear = year ? Number(year) : new Date().getFullYear()
     const currentRange = range ? Number(range) : null
 
+    const isDateMode = !currentRange || rangeMode === "date"
+    const now = new Date()
+    const actualTotal = now.getFullYear() * 12 + (now.getMonth() + 1)
+    // In range mode the range always ends at the current month
+    const rangeEndMonth = isDateMode ? currentMonth : now.getMonth() + 1
+    const rangeEndYear = isDateMode ? currentYear : now.getFullYear()
+
     const monthlyResult = await pool.query(
       `SELECT
           COUNT(*) as total_subscriptions,
           COALESCE(SUM(CASE
-            -- CONVERTIR USD A ARS CON IMPUESTOS
+            -- CONVERTIR USD A ARS CON IMPUESTOS: ofc + IVA(21%) + PAIS(30%) + IIBB(2%) = ofc * 1.53
             WHEN currency = 'USD' THEN
               CASE
-                WHEN billing_cycle = 'monthly' THEN amount * 1.75 * 1450
-                WHEN billing_cycle = 'yearly' THEN (amount / 12) * 1.75 * 1450
-                WHEN billing_cycle = 'quarterly' THEN (amount / 3) * 1.75 * 1450
-                WHEN billing_cycle = 'weekly' THEN (amount * 4) * 1.75 * 1450
+                WHEN billing_cycle = 'monthly' THEN amount * 1.53 * 1450
+                WHEN billing_cycle = 'yearly' THEN (amount / 12) * 1.53 * 1450
+                WHEN billing_cycle = 'quarterly' THEN (amount / 3) * 1.53 * 1450
+                WHEN billing_cycle = 'weekly' THEN (amount * 4) * 1.53 * 1450
               END
             -- MANTENER ARS
             ELSE
@@ -74,10 +81,10 @@ export const getFinancialReport = async (req: AuthRequest, res: Response) => {
           COALESCE(SUM(CASE
             WHEN currency = 'USD' THEN
               CASE
-                WHEN billing_cycle = 'monthly' THEN amount * 1.75 * 1450 * 12
-                WHEN billing_cycle = 'yearly' THEN amount * 1.75 * 1450
-                WHEN billing_cycle = 'quarterly' THEN (amount / 3) * 1.75 * 1450 * 12
-                WHEN billing_cycle = 'weekly' THEN (amount * 4) * 1.75 * 1450 * 12
+                WHEN billing_cycle = 'monthly' THEN amount * 1.53 * 1450 * 12
+                WHEN billing_cycle = 'yearly' THEN amount * 1.53 * 1450
+                WHEN billing_cycle = 'quarterly' THEN (amount / 3) * 1.53 * 1450 * 12
+                WHEN billing_cycle = 'weekly' THEN (amount * 4) * 1.53 * 1450 * 12
               END
             ELSE
               CASE
@@ -92,18 +99,16 @@ export const getFinancialReport = async (req: AuthRequest, res: Response) => {
           AND status = 'active'
           AND EXTRACT(MONTH FROM next_billing_date) = $2
           AND EXTRACT(YEAR FROM next_billing_date) = $3`,
-      [req.user!.userId, currentMonth, currentYear]
+      [req.user!.userId, rangeEndMonth, rangeEndYear]
     )
 
     // --- Compute range boundaries (in total months) ---
     let rangeStartTotal: number, rangeEndTotal: number
-    const rangeEndMonth = currentMonth
-    const rangeEndYear = currentYear
-    if (rangeMode === "date" || !currentRange) {
-      rangeStartTotal = currentYear * 12 + currentMonth
-      rangeEndTotal = currentYear * 12 + currentMonth
+    if (isDateMode) {
+      rangeStartTotal = rangeEndYear * 12 + rangeEndMonth
+      rangeEndTotal = rangeEndYear * 12 + rangeEndMonth
     } else {
-      rangeEndTotal = currentYear * 12 + currentMonth
+      rangeEndTotal = rangeEndYear * 12 + rangeEndMonth
       rangeStartTotal = rangeEndTotal - currentRange + 1
     }
     const rangeStartYear = Math.floor(rangeStartTotal / 12) || 1
@@ -154,9 +159,8 @@ export const getFinancialReport = async (req: AuthRequest, res: Response) => {
       const nextKey = next.getFullYear() * 12 + (next.getMonth() + 1)
 
       // Date mode: only count subscriptions whose next_billing_date falls in the selected month
-      const isDateMode = !currentRange || rangeMode === "date"
       if (isDateMode) {
-        if (next.getFullYear() !== currentYear || next.getMonth() + 1 !== currentMonth) continue
+        if (next.getFullYear() !== rangeEndYear || next.getMonth() + 1 !== rangeEndMonth) continue
         const total = monthlyAmount
         if (isUSD) catAcc[catId].usd += total
         else catAcc[catId].ars += total
@@ -199,14 +203,14 @@ export const getFinancialReport = async (req: AuthRequest, res: Response) => {
     // --- Add paid debts within range ---
     const debtParams: any[] = [req.user!.userId]
     let debtDateFilter = ""
-    if (rangeMode === "date" || !currentRange) {
+    if (isDateMode) {
       debtDateFilter = `AND EXTRACT(MONTH FROM d.paid_at) = $2 AND EXTRACT(YEAR FROM d.paid_at) = $3`
-      debtParams.push(currentMonth, currentYear)
+      debtParams.push(rangeEndMonth, rangeEndYear)
     } else {
       debtDateFilter = `AND d.paid_at >= $2::date AND d.paid_at < ($3::date + interval '1 month')`
       debtParams.push(
         `${rangeStartYear}-${String(rangeStartMonth).padStart(2, "0")}-01`,
-        `${currentYear}-${String(currentMonth).padStart(2, "0")}-01`,
+        `${rangeEndYear}-${String(rangeEndMonth).padStart(2, "0")}-01`,
       )
     }
 
@@ -253,18 +257,18 @@ export const getFinancialReport = async (req: AuthRequest, res: Response) => {
     // Get subscriptions - filtrado por mes/rango
     const subsParams: any[] = [req.user!.userId]
     let subsDateFilter = ""
-    if (rangeMode === "date" || !currentRange) {
+    if (isDateMode) {
       subsDateFilter = `AND EXTRACT(MONTH FROM s.next_billing_date) = $2 AND EXTRACT(YEAR FROM s.next_billing_date) = $3`
-      subsParams.push(currentMonth, currentYear)
+      subsParams.push(rangeEndMonth, rangeEndYear)
     } else {
-      const totalMonths = currentYear * 12 + currentMonth
+      const totalMonths = rangeEndYear * 12 + rangeEndMonth
       const startTotalMonths = totalMonths - currentRange + 1
       const startYear = Math.floor(startTotalMonths / 12)
       const startMonth = startTotalMonths % 12 || 12
       subsDateFilter = `AND s.next_billing_date >= $2::date AND s.next_billing_date < ($3::date + interval '1 month')`
       subsParams.push(
         `${startYear}-${String(startMonth).padStart(2, "0")}-01`,
-        `${currentYear}-${String(currentMonth).padStart(2, "0")}-01`,
+        `${rangeEndYear}-${String(rangeEndMonth).padStart(2, "0")}-01`,
       )
     }
 
@@ -319,7 +323,7 @@ function getCycleMonths(cycle: string): number {
 }
 
 function paymentAmount(amount: number, currency: string): number {
-  return currency === "USD" ? amount * 1450 * 1.75 : amount;
+  return currency === "USD" ? amount * 1450 * 1.53 : amount;
 }
 
 export const getMonthlyEvolution = async (req: AuthRequest, res: Response) => {

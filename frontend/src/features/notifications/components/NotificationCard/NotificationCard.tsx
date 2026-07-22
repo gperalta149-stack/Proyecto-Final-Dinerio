@@ -5,6 +5,7 @@ import { MoreVertical, Check, Trash2, ExternalLink } from 'lucide-react';
 import { getRelativeTime } from '../../utils/notificationUtils';
 import { NOTIFICATION_ICONS, NOTIFICATION_COLORS, NOTIFICATION_PRIORITY_LABELS } from '../../constants/notificationConstants';
 import type { Notification } from '../../types';
+import type { NotificationType, NotificationPriority } from '../../types';
 import './NotificationCard.css';
 
 interface NotificationCardProps {
@@ -21,9 +22,10 @@ export const NotificationCard: React.FC<NotificationCardProps> = ({
   onAction,
 }) => {
   const [showMenu, setShowMenu] = useState(false);
-  const Icon = NOTIFICATION_ICONS[notification.type] || NOTIFICATION_ICONS.system;
-  const color = NOTIFICATION_COLORS[notification.type] || '#6b7280';
-  const priority = NOTIFICATION_PRIORITY_LABELS[notification.priority];
+  const type = notification.type as NotificationType;
+  const Icon = NOTIFICATION_ICONS[type] || NOTIFICATION_ICONS.system;
+  const color = NOTIFICATION_COLORS[type] || '#6b7280';
+  const priority = notification.priority ? NOTIFICATION_PRIORITY_LABELS[notification.priority as NotificationPriority] : undefined;
 
   const handleAction = () => {
     if (notification.action_url && onAction) {
@@ -46,30 +48,39 @@ export const NotificationCard: React.FC<NotificationCardProps> = ({
         </div>
 
         <div className="notification-card-info">
-          <div className="notification-card-header">
-            <div className="notification-card-title-wrapper">
-              <h4 className="notification-card-title">{notification.title}</h4>
-              {!notification.is_read && (
-                <span className="notification-card-unread-dot" />
-              )}
-              {priority && (
-                <span className={`notification-card-priority ${notification.priority}`}>
-                  {priority.label}
+            <div className="notification-card-header">
+              <div className="notification-card-title-wrapper">
+                <h4 className="notification-card-title">{notification.title}</h4>
+                {!notification.is_read && (
+                  <span className="notification-card-unread-dot" />
+                )}
+                {priority && (
+                  <span className={`notification-card-priority ${notification.priority}`}>
+                    {priority.label}
+                  </span>
+                )}
+              </div>
+              <div className="notification-card-actions">
+                <span className="notification-card-time">
+                  {getRelativeTime(notification.created_at)}
                 </span>
-              )}
+                {!notification.is_read && (
+                  <button
+                    className="notification-card-mark-read"
+                    onClick={() => onMarkAsRead(notification.id)}
+                    title="Marcar como leída"
+                  >
+                    <Check size={14} />
+                  </button>
+                )}
+                <button
+                  className="notification-card-menu-btn"
+                  onClick={() => setShowMenu(!showMenu)}
+                >
+                  <MoreVertical size={16} />
+                </button>
+              </div>
             </div>
-            <div className="notification-card-actions">
-              <span className="notification-card-time">
-                {getRelativeTime(notification.created_at)}
-              </span>
-              <button
-                className="notification-card-menu-btn"
-                onClick={() => setShowMenu(!showMenu)}
-              >
-                <MoreVertical size={16} />
-              </button>
-            </div>
-          </div>
 
           <p className="notification-card-message">{notification.message}</p>
 
