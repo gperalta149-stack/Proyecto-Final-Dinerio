@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { Search, CreditCard, Calendar, Wallet, Layers, PauseCircle, XCircle } from "lucide-react";
+import { useToast } from "../../../shared/hooks/useToast";
+import { Search, CreditCard, Calendar, Wallet, Layers, PauseCircle, CheckCircle, AlertTriangle, Trash2, X } from "lucide-react";
 import { SubscriptionHeader } from "../components/SubscriptionHeader/SubscriptionHeader";
 import { SubscriptionTabs, type FilterKey } from "../components/SubscriptionTabs/SubscriptionTabs";
 import { SubscriptionTable } from "../components/SubscriptionTable/SubscriptionTable";
@@ -24,6 +25,10 @@ export const SubscriptionsPage: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
   const [editingSubscription, setEditingSubscription] = useState<Subscription | undefined>(undefined);
   const [viewingSubscription, setViewingSubscription] = useState<Subscription | undefined>(undefined);
+  const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [subscriptionPage, setSubscriptionPage] = useState(0);
+  const perPage = 5;
 
   const loadAll = async () => {
     try {
@@ -46,8 +51,24 @@ export const SubscriptionsPage: React.FC = () => {
   const handleCreate = () => { setEditingSubscription(undefined); setShowModal(true); };
   const handleEdit = (sub: Subscription) => { setEditingSubscription(sub); setShowModal(true); };
   const handleView = (sub: Subscription) => { setViewingSubscription(sub); };
+  const { showToast } = useToast();
+
   const handleDelete = async (id: string) => {
-    try { await subscriptionService.delete(id); await loadAll(); } catch { alert("Error al eliminar la suscripción"); }
+    try {
+      await subscriptionService.delete(id);
+      await loadAll();
+    } catch (err: any) {
+      const msg = err?.response?.data?.error || "";
+      if (msg.includes("deuda") || msg.includes("pagos pendientes")) {
+        setDeleteError(msg);
+      } else {
+        showToast("Error al eliminar la suscripción", "error");
+      }
+    }
+  };
+
+  const closeError = () => {
+    setDeleteError(null);
   };
   const handleSubmit = async (data: Partial<Subscription>) => {
     try {
@@ -64,6 +85,8 @@ export const SubscriptionsPage: React.FC = () => {
     paused: subscriptions.filter(s => s.status === "paused").length,
     cancelled: subscriptions.filter(s => s.status === "cancelled").length,
   }), [subscriptions]);
+
+  useEffect(() => { setSubscriptionPage(0); }, [filter, search]);
 
   const filtered = useMemo(() => {
     let list = [...subscriptions];
@@ -86,6 +109,9 @@ export const SubscriptionsPage: React.FC = () => {
     });
     return list;
   }, [subscriptions, filter, search, sortBy]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / perPage));
+  const displayList = filtered.slice(subscriptionPage * perPage, (subscriptionPage + 1) * perPage);
 
   const totalMonthly = useMemo(() => {
     const today = new Date();
@@ -120,7 +146,7 @@ export const SubscriptionsPage: React.FC = () => {
     { key: "all" as FilterKey, label: "Todas", count: counts.all },
     { key: "active" as FilterKey, label: "Activas", count: counts.active },
     { key: "paused" as FilterKey, label: "Pausadas", count: counts.paused },
-    { key: "cancelled" as FilterKey, label: "Canceladas", count: counts.cancelled },
+    { key: "cancelled" as FilterKey, label: "Pagadas", count: counts.cancelled },
   ];
 
   const sortOptions: { key: SortKey; label: string }[] = [
@@ -151,10 +177,10 @@ export const SubscriptionsPage: React.FC = () => {
             color="warning"
           />
           <KpiCard
-            title="Canceladas"
+            title="Pagadas"
             value={counts.cancelled}
-            icon={<XCircle size={16} />}
-            color="danger"
+            icon={<CheckCircle size={16} />}
+            color="success"
           />
           <KpiCard
             title="Gasto mensual"
@@ -203,12 +229,25 @@ export const SubscriptionsPage: React.FC = () => {
           {loading ? (
             <div className="subs-loading"><div className="loading-spinner" /></div>
           ) : (
-            <SubscriptionTable
-              subscriptions={filtered}
+            <><SubscriptionTable
+              subscriptions={displayList}
               onEdit={handleEdit}
               onDelete={handleDelete}
               onView={handleView}
             />
+            {filtered.length > perPage && (
+              <div className="subs-pages">
+                {Array.from({ length: totalPages }, (_, i) => (
+                  <button
+                    key={i}
+                    className={`subs-page-btn${i === subscriptionPage ? ' active' : ''}`}
+                    onClick={() => setSubscriptionPage(i)}
+                  >
+                    {i + 1}
+                  </button>
+                ))}
+              </div>
+            )}</>
           )}
         </div>
 
@@ -218,6 +257,31 @@ export const SubscriptionsPage: React.FC = () => {
 
         {viewingSubscription && (
           <ViewSubscriptionModal subscription={viewingSubscription} onClose={() => setViewingSubscription(undefined)} />
+        )}
+
+        {deleteError && (
+          <div className="view-modal-overlay" onClick={closeError}>
+            <div className="view-modal delete-modal" onClick={(e) => e.stopPropagation()}>
+              <div className="view-modal-header">
+                <div className="view-modal-title">
+                  <div className="view-modal-icon" style={{ background: "rgba(239, 68, 68, 0.14)", color: "#ef4444" }}><AlertTriangle size={20} /></div>
+                  <div className="view-modal-title-text">
+                    <h2>No se puede eliminar</h2>
+                    <span>{deleteError.includes("deuda") ? "Deuda pendiente" : "Ciclo activo"}</span>
+                  </div>
+                </div>
+                <button className="view-modal-close" onClick={closeError}><X size={18} /></button>
+              </div>
+              <div className="view-modal-body">
+                <p style={{ color: "var(--subs-text-secondary)", fontSize: "0.95rem", margin: "0 0 20px", lineHeight: "1.5" }}>
+                  {deleteError}
+                </p>
+                <div className="delete-modal-actions">
+                  <button className="subs-add-button" onClick={closeError}>Cerrar</button>
+                </div>
+              </div>
+            </div>
+          </div>
         )}
       </div>
     </div>

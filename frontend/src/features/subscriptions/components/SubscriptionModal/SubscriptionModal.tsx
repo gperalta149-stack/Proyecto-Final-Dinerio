@@ -21,9 +21,9 @@ const CURRENCIES = [
 ];
 
 const STATUS_OPTIONS = [
-  { value: "active", label: "Activa", color: "#22c55e" },
+  { value: "active", label: "Activa", color: "#3b82f6" },
   { value: "paused", label: "Pausada", color: "#f59e0b" },
-  { value: "cancelled", label: "Cancelada", color: "#ef4444" },
+  { value: "cancelled", label: "Pagada", color: "#22c55e" },
 ];
 
 interface SubscriptionModalProps {

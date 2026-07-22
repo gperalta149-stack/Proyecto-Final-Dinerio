@@ -259,12 +259,12 @@
 }
 
 .subs-status-badge.active {
-  background: rgba(34, 197, 94, 0.12);
-  color: var(--subs-green);
+  background: rgba(59, 130, 246, 0.12);
+  color: var(--subs-blue);
 }
 .subs-status-badge.active .subs-status-dot {
-  background: var(--subs-green);
-  box-shadow: 0 0 6px var(--subs-green);
+  background: var(--subs-blue);
+  box-shadow: 0 0 6px var(--subs-blue);
 }
 
 .subs-status-badge.paused {
@@ -277,12 +277,12 @@
 }
 
 .subs-status-badge.cancelled {
-  background: rgba(239, 68, 68, 0.1);
-  color: var(--subs-red);
+  background: rgba(34, 197, 94, 0.12);
+  color: var(--subs-green);
 }
 .subs-status-badge.cancelled .subs-status-dot {
-  background: var(--subs-red);
-  box-shadow: 0 0 6px var(--subs-red);
+  background: var(--subs-green);
+  box-shadow: 0 0 6px var(--subs-green);
 }
 
 /* Payment badge */

@@ -31,7 +31,7 @@ export const ViewSubscriptionModal: React.FC<ViewSubscriptionModalProps> = ({ su
   const sub = subscription;
   const amount = sub.arsAmount ?? parseAmount(sub.amount);
   const currency = sub.arsAmount ? "ARS" : sub.currency;
-  const statusLabel = sub.status === "active" ? "Activa" : sub.status === "paused" ? "Pausada" : "Cancelada";
+  const statusLabel = sub.status === "active" ? "Activa" : sub.status === "paused" ? "Pausada" : "Pagada";
 
   const rows: Row[] = [
     { kind: "text", label: "Nombre", value: sub.name, icon: CreditCard },

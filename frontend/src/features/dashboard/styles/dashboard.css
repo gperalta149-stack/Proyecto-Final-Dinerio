@@ -494,6 +494,7 @@
 .dashboard-tip-card {
   background: var(--dashboard-bg-card);
   border: 1px solid var(--dashboard-border-subtle);
+  border-top: 3px solid rgba(99, 102, 241, 1);
   border-radius: 12px;
   padding: 20px 24px;
   display: flex;
@@ -584,6 +585,7 @@
 .dashboard-card {
   background: var(--dashboard-bg-card);
   border: 1px solid var(--dashboard-border-subtle);
+  border-top: 3px solid rgba(99, 102, 241, 1);
   border-radius: 12px;
   padding: 20px 24px;
   transition: all 0.25s ease;

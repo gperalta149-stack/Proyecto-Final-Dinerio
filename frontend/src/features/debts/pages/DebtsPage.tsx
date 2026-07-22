@@ -1,8 +1,8 @@
 // frontend/src/features/debts/pages/DebtsPage.tsx
 import React, { useState, useEffect, useMemo } from 'react';
-import { AlertTriangle, History, DollarSign } from 'lucide-react';
+import { AlertTriangle, History } from 'lucide-react';
 import { useDebts } from '../hooks';
-import { DebtCard } from '../components/DebtCard/DebtCard';
+import { DebtTable } from '../components/DebtTable/DebtTable';
 import { DebtStats } from '../components/DebtStats/DebtStats';
 import { DebtFilters, type DebtFilter } from '../components/DebtFilters/DebtFilters';
 import { DebtEmptyState } from '../components/DebtEmptyState/DebtEmptyState';
@@ -152,21 +152,18 @@ export const DebtsPage: React.FC = () => {
               counts={counts}
             /></div>
 
-            <div className={`debt-card-list${filteredDebts.length === 0 ? ' empty' : ''}`}>
+            <div className="debt-table-container">
               {filteredDebts.length === 0 ? (
                 <DebtEmptyState onAdd={() => setShowForm(true)} />
               ) : (
-                filteredDebts.map((debt) => (
-                  <DebtCard
-                    key={debt.id}
-                    debt={debt}
-                    onMarkAsPaid={handleMarkAsPaid}
-                    onPostpone={handlePostpone}
-                    onDelete={removeDebt}
-                    onEdit={handleEdit}
-                    loading={actionLoading}
-                  />
-                ))
+                <DebtTable
+                  debts={filteredDebts}
+                  onMarkAsPaid={handleMarkAsPaid}
+                  onPostpone={handlePostpone}
+                  onDelete={removeDebt}
+                  onEdit={handleEdit}
+                  loading={actionLoading}
+                />
               )}
             </div>
           </>

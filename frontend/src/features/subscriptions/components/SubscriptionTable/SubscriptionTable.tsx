@@ -125,7 +125,7 @@ export const SubscriptionTable: React.FC<SubscriptionTableProps> = ({
                 <td>
                   <span className={`subs-status-badge ${sub.status}`}>
                     <span className="subs-status-dot" />
-                    {sub.status === "active" ? "Activa" : sub.status === "paused" ? "Pausada" : "Cancelada"}
+                    {sub.status === "active" ? "Activa" : sub.status === "paused" ? "Pausada" : "Pagada"}
                   </span>
                 </td>
                 <td>
@@ -138,7 +138,7 @@ export const SubscriptionTable: React.FC<SubscriptionTableProps> = ({
                     </button>
                     <button
                       className="subs-action-btn"
-                      onClick={() => { if (confirm("¿Eliminar esta suscripción?\n\nNo se puede deshacer.")) { onDelete(sub.id); } }}
+                      onClick={() => onDelete(sub.id)}
                       title="Eliminar"
                     >
                       <Trash2 size={15} />

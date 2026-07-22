@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Bell, Check, ExternalLink, X } from 'lucide-react';
 import { notificationService } from '../../service/notificationService';
 import { getRelativeTime } from '../../utils/notificationUtils';
-import { NOTIFICATION_ICONS } from '../../constants/notificationConstants';
+import { NOTIFICATION_ICONS, NOTIFICATION_COLORS } from '../../constants/notificationConstants';
 import type { Notification } from '../../types';
 import type { NotificationType } from '../../types';
 import './NotificationBell.css';
@@ -120,8 +120,9 @@ export const NotificationBell: React.FC = () => {
                   <p>Todo está al día</p>
                 </div>
               ) : (
-                notifications.map((notification) => {
+                  notifications.map((notification) => {
                   const Icon = NOTIFICATION_ICONS[notification.type as NotificationType] || NOTIFICATION_ICONS.system;
+                  const color = NOTIFICATION_COLORS[notification.type as NotificationType] || '#6b7280';
                   const isUnread = !notification.is_read;
                   
                   return (
@@ -129,7 +130,7 @@ export const NotificationBell: React.FC = () => {
                       key={notification.id}
                       className={`notif-bell-item ${isUnread ? 'unread' : ''}`}
                     >
-                      <div className="notif-bell-item-icon">
+                      <div className="notif-bell-item-icon" style={{ background: `${color}18`, color }}>
                         <Icon size={16} />
                       </div>
                       <div className="notif-bell-item-content">
