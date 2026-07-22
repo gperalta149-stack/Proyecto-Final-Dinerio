@@ -3,10 +3,10 @@
 
 import type React from "react"
 import { useState, useEffect } from "react"
-import { Link, useLocation } from "react-router-dom"
-import { Bell, Menu, TrendingUp, TrendingDown, Minus, Loader2 } from "lucide-react"
+import { useLocation } from "react-router-dom"
+import { Menu, TrendingUp, TrendingDown, Minus, Loader2 } from "lucide-react"
 import { useExchangeRate } from "../../shared/hooks/useExchangeRate"
-import { notificationService } from "../../features/notifications/service/notificationService"
+import { NotificationBell } from "../../features/notifications/components/NotificationBell/NotificationBell"
 import "./Header.css"
 
 // Mapeo de rutas a nombres y descripciones
@@ -30,25 +30,12 @@ interface HeaderProps {
 export const Header: React.FC<HeaderProps> = ({ onMenuToggle, sidebarCollapsed = false }) => {
   const location = useLocation()
   const { rates, loading: rateLoading, forceUpdate } = useExchangeRate("oficial")
-  const [unreadCount, setUnreadCount] = useState(0)
   const [refreshing, setRefreshing] = useState(false)
   const [oficialAnimated, setOficialAnimated] = useState(false)
   const [tarjetaAnimated, setTarjetaAnimated] = useState(false)
 
   const sidebarWidth = sidebarCollapsed ? 64 : 256
   const pageInfo = PAGE_INFO[location.pathname] || PAGE_INFO["/dashboard"]
-
-  useEffect(() => {
-    let mounted = true
-    const loadUnread = () => {
-      notificationService.getUnreadCount()
-        .then((count) => { if (mounted) setUnreadCount(count) })
-        .catch(() => { if (mounted) setUnreadCount(0) })
-    }
-    loadUnread()
-    const interval = setInterval(loadUnread, 60000)
-    return () => { mounted = false; clearInterval(interval) }
-  }, [])
 
   // Detectar cambios en el dólar para animación
   useEffect(() => {
@@ -146,12 +133,7 @@ export const Header: React.FC<HeaderProps> = ({ onMenuToggle, sidebarCollapsed =
           </div>
 
           {/* Notificaciones */}
-          <Link to="/notifications" className="header-notifications">
-            <Bell size={18} />
-            {unreadCount > 0 && (
-              <span className="header-notifications-badge">{unreadCount > 9 ? "9+" : unreadCount}</span>
-            )}
-          </Link>
+          <NotificationBell />
         </div>
       </div>
     </header>

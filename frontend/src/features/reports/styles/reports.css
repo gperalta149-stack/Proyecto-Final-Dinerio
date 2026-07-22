@@ -346,6 +346,7 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 20px;
+  align-items: start;
 }
 
 /* ===== FULL-WIDTH SECTION ===== */
@@ -363,9 +364,9 @@
   color: var(--text-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  padding-bottom: 12px;
+  padding-bottom: 8px;
   border-bottom: 1px solid var(--border-soft);
-  margin-bottom: 12px;
+  margin-bottom: 4px;
 }
 
 .card-empty {
@@ -392,9 +393,10 @@
 
 /* ===== GENERIC CARD (uses .app-card from cards.css) ===== */
 .analysis-card {
-  height: 100%;
+  height: 400px;
   display: flex;
   flex-direction: column;
+  overflow-y: auto;
 }
 
 .analysis-card > * {
@@ -466,6 +468,61 @@
   .analysis-kpis-container .dashboard-kpis {
     grid-template-columns: repeat(2, 1fr);
   }
+}
+
+/* ===== MONEDAS CARD ===== */
+.monedas-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.monedas-toggles {
+  display: flex;
+  gap: 4px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border-soft);
+  border-radius: 8px;
+  padding: 3px;
+  margin-top: 2px;
+}
+
+.monedas-toggle {
+  flex: 1;
+  padding: 5px 0;
+  border: none;
+  border-radius: 6px;
+  background: none;
+  color: var(--text-tertiary);
+  font-size: 0.75rem;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.monedas-toggle:hover {
+  color: var(--text-primary);
+}
+
+.monedas-toggle.active {
+  background: var(--accent-1);
+  color: white;
+}
+
+.monedas-amount {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.monedas-paid {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-secondary);
 }
 
 @media (max-width: 640px) {

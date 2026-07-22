@@ -111,7 +111,10 @@ export const SubscriptionsPage: React.FC = () => {
     return active[0] || null;
   }, [subscriptions]);
 
-  const categoryCount = useMemo(() => new Set(subscriptions.map(s => s.category_name || "Otros")).size, [subscriptions]);
+  const categoryCount = useMemo(() => {
+    const usedCatIds = new Set(subscriptions.map(s => s.category_id).filter(Boolean));
+    return usedCatIds.size;
+  }, [subscriptions]);
 
   const tabs = [
     { key: "all" as FilterKey, label: "Todas", count: counts.all },

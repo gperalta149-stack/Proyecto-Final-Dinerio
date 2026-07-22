@@ -1,11 +1,12 @@
-import React, { useMemo } from "react";
-import { TrendingUp, TrendingDown } from "lucide-react";
+import React, { useState, useMemo } from "react";
+import { TrendingUp, TrendingDown, ChevronLeft, ChevronRight } from "lucide-react";
 import { formatCurrency } from "../../../../shared/utils/formatters";
 import "./AnnualDistribution.css";
 
 interface CategoryData {
   name: string;
-  monthly_total: number;
+  monthly_total_ars: number;
+  monthly_total_usd: number;
   color?: string;
 }
 
@@ -24,18 +25,28 @@ interface AnnualDistributionProps {
 
 const COLORS = ["#6366f1", "#22c55e", "#f59e0b", "#8b5cf6", "#06b6d4", "#ef4444", "#84cc16"];
 
+const PAGE_SIZE = 3;
+
 export const AnnualDistribution: React.FC<AnnualDistributionProps> = ({
   categories,
   monthlyEvolution,
   monthlyTotal,
   currency = "ARS",
 }) => {
-    const { segments, total } = useMemo(() => {
-    const total = categories.reduce((sum, c) => sum + Number(c.monthly_total || 0), 0);
-    const segments = categories.map((cat, index) => ({
+  const [page, setPage] = useState(0);
+
+  const { segments, total } = useMemo(() => {
+    const withTotal = categories.map((cat) => {
+      const ars = Number(cat.monthly_total_ars || 0);
+      const usd = Number(cat.monthly_total_usd || 0);
+      const converted = ars + usd * 1450 * 1.75;
+      return { ...cat, monthly_total: converted };
+    });
+    const total = withTotal.reduce((sum, c) => sum + c.monthly_total, 0);
+    const segments = withTotal.map((cat, index) => ({
       name: cat.name,
-      amount: Number(cat.monthly_total || 0),
-      percentage: total > 0 ? ((Number(cat.monthly_total) || 0) / total) * 100 : 0,
+      amount: cat.monthly_total,
+      percentage: total > 0 ? (cat.monthly_total / total) * 100 : 0,
       color: cat.color || COLORS[index % COLORS.length],
     })).sort((a, b) => b.amount - a.amount);
     return { segments, total };
@@ -91,7 +102,20 @@ export const AnnualDistribution: React.FC<AnnualDistributionProps> = ({
           </div>
         </div>
         <div className="ad-legend">
-          {segments.map((seg) => (
+          <div className="ad-legend-header">
+            {segments.length > PAGE_SIZE && (
+              <button className="ad-legend-arrow" onClick={() => setPage(Math.max(0, page - 1))} disabled={page === 0}>
+                <ChevronLeft size={14} />
+              </button>
+            )}
+            <span className="ad-legend-title">Categorías</span>
+            {segments.length > PAGE_SIZE && (
+              <button className="ad-legend-arrow" onClick={() => setPage(Math.min(page + 1, Math.ceil(segments.length / PAGE_SIZE) - 1))} disabled={page >= Math.ceil(segments.length / PAGE_SIZE) - 1}>
+                <ChevronRight size={14} />
+              </button>
+            )}
+          </div>
+          {segments.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE).map((seg) => (
             <div key={seg.name} className="ad-legend-item app-card">
               <span className="ad-legend-dot" style={{ background: seg.color }} />
               <span className="ad-legend-name">{seg.name}</span>

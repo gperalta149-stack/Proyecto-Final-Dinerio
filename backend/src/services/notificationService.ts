@@ -150,7 +150,7 @@ export class NotificationGeneratorService {
     try {
       console.log(`Creando notificación para nueva suscripción: ${subscriptionName}`)
 
-      const message = `Has agregado "${subscriptionName}" por ${currency} ${amount} (${billingCycle})`
+      const message = `Has agregado "${subscriptionName}" por ${currency} ${amount}`
 
       await pool.query(
         `INSERT INTO notifications (user_id, subscription_id, type, title, message, created_at)

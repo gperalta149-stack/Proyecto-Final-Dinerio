@@ -118,7 +118,7 @@ export const DebtModal: React.FC<DebtModalProps> = ({
 
   const convertedAmount = useMemo(() => {
     if (formData.currency === "USD" && amount > 0) {
-      return ExchangeRateService.convertUSDToARS(amount, 'oficial', true);
+      return ExchangeRateService.convertUSDToARS(amount, 'tarjeta');
     }
     return null;
   }, [amount, formData.currency]);

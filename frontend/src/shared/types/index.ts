@@ -162,7 +162,8 @@ export interface FinancialReport {
     name: string;
     color: string;
     subscription_count: number;
-    monthly_total: number;
+    monthly_total_ars: number;
+    monthly_total_usd: number;
   }[];
   subscriptions?: any[];
 }
@@ -201,8 +202,8 @@ export interface AuditLog {
 export type Currency = 'ARS' | 'USD';
 
 export interface ExchangeRates {
-  blue: number;
   oficial: number;
+  tarjeta: number;
   lastUpdate: Date;
 }
 

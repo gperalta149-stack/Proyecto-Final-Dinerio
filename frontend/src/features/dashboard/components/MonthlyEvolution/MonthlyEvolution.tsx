@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from "react";
-import { ChartLine, TrendingUp, TrendingDown } from "lucide-react";
+import { ChartLine, TrendingUp } from "lucide-react";
 import { formatCurrency } from "../../../../shared/utils/formatters";
 import "./MonthlyEvolution.css";
 
@@ -82,10 +82,7 @@ export const MonthlyEvolution: React.FC<MonthlyEvolutionProps> = ({
     );
   }
 
-  const totalFiltered = filtered.reduce((s, d) => s + d.amount, 0);
-  const avgFiltered = filtered.length > 0 ? totalFiltered / filtered.length : 0;
-  const highest = filtered.length > 0 ? [...filtered].sort((a, b) => b.amount - a.amount)[0] : null;
-  const variation = (filtered.length >= 2 && filtered[0].amount > 0) ? ((filtered[filtered.length - 1].amount - filtered[0].amount) / filtered[0].amount) * 100 : null;
+
 
   return (
     <div className={`me-wrapper${large ? " me-large" : ""}`}>
@@ -95,32 +92,6 @@ export const MonthlyEvolution: React.FC<MonthlyEvolutionProps> = ({
             <ChartLine size={14} />
             Evolución de gastos
           </span>
-        </div>
-      </div>
-
-      <div className="me-stats-row">
-        <div className="me-stat-item">
-          <span className="me-stat-icon" style={{ color: variation != null && variation >= 0 ? "#ef4444" : "#22c55e" }}>
-            {variation != null && variation >= 0 ? <TrendingUp size={16} /> : <TrendingDown size={16} />}
-          </span>
-          <div>
-            <div className="me-stat-item-value" style={{ color: variation != null && variation >= 0 ? "#ef4444" : "#22c55e" }}>
-              {variation != null ? `${variation >= 0 ? "+" : ""}${variation.toFixed(0)}%` : "—"}
-            </div>
-            <div className="me-stat-item-label">vs período anterior</div>
-          </div>
-        </div>
-        <div className="me-stat-item">
-          <div>
-            <div className="me-stat-item-value">{formatCurrency(avgFiltered, currency)}</div>
-            <div className="me-stat-item-label">Promedio mensual</div>
-          </div>
-        </div>
-        <div className="me-stat-item">
-          <div>
-            <div className="me-stat-item-value">{highest ? formatCurrency(highest.amount, currency) : "—"}</div>
-            <div className="me-stat-item-label">Mayor gasto</div>
-          </div>
         </div>
       </div>
 

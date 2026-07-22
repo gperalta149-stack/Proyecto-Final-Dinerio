@@ -2,9 +2,6 @@
 export type RateTrend = 'up' | 'down' | 'same';
 
 export interface ExchangeRates {
-  blue: number;
-  blueCompra: number;
-  blueVenta: number;
   oficial: number;
   oficialCompra: number;
   oficialVenta: number;
@@ -19,9 +16,6 @@ export interface ExchangeRates {
 class ExchangeRateService {
 
   private static currentRates: ExchangeRates = {
-    blue: 1513,
-    blueCompra: 1480,
-    blueVenta: 1513,
     oficial: 1470,
     oficialCompra: 1440,
     oficialVenta: 1470,
@@ -46,8 +40,6 @@ class ExchangeRateService {
 
   static async updateRates(): Promise<ExchangeRates> {
     try {
-      let blueCompra = 0;
-      let blueVenta = 0;
       let oficialCompra = 0;
       let oficialVenta = 0;
       let tarjetaCompra = 0;
@@ -57,8 +49,6 @@ class ExchangeRateService {
         const response = await fetch('https://api.bluelytics.com.ar/v2/latest');
         if (response.ok) {
           const data = await response.json();
-          blueCompra = Math.round(data.blue.value_buy);
-          blueVenta = Math.round(data.blue.value_sell);
           oficialCompra = Math.round(data.oficial.value_buy);
           oficialVenta = Math.round(data.oficial.value_sell);
         }
@@ -66,17 +56,11 @@ class ExchangeRateService {
         console.warn('Bluelytics falló, intentando DolarAPI...');
       }
 
-      if (!blueVenta || !oficialVenta) {
-        const [blueResponse, oficialResponse] = await Promise.all([
-          fetch('https://dolarapi.com/v1/dolares/blue'),
-          fetch('https://dolarapi.com/v1/dolares/oficial')
-        ]);
+      if (!oficialVenta) {
+        const oficialResponse = await fetch('https://dolarapi.com/v1/dolares/oficial');
 
-        if (blueResponse.ok && oficialResponse.ok) {
-          const blueData = await blueResponse.json();
+        if (oficialResponse.ok) {
           const oficialData = await oficialResponse.json();
-          blueCompra = blueData.compra;
-          blueVenta = blueData.venta;
           oficialCompra = oficialData.compra;
           oficialVenta = oficialData.venta;
         }
@@ -93,9 +77,7 @@ class ExchangeRateService {
         console.warn('No se pudo obtener el dólar tarjeta');
       }
 
-      if (!blueVenta || !oficialVenta) {
-        blueCompra = blueCompra || 1480;
-        blueVenta = blueVenta || 1513;
+      if (!oficialVenta) {
         oficialCompra = oficialCompra || 1440;
         oficialVenta = oficialVenta || 1470;
       }
@@ -109,9 +91,6 @@ class ExchangeRateService {
       const previousTarjetaVenta = this.currentRates.tarjetaVenta;
 
       this.currentRates = {
-        blue: blueVenta,
-        blueCompra: blueCompra,
-        blueVenta: blueVenta,
         oficial: oficialVenta,
         oficialCompra: oficialCompra,
         oficialVenta: oficialVenta,
@@ -133,7 +112,7 @@ class ExchangeRateService {
     }
   }
 
-  static async getRates(_type: 'blue' | 'oficial' = 'blue'): Promise<ExchangeRates> {
+  static async getRates(_type: 'oficial' | 'tarjeta' = 'oficial'): Promise<ExchangeRates> {
     const shouldUpdate = this.shouldUpdate();
 
     if (shouldUpdate) {
@@ -149,25 +128,13 @@ class ExchangeRateService {
     return this.currentRates;
   }
 
-  static async getRate(type: 'blue' | 'oficial' = 'blue'): Promise<number> {
+  static async getRate(type: 'oficial' | 'tarjeta' = 'oficial'): Promise<number> {
     const rates = await this.getRates(type);
     return rates[type];
   }
 
-  static convertUSDToARS(amountUSD: number, type: 'blue' | 'oficial' = 'blue', includeTax: boolean = true): number {
+  static convertUSDToARS(amountUSD: number, type: 'oficial' | 'tarjeta' = 'tarjeta'): number {
     const rate = this.currentRates[type];
-    
-    // Blue market rate - no taxes applied (used for custom pricing)
-    if (type === 'blue') {
-      return Math.round(amountUSD * rate);
-    }
-    
-    // Official rate - applies IVA 21% + Percepción Ganancias 30% + IIBB Cba 3%
-    if (includeTax && type === 'oficial') {
-      return Math.round(amountUSD * rate * 1.54);
-    }
-    
-    // Default case: no taxes
     return Math.round(amountUSD * rate);
   }
 

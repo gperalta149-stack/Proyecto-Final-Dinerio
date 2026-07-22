@@ -7,6 +7,10 @@ export interface MonthlyEvolutionData {
   year: number;
   monthName: string;
   monthly_total: number;
+  monthly_total_ars: number;
+  monthly_total_usd: number;
+  monthly_paid_ars: number;
+  monthly_paid_usd: number;
   subscription_count: number;
 }
 

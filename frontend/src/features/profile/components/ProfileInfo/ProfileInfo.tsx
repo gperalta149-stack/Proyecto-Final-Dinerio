@@ -19,28 +19,30 @@ export const ProfileInfo: React.FC<ProfileInfoProps> = ({ user, onUpdate }) => {
   const [avatarPreview, setAvatarPreview] = useState(user.avatar_url || '');
   const [avatarLoading, setAvatarLoading] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
+  const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { showToast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setMessage(null);
     
     if (!formData.first_name.trim() || !formData.last_name.trim()) {
-      showToast('Nombre y apellido son requeridos', 'error');
+      setMessage({ text: 'Nombre y apellido son requeridos', type: 'error' });
       return;
     }
 
     if (formData.first_name.trim().length < 2 || formData.last_name.trim().length < 2) {
-      showToast('Nombre y apellido deben tener al menos 2 caracteres', 'error');
+      setMessage({ text: 'Nombre y apellido deben tener al menos 2 caracteres', type: 'error' });
       return;
     }
 
     setLoading(true);
     try {
       await onUpdate(formData);
-      showToast('Información actualizada exitosamente', 'success');
+      setMessage({ text: 'Información actualizada exitosamente', type: 'success' });
     } catch (error) {
-      showToast('Error al actualizar la información', 'error');
+      setMessage({ text: 'Error al actualizar la información', type: 'error' });
     } finally {
       setLoading(false);
     }
@@ -242,6 +244,11 @@ export const ProfileInfo: React.FC<ProfileInfoProps> = ({ user, onUpdate }) => {
             </div>
           </div>
 
+          {message && (
+            <div className={`profile-message profile-message-${message.type}`}>
+              {message.text}
+            </div>
+          )}
           <div className="app-card-actions">
             <button 
               type="submit" 

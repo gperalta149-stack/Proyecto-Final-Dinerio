@@ -4,7 +4,7 @@
 
 .ad-body {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 40px;
   min-height: 180px;
 }
@@ -15,6 +15,7 @@
   align-items: center;
   gap: 12px;
   flex-shrink: 0;
+  padding-top: 40px;
 }
 
 .ad-chart {
@@ -64,6 +65,47 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
+}
+
+.ad-legend-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.ad-legend-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.ad-legend-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  background: rgba(255,255,255,0.04);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.ad-legend-arrow:hover:not(:disabled) {
+  background: rgba(99, 102, 241, 0.12);
+  color: var(--accent-1);
+  border-color: rgba(99, 102, 241, 0.3);
+}
+
+.ad-legend-arrow:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
 }
 
 .ad-legend-item {

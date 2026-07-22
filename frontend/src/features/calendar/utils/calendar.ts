@@ -62,13 +62,14 @@ export const getEventsForDay = (
 };
 
 export const calculateCalendarStats = (events: CalendarEvent[]) => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const todayStr = formatDateKey(today);
+
   const total = events.length;
   const paid = events.filter(e => e.status === 'paid').length;
-  const pending = events.filter(e => e.status === 'pending').length;
-  const cancelled = events.filter(e => e.status === 'cancelled').length;
-  const totalAmount = events
-    .filter(e => e.status === 'pending')
-    .reduce((sum, e) => sum + Number(e.amount), 0);
+  const overdue = events.filter(e => e.status === 'pending' && e.date < todayStr).length;
+  const dueToday = events.filter(e => e.status === 'pending' && e.date === todayStr).length;
 
-  return { total, paid, pending, cancelled, totalAmount };
+  return { total, paid, overdue, dueToday };
 };

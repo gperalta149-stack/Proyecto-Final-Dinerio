@@ -4,20 +4,41 @@ import type { AuthRequest } from "../types/index.js"
 
 export const getNotifications = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
+    const limit = req.query.limit ? Number.parseInt(req.query.limit as string) : 50
     const result = await pool.query(
       `SELECT n.*, s.name as subscription_name
         FROM notifications n
         LEFT JOIN subscriptions s ON n.subscription_id = s.id
         WHERE n.user_id = $1
         ORDER BY n.created_at DESC
-        LIMIT 50`,
-      [req.user!.userId],
+        LIMIT $2`,
+      [req.user!.userId, limit],
     )
 
     res.json({ notifications: result.rows })
   } catch (error) {
     console.error("Get notifications error:", error)
     res.status(500).json({ error: "Error al obtener notificaciones" })
+  }
+}
+
+export const getRecentNotifications = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const limit = req.query.limit ? Number.parseInt(req.query.limit as string) : 5
+    const result = await pool.query(
+      `SELECT n.*, s.name as subscription_name
+        FROM notifications n
+        LEFT JOIN subscriptions s ON n.subscription_id = s.id
+        WHERE n.user_id = $1
+        ORDER BY n.created_at DESC
+        LIMIT $2`,
+      [req.user!.userId, limit],
+    )
+
+    res.json({ notifications: result.rows })
+  } catch (error) {
+    console.error("Get recent notifications error:", error)
+    res.status(500).json({ error: "Error al obtener notificaciones recientes" })
   }
 }
 

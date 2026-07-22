@@ -118,7 +118,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed = false, onToggle })
           onClick={() => setShowUserMenu(!showUserMenu)}
           title={fullName}
         >
-          <span className="sidebar-avatar">{initial}</span>
+          {user?.avatar_url ? (
+            <img className="sidebar-avatar sidebar-avatar-img" src={user.avatar_url} alt={fullName} />
+          ) : (
+            <span className="sidebar-avatar">{initial}</span>
+          )}
           <div className="sidebar-profile-info">
             <div className="sidebar-profile-name">{fullName}</div>
             <div className="sidebar-profile-role">Premium</div>

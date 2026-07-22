@@ -2,6 +2,7 @@ import { Router } from "express"
 import { authenticate } from "../middleware/auth.js"
 import {
   getNotifications,
+  getRecentNotifications,
   getUnreadCount,
   markAsRead,
   markAllAsRead,
@@ -15,6 +16,7 @@ const router = Router()
 router.use(authenticate)
 
 router.get("/", getNotifications)
+router.get("/recent", getRecentNotifications)
 router.get("/unread/count", getUnreadCount)
 router.post("/", createNotification)
 router.put("/:id/read", markAsRead)

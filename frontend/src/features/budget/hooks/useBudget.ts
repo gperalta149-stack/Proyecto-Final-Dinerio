@@ -25,7 +25,7 @@ export const useBudget = (): UseBudgetReturn => {
   const [alertThreshold, setAlertThreshold] = useState(80);
   const [loading, setLoading] = useState(true);
   const { subscriptions } = useSubscriptions();
-  const { convertUSDToARS } = useExchangeRate('blue');
+  const { convertUSDToARS } = useExchangeRate('oficial');
 
   const budget = user?.monthly_budget || 0;
 
@@ -34,7 +34,7 @@ export const useBudget = (): UseBudgetReturn => {
       if (sub.status !== 'active') return total;
       const amount = parseAmount(sub.amount);
       if (sub.currency === 'USD') {
-        return total + convertUSDToARS(amount, true);
+        return total + convertUSDToARS(amount);
       }
       return total + amount;
     }, 0);

@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { TrendingUp, TrendingDown, BarChart3, Minus } from "lucide-react";
+import { TrendingUp, TrendingDown, BarChart3, Minus, Lightbulb } from "lucide-react";
 import { formatCurrency } from "../../../../shared/utils/formatters";
 import "./InsightsPanel.css";
 
@@ -118,13 +118,21 @@ export const InsightsPanel: React.FC<InsightsPanelProps> = ({
 
   return (
     <div className="ip-wrapper">
-      <div className="ip-list">
+      <div className="savings-header">
+        <div className="savings-header-left">
+          <Lightbulb size={18} className="savings-icon" style={{ color: '#f59e0b' }} />
+          <span className="savings-title">Insights</span>
+        </div>
+      </div>
+      <div className="savings-list">
         {insights.map((insight, index) => (
-          <div key={index} className="ip-card">
-            <div className="ip-icon" style={{ background: `${insight.color}15`, color: insight.color }}>
-              {insight.icon}
+          <div key={index} className="savings-item">
+            <div className="savings-item-left">
+              <span className="savings-item-icon" style={{ color: insight.color }}>
+                {insight.icon}
+              </span>
+              <div className="savings-item-description">{insight.text}</div>
             </div>
-            <div className="ip-text">{insight.text}</div>
           </div>
         ))}
       </div>

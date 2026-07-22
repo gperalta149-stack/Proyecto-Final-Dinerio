@@ -8,11 +8,7 @@ import { NOTIFICATION_ICONS } from '../../constants/notificationConstants';
 import type { Notification } from '../../types';
 import './NotificationBell.css';
 
-interface NotificationBellProps {
-  onViewAll?: () => void;
-}
-
-export const NotificationBell: React.FC<NotificationBellProps> = ({ onViewAll }) => {
+export const NotificationBell: React.FC = () => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -64,6 +60,16 @@ export const NotificationBell: React.FC<NotificationBellProps> = ({ onViewAll })
   const handleAction = (url: string, e: React.MouseEvent) => {
     e.stopPropagation();
     window.location.href = url;
+  };
+
+  const handleMarkAllAsRead = async () => {
+    try {
+      await notificationService.markAllAsRead();
+      setNotifications(notifications.map(n => ({ ...n, is_read: true })));
+      setUnreadCount(0);
+    } catch (error) {
+      console.error('Error marking all as read:', error);
+    }
   };
 
   const handleToggle = () => {
@@ -161,9 +167,11 @@ export const NotificationBell: React.FC<NotificationBellProps> = ({ onViewAll })
             </div>
 
             <div className="notif-bell-footer">
-              <button onClick={onViewAll} className="notif-bell-view-all">
-                Ver todas las notificaciones →
-              </button>
+              {unreadCount > 0 && (
+                <button onClick={handleMarkAllAsRead} className="notif-bell-view-all">
+                  Marcar como leídas
+                </button>
+              )}
             </div>
           </motion.div>
         )}

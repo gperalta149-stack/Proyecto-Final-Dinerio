@@ -20,9 +20,8 @@ export interface CalendarDay {
 export interface CalendarStats {
   total: number;
   paid: number;
-  pending: number;
-  cancelled: number;
-  totalAmount: number;
+  overdue: number;
+  dueToday: number;
 }
 
 export interface UpcomingPayment {
