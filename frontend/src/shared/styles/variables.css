@@ -252,8 +252,8 @@ body {
 
 /* ===== SCROLLBAR ===== */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 10px;
+  height: 10px;
 }
 
 ::-webkit-scrollbar-track {
@@ -263,7 +263,7 @@ body {
 ::-webkit-scrollbar-thumb {
   background: var(--bg-tertiary);
   border-radius: var(--radius-full);
-  border: 2px solid var(--bg-primary);
+  border: 3px solid var(--bg-primary);
 }
 
 ::-webkit-scrollbar-thumb:hover {

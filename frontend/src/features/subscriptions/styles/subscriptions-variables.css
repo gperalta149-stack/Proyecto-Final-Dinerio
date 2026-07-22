@@ -16,6 +16,7 @@
   --subs-green: var(--success);
   --subs-red: var(--danger);
   --subs-orange: var(--warning);
+  --subs-blue: #3b82f6;
 
   --subs-border-subtle: var(--border-subtle);
   --subs-border-soft: var(--border-soft);

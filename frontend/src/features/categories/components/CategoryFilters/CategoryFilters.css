@@ -64,6 +64,10 @@
 .sort-select:focus {
   border-color: var(--cat-accent-1);
 }
+.sort-select option {
+  background: var(--cat-bg-tertiary);
+  color: var(--cat-text-primary);
+}
 
 .category-filters-right {
   display: flex;

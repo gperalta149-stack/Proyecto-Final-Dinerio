@@ -28,16 +28,16 @@ export const Footer: React.FC = () => {
               todas tus suscripciones recurrentes. Completamente gratis.
             </p>
             <div className="footer-social">
-              <a href="#" className="footer-social-link" aria-label="X (Twitter)">
+              <a href="https://x.com/" target="_blank" rel="noopener noreferrer" className="footer-social-link" aria-label="X (Twitter)">
                 <FaXTwitter size={18} />
               </a>
-              <a href="#" className="footer-social-link" aria-label="LinkedIn">
+              <a href="https://linkedin.com/" target="_blank" rel="noopener noreferrer" className="footer-social-link" aria-label="LinkedIn">
                 <FaLinkedin size={18} />
               </a>
-              <a href="#" className="footer-social-link" aria-label="GitHub">
+              <a href="https://github.com/" target="_blank" rel="noopener noreferrer" className="footer-social-link" aria-label="GitHub">
                 <FaGithub size={18} />
               </a>
-              <a href="#" className="footer-social-link" aria-label="Instagram">
+              <a href="https://instagram.com/" target="_blank" rel="noopener noreferrer" className="footer-social-link" aria-label="Instagram">
                 <FaInstagram size={18} />
               </a>
             </div>

@@ -4,22 +4,22 @@
 import type React from "react"
 import { useState, useEffect } from "react"
 import { useLocation } from "react-router-dom"
-import { Menu, TrendingUp, TrendingDown, Minus, Loader2 } from "lucide-react"
+import { Menu, TrendingUp, TrendingDown, Minus, Loader2, Home, CreditCard, CalendarDays, BarChart3, Wallet, Landmark, Tags, Bell, UserCircle2 } from "lucide-react"
 import { useExchangeRate } from "../../shared/hooks/useExchangeRate"
 import { NotificationBell } from "../../features/notifications/components/NotificationBell/NotificationBell"
 import "./Header.css"
 
-// Mapeo de rutas a nombres y descripciones
-const PAGE_INFO: Record<string, { title: string; description: string }> = {
-  "/dashboard": { title: "Inicio", description: "Controla todos tus gastos recurrentes desde un solo lugar." },
-  "/subscriptions": { title: "Suscripciones", description: "Gestiona todas tus suscripciones activas." },
-  "/categories": { title: "Categorías", description: "Organiza tus suscripciones por categorías." },
-  "/calendar": { title: "Calendario", description: "Visualiza todos tus pagos programados." },
-  "/reports": { title: "Análisis", description: "Analiza la evolución de tus gastos." },
-  "/budget": { title: "Presupuesto", description: "Controla tu presupuesto mensual." },
-  "/debts": { title: "Deudas", description: "Gestiona tus pagos pendientes." },
-  "/profile": { title: "Perfil", description: "Administra tu información personal." },
-  "/notifications": { title: "Notificaciones", description: "Centro de notificaciones." },
+// Mapeo de rutas a nombres, descripciones e íconos
+const PAGE_INFO: Record<string, { title: string; description: string; icon: React.ElementType }> = {
+  "/dashboard": { title: "Inicio", description: "Controla todos tus gastos recurrentes desde un solo lugar.", icon: Home },
+  "/subscriptions": { title: "Suscripciones", description: "Gestiona todas tus suscripciones activas.", icon: CreditCard },
+  "/categories": { title: "Categorías", description: "Organiza tus suscripciones por categorías.", icon: Tags },
+  "/calendar": { title: "Calendario", description: "Visualiza todos tus pagos programados.", icon: CalendarDays },
+  "/reports": { title: "Análisis", description: "Analiza la evolución de tus gastos.", icon: BarChart3 },
+  "/budget": { title: "Presupuesto", description: "Controla tu presupuesto mensual.", icon: Wallet },
+  "/debts": { title: "Deudas", description: "Gestiona tus pagos pendientes.", icon: Landmark },
+  "/profile": { title: "Perfil", description: "Administra tu información personal.", icon: UserCircle2 },
+  "/notifications": { title: "Notificaciones", description: "Centro de notificaciones.", icon: Bell },
 }
 
 interface HeaderProps {
@@ -87,6 +87,9 @@ export const Header: React.FC<HeaderProps> = ({ onMenuToggle, sidebarCollapsed =
           <button className="sidebar-toggle" onClick={onMenuToggle} aria-label="Toggle menu">
             <Menu size={20} />
           </button>
+          <div className="header-icon-box">
+            <pageInfo.icon size={20} />
+          </div>
           <div className="header-info">
             <h1 className="header-title">{pageInfo.title}</h1>
             <p className="header-description">{pageInfo.description}</p>

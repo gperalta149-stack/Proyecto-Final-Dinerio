@@ -1,5 +1,5 @@
 import React from "react";
-import { Plus, CreditCard } from "lucide-react";
+import { Plus } from "lucide-react";
 import "./SubscriptionHeader.css";
 
 interface SubscriptionHeaderProps {

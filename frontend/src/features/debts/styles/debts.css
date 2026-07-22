@@ -191,19 +191,12 @@
   margin-bottom: 24px;
 }
 
-.debt-card-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 14px;
-}
-
-.debt-card-list.empty {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 400px;
-  grid-template-columns: unset;
+.debt-table-container {
+  border: 1px solid var(--debt-border-subtle);
+  border-top: 3px solid var(--accent-1);
+  border-radius: 14px;
+  overflow: hidden;
+  background: linear-gradient(160deg, var(--debt-bg-card) 0%, var(--debt-bg-secondary) 100%);
 }
 
 /* ===== FORM ===== */

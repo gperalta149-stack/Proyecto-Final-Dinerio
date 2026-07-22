@@ -264,6 +264,36 @@ export const deleteSubscription = async (req: AuthRequest, res: Response): Promi
   const { id } = req.params
 
   try {
+    const subCheck = await pool.query(
+      "SELECT status, next_billing_date FROM subscriptions WHERE id = $1 AND user_id = $2",
+      [id, req.user!.userId]
+    )
+
+    if (subCheck.rows.length === 0) {
+      res.status(404).json({ error: "Suscripción no encontrada" })
+      return
+    }
+
+    const { status, next_billing_date } = subCheck.rows[0]
+    const billingDate = new Date(next_billing_date)
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+
+    if (status === 'active' && billingDate >= today) {
+      res.status(400).json({ error: "No se puede eliminar una suscripción activa con pagos pendientes. Cambiá el estado a pagada o esperá a que el ciclo finalice." })
+      return
+    }
+
+    const pendingDebt = await pool.query(
+      "SELECT COUNT(*)::int as cnt FROM debts WHERE subscription_id = $1 AND user_id = $2 AND status = 'pending'",
+      [id, req.user!.userId]
+    )
+
+    if (pendingDebt.rows[0].cnt > 0) {
+      res.status(400).json({ error: "No se puede eliminar la suscripción, primero debe pagar la deuda" })
+      return
+    }
+
     await pool.query("DELETE FROM debts WHERE subscription_id = $1 AND user_id = $2", [id, req.user!.userId])
 
     const result = await pool.query(

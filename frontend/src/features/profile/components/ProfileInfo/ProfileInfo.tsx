@@ -1,8 +1,7 @@
 import React, { useState, useRef } from 'react';
-import { Calendar, Clock, Mail, Award, Camera, X } from 'lucide-react';
+import { Calendar, Clock, Mail, Award, Camera } from 'lucide-react';
 import type { User } from '../../types';
 import { formatDate } from '../../../../shared/utils/formatters';
-import { useToast } from '../../../../shared/hooks/useToast';
 import './ProfileInfo.css';
 
 interface ProfileInfoProps {
@@ -16,12 +15,9 @@ export const ProfileInfo: React.FC<ProfileInfoProps> = ({ user, onUpdate }) => {
     last_name: user.last_name || '',
   });
   const [loading, setLoading] = useState(false);
-  const [avatarPreview, setAvatarPreview] = useState(user.avatar_url || '');
-  const [avatarLoading, setAvatarLoading] = useState(false);
-  const [isDragging, setIsDragging] = useState(false);
   const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
+  const [avatarLoading, setAvatarLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { showToast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,79 +44,33 @@ export const ProfileInfo: React.FC<ProfileInfoProps> = ({ user, onUpdate }) => {
     }
   };
 
-  const getInitials = () => {
-    const first = user.first_name?.[0] || '';
-    const last = user.last_name?.[0] || '';
-    return `${first}${last}`.toUpperCase();
-  };
+  const handlePhotoSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
 
-  const validateFile = (file: File): boolean => {
+    setMessage(null);
+
     if (!file.type.startsWith('image/')) {
-      showToast('Por favor selecciona una imagen válida', 'error');
-      return false;
+      setMessage({ text: 'Por favor selecciona una imagen válida', type: 'error' });
+      return;
     }
     if (file.size > 5 * 1024 * 1024) {
-      showToast('La imagen debe ser menor a 5MB', 'error');
-      return false;
+      setMessage({ text: 'La imagen debe ser menor a 5MB', type: 'error' });
+      return;
     }
-    return true;
-  };
 
-  const handleFile = async (file: File) => {
-    if (!validateFile(file)) return;
-
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const result = e.target?.result as string;
-      setAvatarPreview(result);
-      handleAvatarUpdate(result);
-    };
-    reader.readAsDataURL(file);
-  };
-
-  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) handleFile(file);
-  };
-
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
-    const file = e.dataTransfer.files[0];
-    if (file) handleFile(file);
-  };
-
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(true);
-  };
-
-  const handleDragLeave = (e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
-  };
-
-  const handleAvatarUpdate = async (avatarUrl: string) => {
     setAvatarLoading(true);
     try {
-      await onUpdate({ avatar_url: avatarUrl });
-      showToast('Foto de perfil actualizada', 'success');
-    } catch (error) {
-      showToast('Error al actualizar la foto', 'error');
-    } finally {
-      setAvatarLoading(false);
-    }
-  };
-
-  const handleRemoveAvatar = async () => {
-    setAvatarLoading(true);
-    try {
-      await onUpdate({ avatar_url: '' });
-      setAvatarPreview('');
-      showToast('Foto de perfil eliminada', 'success');
-    } catch (error) {
-      showToast('Error al eliminar la foto', 'error');
-    } finally {
+      const reader = new FileReader();
+      reader.onload = async (ev) => {
+        const result = ev.target?.result as string;
+        await onUpdate({ avatar_url: result });
+        setMessage({ text: 'Foto de perfil actualizada', type: 'success' });
+        setAvatarLoading(false);
+      };
+      reader.readAsDataURL(file);
+    } catch {
+      setMessage({ text: 'Error al actualizar la foto', type: 'error' });
       setAvatarLoading(false);
     }
   };
@@ -133,52 +83,21 @@ export const ProfileInfo: React.FC<ProfileInfoProps> = ({ user, onUpdate }) => {
           <p className="app-card-subtitle">Administrá tu información de la cuenta</p>
         </div>
         <div className="profile-header-right">
-          <div className="profile-avatar-main">
-            <div className="avatar-container">
-              {avatarPreview ? (
-                <img src={avatarPreview} alt="Avatar" className="avatar-image" />
-              ) : (
-                <div className="avatar-placeholder">
-                  <span className="avatar-initials">{getInitials()}</span>
-                </div>
-              )}
-              {avatarLoading && (
-                <div className="avatar-loading">
-                  <div className="loading-spinner-small" />
-                </div>
-              )}
-            </div>
-            <div className="avatar-actions">
-              <button
-                className="btn btn-primary"
-                onClick={() => fileInputRef.current?.click()}
-                disabled={avatarLoading}
-              >
-                <Camera size={16} />
-                Subir foto
-              </button>
-              {avatarPreview && (
-                <button
-                  className="btn btn-danger"
-                  onClick={handleRemoveAvatar}
-                  disabled={avatarLoading}
-                >
-                  <X size={16} />
-                  Eliminar
-                </button>
-              )}
-            </div>
-            <input
-              type="file"
-              ref={fileInputRef}
-              onChange={handleFileSelect}
-              accept="image/*"
-              className="avatar-input"
-              onDrop={handleDrop}
-              onDragOver={handleDragOver}
-              onDragLeave={handleDragLeave}
-            />
-          </div>
+          <button
+            className="profile-photo-btn"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={avatarLoading}
+          >
+            <Camera size={16} />
+            {avatarLoading ? 'Subiendo...' : 'Cambiar foto'}
+          </button>
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handlePhotoSelect}
+            accept="image/*"
+            style={{ display: 'none' }}
+          />
         </div>
       </div>
 

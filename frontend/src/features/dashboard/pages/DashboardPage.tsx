@@ -343,7 +343,7 @@ export const DashboardPage: React.FC = () => {
     <div className="dashboard-page">
       <div className="dashboard-container">
         <div className="dashboard-hero">
-          <h1 className="dashboard-hero-greeting"><Hand size={22} className="dashboard-hero-icon" /> Hola, {user?.name || user?.first_name || "Usuario"}</h1>
+          <h1 className="dashboard-hero-greeting"><Hand size={22} className="dashboard-hero-icon" /> Hola, {user?.first_name || user?.name?.split(' ')[0] || "Usuario"}</h1>
 
         </div>
 

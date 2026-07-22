@@ -53,6 +53,69 @@
   gap: 16px;
 }
 
+.budget-date-picker {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.budget-date-icon {
+  color: var(--budget-text-tertiary);
+  flex-shrink: 0;
+}
+
+.budget-date-picker .date-spinner {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-soft);
+  border-radius: 8px;
+  overflow: hidden;
+  transition: all 0.25s ease;
+}
+
+.budget-date-picker .date-spinner:focus-within {
+  border-color: var(--accent-1);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+
+.budget-date-picker .date-spinner-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 36px;
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.budget-date-picker .date-spinner-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--accent-1);
+}
+
+.budget-date-picker .date-spinner-input {
+  width: 100px;
+  padding: 8px 4px;
+  background: none;
+  border: none;
+  border-left: 1px solid var(--border-subtle);
+  border-right: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-align: center;
+  outline: none;
+}
+
+.budget-date-picker .date-spinner-input[type="number"] {
+  width: 80px;
+}
+
 .budget-title {
   font-size: var(--text-3xl);
   font-weight: var(--font-bold);
@@ -152,6 +215,99 @@
   background: var(--budget-accent-2);
   transform: translateY(-2px);
   box-shadow: 0 8px 24px rgba(99, 102, 241, 0.3);
+}
+
+/* ===== Suscripciones activas ===== */
+.budget-subscriptions-card {
+  background: linear-gradient(160deg, var(--budget-bg-card) 0%, var(--budget-bg-secondary) 100%);
+  border: 1px solid var(--budget-border-subtle);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+
+.budget-subscriptions-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 20px;
+  background: rgba(255, 255, 255, 0.03);
+  border-bottom: 1px solid var(--budget-border-subtle);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--budget-text-primary);
+}
+
+.budget-subscriptions-header svg {
+  color: var(--budget-accent-1);
+  flex-shrink: 0;
+}
+
+.budget-subscriptions-count {
+  margin-left: auto;
+  background: rgba(99, 102, 241, 0.12);
+  color: var(--budget-accent-1);
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 2px 10px;
+  border-radius: 12px;
+}
+
+.budget-subscriptions-body {
+  padding: 8px 0;
+}
+
+.budget-subscriptions-empty {
+  text-align: center;
+  padding: 32px 20px;
+  color: var(--budget-text-tertiary);
+  font-size: 0.85rem;
+}
+
+.budget-subscriptions-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.budget-subscriptions-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 20px;
+  transition: background 0.15s ease;
+}
+
+.budget-subscriptions-item:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.budget-subscriptions-item + .budget-subscriptions-item {
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.budget-subscriptions-item-left {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.budget-subscriptions-item-name {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--budget-text-primary);
+}
+
+.budget-subscriptions-item-cycle {
+  font-size: 0.75rem;
+  color: var(--budget-text-tertiary);
+  text-transform: capitalize;
+}
+
+.budget-subscriptions-item-amount {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--budget-text-primary);
+  font-variant-numeric: tabular-nums;
 }
 
 /* ===== RESPONSIVE ===== */

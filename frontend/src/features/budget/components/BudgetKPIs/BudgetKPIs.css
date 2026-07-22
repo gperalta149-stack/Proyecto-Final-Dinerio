@@ -43,9 +43,9 @@
   z-index: 0;
 }
 
-.budget-hero-gauge--success::before { background: var(--budget-green); }
-.budget-hero-gauge--warning::before { background: var(--budget-orange); }
-.budget-hero-gauge--danger::before  { background: var(--budget-red); }
+.budget-hero-gauge--success::before { background: var(--budget-accent-1); }
+.budget-hero-gauge--warning::before { background: var(--budget-accent-1); }
+.budget-hero-gauge--danger::before  { background: var(--budget-accent-1); }
 
 .budget-hero-ring {
   width: 100%;

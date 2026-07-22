@@ -138,12 +138,25 @@
 }
 
 .notif-bell-item:hover {
-  background: rgba(255, 255, 255, 0.02);
+  background: rgba(255, 255, 255, 0.04);
 }
 
 .notif-bell-item.unread {
-  background: rgba(99, 102, 241, 0.03);
+  background: rgba(99, 102, 241, 0.06);
   border-left: 3px solid var(--notif-accent-1);
+  position: relative;
+}
+
+.notif-bell-item.unread::after {
+  content: '';
+  position: absolute;
+  top: 0; bottom: 0; left: 0; right: 0;
+  background: linear-gradient(90deg, rgba(99, 102, 241, 0.03) 0%, transparent 100%);
+  pointer-events: none;
+}
+
+.notif-bell-item:not(.unread) {
+  opacity: 0.75;
 }
 
 .notif-bell-item-icon {

@@ -10,6 +10,7 @@ interface BudgetSummaryProps {
   available: number;
   percentageUsed: number;
   daysRemaining: number;
+  activeCount: number;
 }
 
 export const BudgetSummary: React.FC<BudgetSummaryProps> = ({
@@ -18,11 +19,12 @@ export const BudgetSummary: React.FC<BudgetSummaryProps> = ({
   available,
   percentageUsed,
   daysRemaining,
+  activeCount,
 }) => {
   const items = [
     {
       label: "Suscripciones activas",
-      value: "—",
+      value: activeCount.toString(),
       icon: CreditCard,
       color: "indigo",
     },
@@ -34,13 +36,13 @@ export const BudgetSummary: React.FC<BudgetSummaryProps> = ({
     },
     {
       label: "Te sobra",
-      value: `${(100 - percentageUsed).toFixed(0)}%`,
+      value: formatCurrency(available, "ARS"),
       icon: PiggyBank,
-      color: percentageUsed < 80 ? "green" : "orange",
+      color: available > 0 ? "green" : "red",
     },
     {
       label: "Días restantes",
-      value: daysRemaining.toString(),
+      value: daysRemaining > 0 ? daysRemaining.toString() : "—",
       icon: Calendar,
       color: "purple",
     },

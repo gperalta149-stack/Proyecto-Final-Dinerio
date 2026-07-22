@@ -53,9 +53,9 @@ const getStatus = (pct: number): Status => {
 };
 
 const STROKE_COLOR: Record<Status, string> = {
-  success: "var(--budget-green)",
-  warning: "var(--budget-orange)",
-  danger: "var(--budget-red)",
+  success: "var(--budget-accent-1)",
+  warning: "var(--budget-accent-1)",
+  danger: "var(--budget-accent-1)",
 };
 
 export const BudgetKPIs: React.FC<BudgetKPIsProps> = ({
