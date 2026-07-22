@@ -23,12 +23,29 @@ export const useReports = (month?: number, year?: number, range?: number | null,
     try {
       setLoading(true);
       setError(null);
-      const [financialReport, evolutionData] = await Promise.all([
+
+      // Determine which years to fetch evolution for
+      let yearsToFetch = [y!];
+      if (rm === 'range' && r && y && m) {
+        const totalMonths = y * 12 + m;
+        const startTotal = totalMonths - r + 1;
+        const startYear = Math.floor(startTotal / 12) || 1;
+        const startMonth = startTotal % 12 || 12;
+        if (startYear < y) {
+          yearsToFetch = [startYear, y];
+        }
+      }
+
+      const [financialReport, ...evolutionResults] = await Promise.all([
         reportService.getFinancialReport(m, y, r, rm),
-        reportService.getMonthlyEvolution(y),
+        ...yearsToFetch.map(yy => reportService.getMonthlyEvolution(yy)),
       ]);
+
+      // Merge evolution data from all fetched years
+      const allEvolution = evolutionResults.flatMap(er => er.monthlyEvolution || []);
+
       setReport(financialReport as any);
-      setMonthlyEvolution(evolutionData.monthlyEvolution || []);
+      setMonthlyEvolution(allEvolution);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error al cargar los reportes");
     } finally {

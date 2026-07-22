@@ -220,6 +220,24 @@
   font-variant-numeric: tabular-nums;
 }
 
+.subs-amount-dual {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.subs-amount-usd {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--subs-accent-1);
+}
+
+.subs-amount-ars {
+  font-weight: 500;
+  font-size: 0.78rem;
+  color: var(--subs-text-tertiary);
+}
+
 /* Status badge */
 .subs-status-badge {
   display: inline-flex;

@@ -63,13 +63,18 @@ export const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
 
   useEffect(() => {
     if (subscription) {
-      const amt = typeof subscription.amount === "string"
-        ? parseFloat(subscription.amount)
-        : subscription.amount || 0;
+      const isUSDOriginal = subscription.originalCurrency === 'USD' && subscription.originalAmount;
+      const amt = isUSDOriginal
+        ? subscription.originalAmount!
+        : (typeof subscription.amount === "string"
+          ? parseFloat(subscription.amount)
+          : subscription.amount || 0);
+      const currency = isUSDOriginal ? 'USD' : (subscription.currency || "ARS");
+
       setFormData({
         name: subscription.name || "",
         amount: amt,
-        currency: subscription.currency || "ARS",
+        currency: currency,
         billing_cycle: subscription.billing_cycle || "monthly",
         category_id: subscription.category_id || "",
         next_billing_date: subscription.next_billing_date || "",
@@ -199,7 +204,7 @@ export const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
 
   const convertedAmount = useMemo(() => {
     if (formData.currency === "USD" && amount > 0) {
-      return ExchangeRateService.convertUSDToARS(amount, 'oficial', true);
+      return ExchangeRateService.convertUSDToARS(amount, 'tarjeta');
     }
     return null;
   }, [amount, formData.currency]);
@@ -246,6 +251,11 @@ export const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
           <div className="subs-preview-name">{previewName}</div>
           <div className="subs-preview-amount">{formatAmount(amount, formData.currency || 'ARS')}</div>
           <div className="subs-preview-currency">{formData.currency || 'ARS'}</div>
+          {formData.currency === "USD" && convertedAmount && (
+            <div className="subs-preview-conversion">
+              ≈ {formatAmount(convertedAmount, 'ARS')}
+            </div>
+          )}
           <div className="subs-preview-meta">
             <span className="subs-preview-category">
               {selectedCategory ? getCategoryIcon(selectedCategory.name || '') : getCategoryIcon('otros')}

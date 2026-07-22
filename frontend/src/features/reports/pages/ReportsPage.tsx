@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from "react";
-import { FileText, FileSpreadsheet, File, DollarSign, BarChart3, Trophy, ArrowUp, TrendingDown, TrendingUp, PiggyBank, ChevronLeft, ChevronRight, PieChart, Lightbulb, Calendar, CalendarRange } from "lucide-react";
+import { FileText, FileSpreadsheet, File, DollarSign, BarChart3, Trophy, ArrowUp, TrendingDown, TrendingUp, ChevronLeft, ChevronRight, PieChart, Calendar, CalendarRange } from "lucide-react";
 import { MonthlyEvolution } from "../../dashboard/components/MonthlyEvolution/MonthlyEvolution";
 import { AnnualDistribution } from "../components/AnnualDistribution/AnnualDistribution";
 
@@ -22,14 +22,29 @@ export const ReportsPage: React.FC = () => {
   const [selectedYear, setSelectedYear] = useState(today.getFullYear());
   const [rangeMode, setRangeMode] = useState<"date" | "range">("range");
   const [range, setRange] = useState<number | null>(12);
+  const [selectedCurrency, setSelectedCurrency] = useState<'ARS' | 'USD'>('ARS');
 
   const { report, monthlyEvolution, loading, error, exportCSV } = useReports(selectedMonth, selectedYear, range, rangeMode);
 
   const { monthlyTotal, byCategory, subscriptions } = useMemo(() => {
     if (!report) return { monthlyTotal: 0, byCategory: [] as CategoryData[], subscriptions: [] };
+    const rawCategories: any[] = (report as any).by_category || report.categories || [];
+    const converted = rawCategories.map((c: any) => {
+      const ars = Number(c.monthly_total_ars || 0);
+      const usd = Number(c.monthly_total_usd || 0);
+      return {
+        name: c.name,
+        color: c.color,
+        subscription_count: c.subscription_count || 0,
+        monthly_total_ars: ars,
+        monthly_total_usd: usd,
+        monthly_total: ars + usd * 1450 * 1.75,
+      };
+    });
+    const total = converted.reduce((sum: number, c: any) => sum + (c.monthly_total || 0), 0);
     return {
-      monthlyTotal: report.summary?.monthly_total || 0,
-      byCategory: (report as any).by_category || report.categories || [],
+      monthlyTotal: total,
+      byCategory: converted,
       subscriptions: (report as any).subscriptions || [],
     };
   }, [report]);
@@ -47,6 +62,21 @@ export const ReportsPage: React.FC = () => {
     });
   }, [monthlyEvolution, range, rangeMode, selectedMonth, selectedYear]);
 
+  const currencyTotals = useMemo(() => {
+    return (filteredEvolution as any[]).reduce(
+      (acc: { ars: number; usd: number; paidArs: number; paidUsd: number }, m: any) => ({
+        ars: acc.ars + (Number(m.monthly_total_ars) || 0),
+        usd: acc.usd + (Number(m.monthly_total_usd) || 0),
+        paidArs: acc.paidArs + (Number(m.monthly_paid_ars) || 0),
+        paidUsd: acc.paidUsd + (Number(m.monthly_paid_usd) || 0),
+      }),
+      { ars: 0, usd: 0, paidArs: 0, paidUsd: 0 }
+    );
+  }, [filteredEvolution]);
+
+  const monthTotalARS = (m: any) =>
+    (Number(m.monthly_total_ars) || 0) + (Number(m.monthly_total_usd) || 0) * 1450 * 1.75;
+
   const stats = useMemo(() => {
     if (!filteredEvolution || filteredEvolution.length === 0) return null;
     const sorted = [...filteredEvolution].sort((a: any, b: any) => {
@@ -54,14 +84,15 @@ export const ReportsPage: React.FC = () => {
       const bKey = b.year * 12 + b.month;
       return aKey - bKey;
     });
-    const totalFiltered = sorted.reduce((s: number, m: any) => s + m.monthly_total, 0);
+    const totalFiltered = sorted.reduce((s: number, m: any) => s + monthTotalARS(m), 0);
     const avgFiltered = totalFiltered / sorted.length;
-    const mostExpensive = [...sorted].sort((a: any, b: any) => b.monthly_total - a.monthly_total)[0];
-    const highestPayment = mostExpensive?.monthly_total || 0;
+    const withTotal = sorted.map((m: any) => ({ ...m, _total: monthTotalARS(m) }));
+    const mostExpensive = [...withTotal].sort((a: any, b: any) => b._total - a._total)[0];
+    const highestPayment = mostExpensive?._total || 0;
     let monthlyVariation = 0;
     if (sorted.length >= 2) {
-      const first = sorted[0].monthly_total;
-      const last = sorted[sorted.length - 1].monthly_total;
+      const first = monthTotalARS(sorted[0]);
+      const last = monthTotalARS(sorted[sorted.length - 1]);
       monthlyVariation = first > 0 ? ((last - first) / first) * 100 : 0;
     }
     return { totalYearly: totalFiltered, avgMonthly: avgFiltered, highestPayment, mostExpensive, monthlyVariation };
@@ -72,14 +103,9 @@ export const ReportsPage: React.FC = () => {
       month: item.monthName || new Date(item.year, item.month - 1).toLocaleDateString("es-ES", { month: "short" }),
       monthIndex: item.month,
       year: item.year,
-      amount: item.monthly_total || 0,
+      amount: monthTotalARS(item),
     }));
   }, [filteredEvolution]);
-
-  const fullYearTotal = useMemo(() => {
-    if (!monthlyEvolution || monthlyEvolution.length === 0) return 0;
-    return monthlyEvolution.reduce((s: number, m: any) => s + (m.monthly_total || 0), 0);
-  }, [monthlyEvolution]);
 
   const hasData = filteredEvolution.length > 0;
   const hasCategories = byCategory.length > 0;
@@ -190,12 +216,35 @@ export const ReportsPage: React.FC = () => {
         {stats && (
           <div className="analysis-kpis-container">
             <div className="dashboard-kpis">
-              <KpiCard title="Total anual" value={formatCurrency(fullYearTotal, "ARS")} icon={<DollarSign size={16} />} color="spent" />
-              <KpiCard title="Promedio mensual" value={formatCurrency(stats.avgMonthly, "ARS")} icon={<BarChart3 size={16} />} color="subscriptions" />
-              <KpiCard title="Mayor pago" value={formatCurrency(stats.highestPayment, "ARS")} icon={<Trophy size={16} />} color="warning" />
-              <KpiCard title="Mes más caro" value={stats.mostExpensive?.monthName || "—"} subtitle={formatCurrency(stats.mostExpensive?.monthly_total || 0, "ARS")} icon={<ArrowUp size={16} />} color="danger" />
-              <KpiCard title="Variación mensual" value={`${stats.monthlyVariation >= 0 ? "+" : ""}${stats.monthlyVariation.toFixed(1)}%`} icon={<TrendingDown size={16} />} color={stats.monthlyVariation > 0 ? "danger" : "success"} />
-              <KpiCard title="Ahorro potencial" value="—" subtitle="Disponible pronto" icon={<PiggyBank size={16} />} color="info" />
+              <KpiCard title={rangeMode === 'range' ? (range === 12 ? 'Total Anual' : `Total ${range} Meses`) : 'Total Anual'} value={rangeMode === 'range' ? formatCurrency(stats.totalYearly, "ARS") : '—'} icon={<DollarSign size={16} />} color="spent" />
+              <KpiCard title="Promedio mensual" value={rangeMode === 'range' ? formatCurrency(stats.avgMonthly, "ARS") : '—'} icon={<BarChart3 size={16} />} color="subscriptions" />
+              <KpiCard title="Mayor pago" value={rangeMode === 'range' ? formatCurrency(stats.highestPayment, "ARS") : '—'} icon={<Trophy size={16} />} color="warning" />
+              <KpiCard title="Mes más caro" value={rangeMode === 'range' ? (stats.mostExpensive?.monthName || "—") : '—'} subtitle={rangeMode === 'range' ? formatCurrency(stats.mostExpensive?._total || 0, "ARS") : undefined} icon={<ArrowUp size={16} />} color="danger" />
+              <KpiCard title="Variación mensual" value={rangeMode === 'range' ? `${stats.monthlyVariation >= 0 ? "+" : ""}${stats.monthlyVariation.toFixed(1)}%` : '—'} icon={<TrendingDown size={16} />} color={rangeMode === 'range' ? (stats.monthlyVariation > 0 ? "danger" : "success") : "spent"} />
+              <div className="kpi-card monedas-card">
+                <div className="kpi-icon-wrapper" style={{ background: 'rgba(99, 102, 241, 0.1)' }}>
+                  <span style={{ color: '#818cf8' }}><DollarSign size={16} /></span>
+                </div>
+                <div className="kpi-title">Gasto por Moneda</div>
+                <div className="monedas-toggles">
+                  <button
+                    className={`monedas-toggle${selectedCurrency === 'ARS' ? ' active' : ''}`}
+                    onClick={() => setSelectedCurrency('ARS')}
+                  >ARS</button>
+                  <button
+                    className={`monedas-toggle${selectedCurrency === 'USD' ? ' active' : ''}`}
+                    onClick={() => setSelectedCurrency('USD')}
+                  >USD</button>
+                </div>
+                <div className="monedas-amount">
+                  {formatCurrency(selectedCurrency === 'ARS' ? currencyTotals.ars : currencyTotals.usd, selectedCurrency)}
+                </div>
+                {rangeMode === 'date' && (
+                  <div className="monedas-paid">
+                    Pagado: {formatCurrency(selectedCurrency === 'ARS' ? currencyTotals.paidArs : currencyTotals.paidUsd, selectedCurrency)}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         )}
@@ -214,7 +263,6 @@ export const ReportsPage: React.FC = () => {
         {/* ROW 3 — Insights + Oportunidades de ahorro */}
         <div className="analysis-grid-2">
           <div className="analysis-card app-card">
-            <div className="card-title-header"><Lightbulb size={14} /> Insights</div>
             <InsightsPanel
               categories={byCategory}
               monthlyEvolution={filteredEvolution}

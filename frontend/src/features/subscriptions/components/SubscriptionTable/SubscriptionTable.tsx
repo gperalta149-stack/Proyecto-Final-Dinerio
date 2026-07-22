@@ -112,7 +112,16 @@ export const SubscriptionTable: React.FC<SubscriptionTableProps> = ({
                     <span className="subs-table-muted">—</span>
                   )}
                 </td>
-                <td className="subs-table-amount">{formatCurrency(amount, currency)}</td>
+                <td className="subs-table-amount">
+                  {sub.originalCurrency === 'USD' && sub.originalAmount ? (
+                    <div className="subs-amount-dual">
+                      <span className="subs-amount-usd">{formatCurrency(sub.originalAmount, 'USD')}</span>
+                      <span className="subs-amount-ars">{formatCurrency(sub.arsAmount ?? parseAmount(sub.amount), 'ARS')}</span>
+                    </div>
+                  ) : (
+                    formatCurrency(amount, currency)
+                  )}
+                </td>
                 <td>
                   <span className={`subs-status-badge ${sub.status}`}>
                     <span className="subs-status-dot" />

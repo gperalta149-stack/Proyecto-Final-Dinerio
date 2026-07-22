@@ -18,7 +18,7 @@ const app = express()
 const PORT = process.env.PORT || 3000
 // Middleware
 app.use(corsMiddleware)
-app.use(express.json())
+app.use(express.json({ limit: '10mb' }))
 app.use(express.urlencoded({ extended: true }))
 // Health check
 app.get("/health", (_req, res) => {

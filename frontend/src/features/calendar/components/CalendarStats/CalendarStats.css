@@ -31,39 +31,10 @@
   color: var(--calendar-text-primary);
 }
 
-.calendar-stats-ring {
-  position: relative;
-  width: 64px;
-  height: 64px;
-  flex-shrink: 0;
-}
-
-.calendar-stats-ring-svg {
-  width: 100%;
-  height: 100%;
-}
-
-.calendar-stats-ring-fill {
-  transition: stroke-dashoffset 0.9s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.calendar-stats-ring-value {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.72rem;
-  font-weight: 700;
-  color: var(--calendar-text-primary);
-  font-variant-numeric: tabular-nums;
-}
-
 .calendar-stats-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 8px;
-  margin-bottom: 16px;
 }
 
 .calendar-stats-item {
@@ -104,17 +75,17 @@
 
 .calendar-stats-item.paid::before { background: var(--calendar-green); }
 
-.calendar-stats-item.pending {
-  background: rgba(245, 158, 11, 0.06);
-}
-
-.calendar-stats-item.pending::before { background: var(--calendar-orange); }
-
-.calendar-stats-item.cancelled {
+.calendar-stats-item.overdue {
   background: rgba(239, 68, 68, 0.06);
 }
 
-.calendar-stats-item.cancelled::before { background: var(--calendar-red); }
+.calendar-stats-item.overdue::before { background: var(--calendar-red); }
+
+.calendar-stats-item.dueToday {
+  background: rgba(245, 158, 11, 0.06);
+}
+
+.calendar-stats-item.dueToday::before { background: var(--calendar-orange); }
 
 .calendar-stats-label {
   font-size: 0.8rem;
@@ -136,33 +107,10 @@
   color: var(--calendar-green);
 }
 
-.calendar-stats-item.pending .calendar-stats-value {
-  color: var(--calendar-orange);
-}
-
-.calendar-stats-item.cancelled .calendar-stats-value {
+.calendar-stats-item.overdue .calendar-stats-value {
   color: var(--calendar-red);
 }
 
-.calendar-stats-total {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px 14px;
-  margin-top: 4px;
-  background: rgba(245, 158, 11, 0.06);
-  border: 1px solid rgba(245, 158, 11, 0.15);
-  border-radius: 8px;
-}
-
-.calendar-stats-total-label {
-  font-size: 0.85rem;
-  color: var(--calendar-text-secondary);
-}
-
-.calendar-stats-total-value {
-  font-weight: 700;
-  font-size: 1.15rem;
+.calendar-stats-item.dueToday .calendar-stats-value {
   color: var(--calendar-orange);
-  font-variant-numeric: tabular-nums;
 }

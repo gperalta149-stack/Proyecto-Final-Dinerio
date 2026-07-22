@@ -95,55 +95,159 @@ export const getFinancialReport = async (req: AuthRequest, res: Response) => {
       [req.user!.userId, currentMonth, currentYear]
     )
 
-    // Get by category - filtrado por mes/rango
-    const categoryParams: any[] = [req.user!.userId]
-    let categoryDateFilter = ""
+    // --- Compute range boundaries (in total months) ---
+    let rangeStartTotal: number, rangeEndTotal: number
+    const rangeEndMonth = currentMonth
+    const rangeEndYear = currentYear
     if (rangeMode === "date" || !currentRange) {
-      categoryDateFilter = `AND EXTRACT(MONTH FROM s.next_billing_date) = $2 AND EXTRACT(YEAR FROM s.next_billing_date) = $3`
-      categoryParams.push(currentMonth, currentYear)
+      rangeStartTotal = currentYear * 12 + currentMonth
+      rangeEndTotal = currentYear * 12 + currentMonth
     } else {
-      const totalMonths = currentYear * 12 + currentMonth
-      const startTotalMonths = totalMonths - currentRange
-      const startYear = Math.floor(startTotalMonths / 12)
-      const startMonth = startTotalMonths % 12 || 12
-      categoryDateFilter = `AND s.next_billing_date >= $2::date AND s.next_billing_date < ($3::date + interval '1 month')`
-      categoryParams.push(
-        `${startYear}-${String(startMonth).padStart(2, "0")}-01`,
+      rangeEndTotal = currentYear * 12 + currentMonth
+      rangeStartTotal = rangeEndTotal - currentRange + 1
+    }
+    const rangeStartYear = Math.floor(rangeStartTotal / 12) || 1
+    const rangeStartMonth = rangeStartTotal % 12 || 12
+
+    // --- Get all categories ---
+    const allCategories = await pool.query(
+      `SELECT id, name, color FROM categories WHERE user_id IS NULL OR user_id = $1`,
+      [req.user!.userId]
+    )
+
+    // --- Get all active subscriptions ---
+    const allSubs = await pool.query(
+      `SELECT id, category_id, amount, currency, billing_cycle, start_date, next_billing_date
+       FROM subscriptions
+       WHERE user_id = $1 AND status = 'active'`,
+      [req.user!.userId]
+    )
+
+    // --- Compute cumulative per-category totals ---
+    const catAcc: Record<string, { ars: number; usd: number; subCount: number }> = {}
+    allCategories.rows.forEach((cat: any) => {
+      catAcc[cat.id] = { ars: 0, usd: 0, subCount: 0 }
+    })
+
+    for (const sub of allSubs.rows) {
+      const catId = sub.category_id
+      if (!catId || !catAcc[catId]) continue
+
+      const amount = Number(sub.amount)
+      const isUSD = sub.currency === 'USD'
+      const cycle = sub.billing_cycle
+
+      // Monthly-equivalent amount
+      let monthlyAmount = amount
+      if (cycle === 'yearly') monthlyAmount = amount / 12
+      else if (cycle === 'quarterly') monthlyAmount = amount / 3
+      else if (cycle === 'weekly') monthlyAmount = amount * 4
+
+      // Billing cycle in months
+      let cycleMonths = 1
+      if (cycle === 'yearly') cycleMonths = 12
+      else if (cycle === 'quarterly') cycleMonths = 3
+      else if (cycle === 'weekly') cycleMonths = 0.25
+
+      // Count billing cycles within [rangeStart, rangeEnd]
+      const next = new Date(sub.next_billing_date)
+      const nextKey = next.getFullYear() * 12 + (next.getMonth() + 1)
+
+      // Date mode: only count subscriptions whose next_billing_date falls in the selected month
+      const isDateMode = !currentRange || rangeMode === "date"
+      if (isDateMode) {
+        if (next.getFullYear() !== currentYear || next.getMonth() + 1 !== currentMonth) continue
+        const total = monthlyAmount
+        if (isUSD) catAcc[catId].usd += total
+        else catAcc[catId].ars += total
+        catAcc[catId].subCount++
+        continue
+      }
+
+      const subStart = new Date(sub.start_date)
+      const subStartKey = subStart.getFullYear() * 12 + (subStart.getMonth() + 1)
+
+      // Earliest possible billing: max(subscription start, range start)
+      const earliestKey = Math.max(subStartKey, rangeStartTotal)
+      if (earliestKey > rangeEndTotal) continue // subscription started after range end
+
+      // Find first billing date >= earliestKey by walking back from next_billing_date
+      let cursorKey = nextKey
+      while (cursorKey >= earliestKey + cycleMonths) {
+        cursorKey -= cycleMonths
+        if (cursorKey < 1) break
+      }
+      // Step forward to the first billing on or after earliestKey
+      while (cursorKey < earliestKey) {
+        cursorKey += cycleMonths
+      }
+
+      // Count all billing dates from cursor up to the last committed billing (nextKey)
+      const endKey = Math.min(rangeEndTotal, nextKey)
+      let count = 0
+      while (cursorKey <= endKey) {
+        count++
+        cursorKey += cycleMonths
+      }
+
+      const total = monthlyAmount * count
+      if (isUSD) catAcc[catId].usd += total
+      else catAcc[catId].ars += total
+      if (count > 0) catAcc[catId].subCount++
+    }
+
+    // --- Add paid debts within range ---
+    const debtParams: any[] = [req.user!.userId]
+    let debtDateFilter = ""
+    if (rangeMode === "date" || !currentRange) {
+      debtDateFilter = `AND EXTRACT(MONTH FROM d.paid_at) = $2 AND EXTRACT(YEAR FROM d.paid_at) = $3`
+      debtParams.push(currentMonth, currentYear)
+    } else {
+      debtDateFilter = `AND d.paid_at >= $2::date AND d.paid_at < ($3::date + interval '1 month')`
+      debtParams.push(
+        `${rangeStartYear}-${String(rangeStartMonth).padStart(2, "0")}-01`,
         `${currentYear}-${String(currentMonth).padStart(2, "0")}-01`,
       )
     }
 
-    const categoryResult = await pool.query(
+    const debtResult = await pool.query(
       `SELECT
-          c.name,
-          c.color,
-          COUNT(s.id) as subscription_count,
-          COALESCE(SUM(CASE
-            WHEN s.currency = 'USD' THEN
-              CASE
-                WHEN s.billing_cycle = 'monthly' THEN s.amount * 1.75 * 1450
-                WHEN s.billing_cycle = 'yearly' THEN (s.amount / 12) * 1.75 * 1450
-                WHEN s.billing_cycle = 'quarterly' THEN (s.amount / 3) * 1.75 * 1450
-                WHEN s.billing_cycle = 'weekly' THEN (s.amount * 4) * 1.75 * 1450
-              END
-            ELSE
-              CASE
-                WHEN s.billing_cycle = 'monthly' THEN s.amount
-                WHEN s.billing_cycle = 'yearly' THEN s.amount / 12
-                WHEN s.billing_cycle = 'quarterly' THEN s.amount / 3
-                WHEN s.billing_cycle = 'weekly' THEN s.amount * 4
-              END
-          END), 0) as monthly_total
-        FROM categories c
-        LEFT JOIN subscriptions s ON c.id = s.category_id
-          AND s.user_id = $1
-          AND s.status = 'active'
-          ${categoryDateFilter}
-        WHERE c.user_id IS NULL OR c.user_id = $1
-        GROUP BY c.id, c.name, c.color
-        ORDER BY monthly_total DESC`,
-      categoryParams
+        d.category_id,
+        COALESCE(SUM(CASE WHEN d.currency = 'USD' THEN d.amount ELSE 0 END), 0) as debt_total_usd,
+        COALESCE(SUM(CASE WHEN d.currency = 'ARS' THEN d.amount ELSE 0 END), 0) as debt_total_ars
+      FROM debts d
+      WHERE d.user_id = $1
+        AND d.status = 'paid'
+        ${debtDateFilter}
+      GROUP BY d.category_id`,
+      debtParams
     )
+
+    for (const debt of debtResult.rows) {
+      if (!debt.category_id) continue
+      const acc = catAcc[debt.category_id]
+      if (acc) {
+        acc.usd += Number(debt.debt_total_usd)
+        acc.ars += Number(debt.debt_total_ars)
+      }
+    }
+
+    // --- Build final by_category array ---
+    const categoryRows = allCategories.rows
+      .map((cat: any) => {
+        const acc = catAcc[cat.id]
+        return {
+          id: cat.id,
+          name: cat.name,
+          color: cat.color,
+          subscription_count: acc ? acc.subCount : 0,
+          monthly_total_usd: acc ? Math.round(acc.usd) : 0,
+          monthly_total_ars: acc ? Math.round(acc.ars) : 0,
+        }
+      })
+      .filter((r: any) => r.monthly_total_usd !== 0 || r.monthly_total_ars !== 0)
+      .sort((a: any, b: any) => (b.monthly_total_ars + b.monthly_total_usd) - (a.monthly_total_ars + a.monthly_total_usd))
+
     const userResult = await pool.query(`SELECT monthly_budget, currency FROM users WHERE id = $1`, [req.user!.userId])
 
     // Get subscriptions - filtrado por mes/rango
@@ -154,7 +258,7 @@ export const getFinancialReport = async (req: AuthRequest, res: Response) => {
       subsParams.push(currentMonth, currentYear)
     } else {
       const totalMonths = currentYear * 12 + currentMonth
-      const startTotalMonths = totalMonths - currentRange
+      const startTotalMonths = totalMonths - currentRange + 1
       const startYear = Math.floor(startTotalMonths / 12)
       const startMonth = startTotalMonths % 12 || 12
       subsDateFilter = `AND s.next_billing_date >= $2::date AND s.next_billing_date < ($3::date + interval '1 month')`
@@ -192,7 +296,7 @@ export const getFinancialReport = async (req: AuthRequest, res: Response) => {
         budget_usage: budgetUsage,
         currency: userResult.rows[0].currency,
       },
-      by_category: categoryResult.rows,
+      by_category: categoryRows,
       subscriptions: subscriptionsResult.rows,
     })
   } catch (error) {
@@ -231,7 +335,13 @@ export const getMonthlyEvolution = async (req: AuthRequest, res: Response) => {
     );
 
     const monthlyTotals = Array(12).fill(0);
+    const monthlyTotalsARS = Array(12).fill(0);
+    const monthlyTotalsUSD = Array(12).fill(0);
+    const monthlyPaidARS = Array(12).fill(0);
+    const monthlyPaidUSD = Array(12).fill(0);
     const subscriptionCounts = Array(12).fill(0);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
     for (const row of result.rows) {
       const start = new Date(row.start_date);
@@ -239,7 +349,16 @@ export const getMonthlyEvolution = async (req: AuthRequest, res: Response) => {
 
       const cycle = row.billing_cycle;
       const cycles = getCycleMonths(cycle);
-      const payAmount = paymentAmount(Number(row.amount), row.currency);
+      const amount = Number(row.amount);
+      const payAmount = paymentAmount(amount, row.currency);
+      const isUSD = row.currency === 'USD';
+
+      // Raw monthly amount per currency (billing-cycle-adjusted)
+      let monthlyRaw = amount;
+      if (cycle === 'yearly') monthlyRaw = amount / 12;
+      else if (cycle === 'quarterly') monthlyRaw = amount / 3;
+      else if (cycle === 'weekly') monthlyRaw = amount * 4;
+
       const next = new Date(row.next_billing_date);
 
       // Find the first payment month in targetYear
@@ -255,23 +374,75 @@ export const getMonthlyEvolution = async (req: AuthRequest, res: Response) => {
       // First payment month in targetYear
       const firstMonth = cursor.getMonth();
 
+      const isPaid = next <= today;
+
       if (cycle === "monthly" || cycle === "weekly") {
-        // Pay every month from firstMonth through December
-        for (let m = firstMonth; m < 12; m++) {
-          monthlyTotals[m] += payAmount;
-          subscriptionCounts[m]++;
-        }
-      } else if (cycle === "yearly") {
-        // Pay once a year
         monthlyTotals[firstMonth] += payAmount;
+        if (isUSD) {
+          monthlyTotalsUSD[firstMonth] += monthlyRaw;
+          if (isPaid) monthlyPaidUSD[firstMonth] += monthlyRaw;
+        } else {
+          monthlyTotalsARS[firstMonth] += monthlyRaw;
+          if (isPaid) monthlyPaidARS[firstMonth] += monthlyRaw;
+        }
+        subscriptionCounts[firstMonth]++;
+      } else if (cycle === "yearly") {
+        monthlyTotals[firstMonth] += payAmount;
+        if (isUSD) {
+          monthlyTotalsUSD[firstMonth] += monthlyRaw;
+          if (isPaid) monthlyPaidUSD[firstMonth] += monthlyRaw;
+        } else {
+          monthlyTotalsARS[firstMonth] += monthlyRaw;
+          if (isPaid) monthlyPaidARS[firstMonth] += monthlyRaw;
+        }
         subscriptionCounts[firstMonth]++;
       } else if (cycle === "quarterly") {
-        // Pay every 3 months
         for (let m = firstMonth; m < 12; m += 3) {
+          const monthsAhead = m - firstMonth;
+          const billingDate = new Date(next);
+          billingDate.setMonth(billingDate.getMonth() + monthsAhead);
+          const isQuarterPaid = billingDate <= today;
+
           monthlyTotals[m] += payAmount;
+          if (isUSD) {
+            monthlyTotalsUSD[m] += monthlyRaw;
+            if (isQuarterPaid) monthlyPaidUSD[m] += monthlyRaw;
+          } else {
+            monthlyTotalsARS[m] += monthlyRaw;
+            if (isQuarterPaid) monthlyPaidARS[m] += monthlyRaw;
+          }
           subscriptionCounts[m]++;
         }
       }
+    }
+
+    // Sumar deudas al total y a lo pagado por mes
+    try {
+      const debtsResult = await pool.query(
+        `SELECT amount, currency, status,
+                EXTRACT(MONTH FROM COALESCE(paid_at, due_date)) as m,
+                EXTRACT(YEAR FROM COALESCE(paid_at, due_date)) as y
+         FROM debts
+         WHERE user_id = $1 AND EXTRACT(YEAR FROM COALESCE(paid_at, due_date)) = $2`,
+        [req.user!.userId, targetYear]
+      );
+      for (const row of debtsResult.rows) {
+        const m = Number(row.m) - 1;
+        if (m >= 0 && m < 12) {
+          const amt = Number(row.amount);
+          if (row.currency === 'USD') {
+            monthlyTotalsUSD[m] += amt;
+            monthlyTotals[m] += paymentAmount(amt, 'USD');
+            if (row.status === 'paid') monthlyPaidUSD[m] += amt;
+          } else {
+            monthlyTotalsARS[m] += amt;
+            monthlyTotals[m] += amt;
+            if (row.status === 'paid') monthlyPaidARS[m] += amt;
+          }
+        }
+      }
+    } catch (err) {
+      console.warn('Error al obtener deudas:', err);
     }
 
     const monthlyData = Array.from({ length: 12 }, (_, i) => ({
@@ -279,6 +450,10 @@ export const getMonthlyEvolution = async (req: AuthRequest, res: Response) => {
       year: targetYear,
       monthName: monthNames[i],
       monthly_total: Math.round(monthlyTotals[i]),
+      monthly_total_ars: Math.round(monthlyTotalsARS[i]),
+      monthly_total_usd: Math.round(monthlyTotalsUSD[i]),
+      monthly_paid_ars: Math.round(monthlyPaidARS[i]),
+      monthly_paid_usd: Math.round(monthlyPaidUSD[i]),
       subscription_count: subscriptionCounts[i],
     }));
 

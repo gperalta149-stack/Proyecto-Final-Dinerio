@@ -164,6 +164,13 @@
   flex-shrink: 0;
 }
 
+.subs-preview-conversion {
+  font-size: 0.85rem;
+  color: var(--subs-accent-1);
+  font-weight: 600;
+  margin-top: -8px;
+}
+
 .subs-preview-next {
   font-size: 0.8rem;
   color: var(--subs-text-tertiary);
@@ -366,7 +373,7 @@
   border-left: 1px solid var(--subs-border-subtle);
   cursor: pointer;
   user-select: none;
-  color: var(--subs-text-secondary);
+  color: var(--subs-text-primary);
   font-size: 0.82rem;
   font-weight: 600;
   height: 50px;

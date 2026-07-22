@@ -1,18 +1,15 @@
 import { useState, useEffect } from 'react';
 import ExchangeRateService, { ExchangeRates } from '../services/exchangeRateService';
 
-export const useExchangeRate = (type: 'blue' | 'oficial' = 'blue') => {
+export const useExchangeRate = (type: 'oficial' | 'tarjeta' = 'oficial') => {
   const [rates, setRates] = useState<ExchangeRates>({
-    blue: 1450,
-    blueCompra: 1430,
-    blueVenta: 1450,
-    oficial: 917,
-    oficialCompra: 900,
-    oficialVenta: 917,
+    oficial: 1470,
+    oficialCompra: 1440,
+    oficialVenta: 1470,
     oficialTrend: 'same',
-    tarjeta: 1467,
-    tarjetaCompra: 1440,
-    tarjetaVenta: 1467,
+    tarjeta: 1911,
+    tarjetaCompra: 1811,
+    tarjetaVenta: 1911,
     tarjetaTrend: 'same',
     lastUpdate: new Date()
   });
@@ -53,8 +50,8 @@ export const useExchangeRate = (type: 'blue' | 'oficial' = 'blue') => {
     return () => clearInterval(interval);
   }, [type]);
 
-  const convertUSDToARS = (amountUSD: number, includeTax: boolean = true): number => {
-    return ExchangeRateService.convertUSDToARS(amountUSD, type, includeTax);
+  const convertUSDToARS = (amountUSD: number): number => {
+    return ExchangeRateService.convertUSDToARS(amountUSD, type);
   };
 
   return {

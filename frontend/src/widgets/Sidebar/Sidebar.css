@@ -272,6 +272,10 @@
   flex-shrink: 0;
 }
 
+.sidebar-avatar-img {
+  object-fit: cover;
+}
+
 .sidebar-profile-info {
   flex: 1;
   min-width: 0;
