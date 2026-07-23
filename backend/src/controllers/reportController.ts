@@ -52,8 +52,6 @@ export const getFinancialReport = async (req: AuthRequest, res: Response) => {
 
     const isDateMode = !currentRange || rangeMode === "date"
     const now = new Date()
-    const actualTotal = now.getFullYear() * 12 + (now.getMonth() + 1)
-    // In range mode the range always ends at the current month
     const rangeEndMonth = isDateMode ? currentMonth : now.getMonth() + 1
     const rangeEndYear = isDateMode ? currentYear : now.getFullYear()
 
@@ -123,8 +121,8 @@ export const getFinancialReport = async (req: AuthRequest, res: Response) => {
     // --- Get all active subscriptions ---
     const allSubs = await pool.query(
       `SELECT id, category_id, amount, currency, billing_cycle, start_date, next_billing_date
-       FROM subscriptions
-       WHERE user_id = $1 AND status = 'active'`,
+        FROM subscriptions
+        WHERE user_id = $1 AND status = 'active'`,
       [req.user!.userId]
     )
 
@@ -333,8 +331,8 @@ export const getMonthlyEvolution = async (req: AuthRequest, res: Response) => {
 
     const result = await pool.query(
       `SELECT amount, currency, billing_cycle, start_date, next_billing_date, status
-       FROM subscriptions
-       WHERE user_id = $1 AND status = 'active'`,
+        FROM subscriptions
+        WHERE user_id = $1 AND status = 'active'`,
       [req.user!.userId]
     );
 
@@ -426,8 +424,8 @@ export const getMonthlyEvolution = async (req: AuthRequest, res: Response) => {
         `SELECT amount, currency, status,
                 EXTRACT(MONTH FROM COALESCE(paid_at, due_date)) as m,
                 EXTRACT(YEAR FROM COALESCE(paid_at, due_date)) as y
-         FROM debts
-         WHERE user_id = $1 AND EXTRACT(YEAR FROM COALESCE(paid_at, due_date)) = $2`,
+          FROM debts
+          WHERE user_id = $1 AND EXTRACT(YEAR FROM COALESCE(paid_at, due_date)) = $2`,
         [req.user!.userId, targetYear]
       );
       for (const row of debtsResult.rows) {

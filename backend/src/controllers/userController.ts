@@ -13,8 +13,8 @@ export const getUserProfile = async (
               monthly_budget, monthly_income, currency,
               language, notifications_enabled,
               created_at, updated_at
-       FROM users
-       WHERE id = $1`,
+        FROM users
+        WHERE id = $1`,
       [req.user!.userId]
     );
 

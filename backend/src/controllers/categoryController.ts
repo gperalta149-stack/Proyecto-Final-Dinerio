@@ -2,10 +2,6 @@ import { Response } from "express"
 import { pool } from "../config/database.js"
 import type { AuthRequest } from "../types/index.js"
 
-// NOTA: este controller se infirió a partir del schema de "categories" y del
-// routes/categories.ts que ya llamaba a categoryController.*, porque el código
-// original de esta lógica no vino incluido en lo que se pegó para el refactor.
-// Revisar y ajustar si la implementación real difiere.
 
 export const getCategories = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
@@ -100,9 +96,9 @@ export const deleteCategory = async (req: AuthRequest, res: Response): Promise<v
   try {
     const categoryResult = await pool.query(
       `SELECT id, name, user_id
-       FROM categories
-       WHERE id = $1
-         AND (user_id = $2 OR user_id IS NULL)`,
+        FROM categories
+        WHERE id = $1
+          AND (user_id = $2 OR user_id IS NULL)`,
       [id, req.user!.userId]
     )
 
@@ -120,9 +116,9 @@ export const deleteCategory = async (req: AuthRequest, res: Response): Promise<v
 
     const subscriptionResult = await pool.query(
       `SELECT COUNT(*)::int AS total
-       FROM subscriptions
-       WHERE category_id = $1
-         AND user_id = $2`,
+        FROM subscriptions
+        WHERE category_id = $1
+          AND user_id = $2`,
       [id, req.user!.userId]
     )
 
@@ -133,8 +129,8 @@ export const deleteCategory = async (req: AuthRequest, res: Response): Promise<v
 
     await pool.query(
       `DELETE FROM categories
-       WHERE id = $1
-         AND user_id = $2`,
+        WHERE id = $1
+          AND user_id = $2`,
       [id, req.user!.userId]
     )
 
