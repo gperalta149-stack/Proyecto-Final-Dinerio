@@ -433,10 +433,10 @@ export const getDashboardStats = async (req: AuthRequest, res: Response): Promis
 
     const debtResult = await pool.query(
       `SELECT
-         COALESCE(SUM(amount), 0)::float AS total,
-         COUNT(*)::int AS count
-       FROM debts
-       WHERE user_id = $1 AND status = 'pending'`,
+          COALESCE(SUM(amount), 0)::float AS total,
+          COUNT(*)::int AS count
+        FROM debts
+        WHERE user_id = $1 AND status = 'pending'`,
       [req.user!.userId]
     )
 

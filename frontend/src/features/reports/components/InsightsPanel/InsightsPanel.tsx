@@ -1,13 +1,8 @@
 import React, { useMemo } from "react";
 import { TrendingUp, TrendingDown, BarChart3, Minus, Lightbulb } from "lucide-react";
 import { formatCurrency } from "../../../../shared/utils/formatters";
+import type { CategoryData } from "../../types";
 import "./InsightsPanel.css";
-
-interface CategoryData {
-  name: string;
-  monthly_total: number;
-  color?: string;
-}
 
 interface MonthlyData {
   month: number;

@@ -17,8 +17,8 @@ export const getDebts = async (req: AuthRequest, res: Response): Promise<void> =
   try {
     const result = await pool.query(
       `${DEBT_WITH_CATEGORY} WHERE d.user_id = $1 ORDER BY
-         CASE WHEN d.status = 'pending' THEN 0 ELSE 1 END,
-         d.due_date ASC`,
+          CASE WHEN d.status = 'pending' THEN 0 ELSE 1 END,
+            d.due_date ASC`,
       [req.user!.userId]
     );
     res.json({ debts: result.rows });
@@ -33,22 +33,22 @@ export const getDebtsSummary = async (req: AuthRequest, res: Response): Promise<
   try {
     const pendingResult = await pool.query(
       `SELECT
-         COALESCE(SUM(amount), 0)::float AS total,
-         COUNT(*)::int AS count,
-         COALESCE(MAX(CURRENT_DATE - due_date), 0)::int AS oldest_days,
-         (SELECT name FROM debts WHERE user_id = $1 AND status = 'pending'
-           ORDER BY due_date ASC LIMIT 1) AS oldest_name
-       FROM debts
-       WHERE user_id = $1 AND status = 'pending'`,
+        COALESCE(SUM(amount), 0)::float AS total,
+        COUNT(*)::int AS count,
+        COALESCE(MAX(CURRENT_DATE - due_date), 0)::int AS oldest_days,
+          (SELECT name FROM debts WHERE user_id = $1 AND status = 'pending'
+            ORDER BY due_date ASC LIMIT 1) AS oldest_name
+        FROM debts
+        WHERE user_id = $1 AND status = 'pending'`,
       [req.user!.userId]
     );
 
     const paidThisMonthResult = await pool.query(
       `SELECT COUNT(*)::int AS count
-       FROM debts
-       WHERE user_id = $1 AND status = 'paid'
-         AND EXTRACT(MONTH FROM paid_at) = EXTRACT(MONTH FROM CURRENT_DATE)
-         AND EXTRACT(YEAR  FROM paid_at) = EXTRACT(YEAR  FROM CURRENT_DATE)`,
+        FROM debts
+        WHERE user_id = $1 AND status = 'paid'
+          AND EXTRACT(MONTH FROM paid_at) = EXTRACT(MONTH FROM CURRENT_DATE)
+          AND EXTRACT(YEAR  FROM paid_at) = EXTRACT(YEAR  FROM CURRENT_DATE)`,
       [req.user!.userId]
     );
 
@@ -85,8 +85,8 @@ export const createManualDebt = async (req: AuthRequest, res: Response): Promise
   try {
     const result = await pool.query(
       `INSERT INTO debts (user_id, name, amount, currency, due_date, category_id, status)
-       VALUES ($1, $2, $3, $4, $5, $6, 'pending')
-       RETURNING id`,
+        VALUES ($1, $2, $3, $4, $5, $6, 'pending')
+        RETURNING id`,
       [req.user!.userId, name.trim(), Number(amount), currency, due_date, category_id || null]
     );
 
@@ -108,9 +108,9 @@ export const markDebtAsPaid = async (req: AuthRequest, res: Response): Promise<v
   try {
     const result = await pool.query(
       `UPDATE debts
-       SET status = 'paid', paid_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP
-       WHERE id = $1 AND user_id = $2
-       RETURNING id, subscription_id`,
+        SET status = 'paid', paid_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP
+        WHERE id = $1 AND user_id = $2
+        RETURNING id, subscription_id`,
       [id, req.user!.userId]
     );
 
@@ -123,8 +123,8 @@ export const markDebtAsPaid = async (req: AuthRequest, res: Response): Promise<v
     if (subId) {
       await pool.query(
         `UPDATE subscriptions
-         SET status = 'cancelled', updated_at = CURRENT_TIMESTAMP
-         WHERE id = $1 AND user_id = $2 AND status = 'active'`,
+          SET status = 'cancelled', updated_at = CURRENT_TIMESTAMP
+          WHERE id = $1 AND user_id = $2 AND status = 'active'`,
         [subId, req.user!.userId]
       );
     }
@@ -146,9 +146,9 @@ export const postponeDebt = async (req: AuthRequest, res: Response): Promise<voi
   try {
     const result = await pool.query(
       `UPDATE debts
-       SET due_date = due_date + ($1 || ' days')::interval, updated_at = CURRENT_TIMESTAMP
-       WHERE id = $2 AND user_id = $3 AND status = 'pending'
-       RETURNING id`,
+        SET due_date = due_date + ($1 || ' days')::interval, updated_at = CURRENT_TIMESTAMP
+        WHERE id = $2 AND user_id = $3 AND status = 'pending'
+        RETURNING id`,
       [days, id, req.user!.userId]
     );
 

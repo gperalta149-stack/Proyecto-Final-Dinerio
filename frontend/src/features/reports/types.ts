@@ -5,6 +5,7 @@ export interface CategoryData {
   name: string;
   monthly_total_ars: number;
   monthly_total_usd: number;
+  monthly_total: number;
   subscription_count: number;
   color?: string;
 }
