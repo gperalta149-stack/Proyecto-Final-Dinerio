@@ -8,7 +8,7 @@ import { UpcomingPayments } from '../components/UpcomingPayments/UpcomingPayment
 import { PaymentsList } from '../components/PaymentsList/PaymentsList';
 import { useCalendar } from '../hooks/useCalendar';
 import { MONTHS } from '../constants/calendar';
-import '../styles/calendar.css';
+import '../../../styles/calendar/calendar.css';
 
 export const CalendarPage: React.FC = () => {
   const [currentDate, setCurrentDate] = useState(new Date());

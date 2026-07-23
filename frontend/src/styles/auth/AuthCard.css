@@ -1,0 +1,33 @@
+/* frontend/src/features/auth/components/AuthCard/AuthCard.css */
+.auth-card-content {
+  width: 100%;
+}
+
+.auth-card-content .auth-header {
+  text-align: left;
+  margin-bottom: var(--auth-spacing-lg);
+}
+
+.auth-card-content .auth-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--auth-text-primary);
+  margin-bottom: var(--auth-spacing-xs);
+}
+
+.auth-card-content .auth-subtitle {
+  color: var(--auth-text-secondary);
+  font-size: 1rem;
+}
+
+@media (max-width: 768px) {
+  .auth-card-content .auth-title {
+    font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .auth-card-content .auth-title {
+    font-size: 1.25rem;
+  }
+}

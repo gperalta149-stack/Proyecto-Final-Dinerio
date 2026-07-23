@@ -3,7 +3,7 @@ import { Link } from "react-router-dom"
 import { motion } from "framer-motion"
 import { ArrowRight, Play, Sparkles } from "lucide-react"
 import { STATS } from "../data/homeData"
-import "../styles/components/hero.css"
+import '../../../styles/home/hero.css'
 
 const CHART_DATA = [40, 55, 35, 65, 45, 75, 50, 80, 60, 70]
 

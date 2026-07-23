@@ -3,7 +3,7 @@ import React from "react";
 import { TrendingUp, Target, AlertTriangle, CheckCircle2, Info } from "lucide-react";
 import { formatCurrency } from "../../../../shared/utils/formatters";
 import type { BudgetRecommendation } from "../../types";
-import "./BudgetRecommendations.css";
+import '../../../../styles/budget/BudgetRecommendations.css';
 
 interface BudgetRecommendationsProps {
   spent: number;

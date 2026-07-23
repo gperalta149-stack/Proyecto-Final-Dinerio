@@ -1,0 +1,3 @@
+/* frontend/src/shared/styles/buttons.css
+   Re-exporta desde utilities.css para mantener compatibilidad */
+@import './utilities.css';

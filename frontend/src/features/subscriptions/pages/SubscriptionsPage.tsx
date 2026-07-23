@@ -11,7 +11,7 @@ import { subscriptionService } from "../service/subscriptionService";
 import { categoryService } from "../../categories/service/categoryService";
 import { parseAmount, formatCurrency } from "../../../shared/utils/formatters";
 import type { Subscription, Category } from "../../../shared/types";
-import "../styles/subscriptions.css";
+import '../../../styles/subscriptions/subscriptions.css';
 
 type SortKey = "name" | "amount-desc" | "amount-asc" | "next-payment" | "newest";
 

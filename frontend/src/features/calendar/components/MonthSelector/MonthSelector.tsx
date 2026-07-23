@@ -2,7 +2,7 @@
 import React from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { MONTHS } from '../../constants/calendar';
-import './MonthSelector.css';
+import '../../../../styles/calendar/MonthSelector.css';
 
 interface MonthSelectorProps {
   currentDate: Date;

@@ -1,0 +1,557 @@
+/* reports.css — Analysis / Reports page */
+@import '../shared/cards.css';
+
+.analysis-page {
+  min-height: 100vh;
+  background: var(--bg-primary);
+  padding: 24px;
+}
+
+.analysis-container {
+  max-width: 1280px;
+  margin: 0 auto;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  animation: dashPageIn 0.4s ease;
+}
+
+@keyframes dashPageIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== HEADER ===== */
+.analysis-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  width: 100%;
+}
+
+.analysis-date-picker {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  justify-content: flex-start;
+  padding-left: 6px;
+}
+
+.date-spinner {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-soft);
+  border-radius: 8px;
+  overflow: hidden;
+  transition: all 0.25s ease;
+}
+
+.date-spinner:focus-within {
+  border-color: var(--accent-1);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+
+.date-spinner-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 36px;
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.date-spinner-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--accent-1);
+}
+
+.date-spinner-input {
+  width: 100px;
+  padding: 8px 4px;
+  background: none;
+  border: none;
+  border-left: 1px solid var(--border-subtle);
+  border-right: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-align: center;
+  outline: none;
+}
+
+.date-spinner-input[type="number"] {
+  width: 80px;
+  -moz-appearance: textfield;
+}
+
+.date-spinner-input::-webkit-outer-spin-button,
+.date-spinner-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.range-mode-box,
+.range-content-box {
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border-soft);
+  border-radius: 10px;
+  padding: 4px;
+}
+
+.range-mode-toggle {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px;
+  border-radius: 7px;
+}
+
+.range-mode-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  border-radius: 5px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+  background: none;
+  border: none;
+  font-family: inherit;
+  white-space: nowrap;
+}
+
+.range-mode-btn:hover {
+  color: var(--text-primary);
+}
+
+.range-mode-btn.active {
+  background: var(--accent-1);
+  color: white;
+}
+
+.range-date-pickers {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 10px;
+}
+
+.range-date-pickers .date-spinner {
+  background: transparent;
+  border: none;
+}
+
+.range-date-pickers .date-spinner-input {
+  width: 90px;
+  font-size: 0.82rem;
+}
+
+.range-date-pickers .date-spinner-input[type="number"] {
+  width: 70px;
+}
+
+.range-date-pickers .date-spinner-btn {
+  width: 24px;
+  height: 32px;
+}
+
+.range-content-box .range-filter {
+  background: transparent;
+  border: none;
+  padding: 0;
+}
+
+.range-filter {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  padding: 3px;
+}
+
+.range-option {
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+  background: none;
+  border: none;
+  font-family: inherit;
+}
+
+.range-option:hover {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.range-option.active {
+  background: var(--accent-1);
+  color: white;
+}
+
+.export-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.export-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 18px;
+  border-radius: 8px;
+  border: 1px solid var(--border-soft);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  white-space: nowrap;
+}
+
+.export-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(99, 102, 241, 0.3);
+  color: var(--text-primary);
+  box-shadow: 0 0 12px rgba(99, 102, 241, 0.08);
+}
+
+.export-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.csv-btn {
+  background: linear-gradient(135deg, var(--accent-1), #7c3aed);
+  border-color: transparent;
+  color: white;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.25);
+}
+
+.csv-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, var(--accent-1), #7c3aed);
+  opacity: 0.92;
+  transform: translateY(-1px);
+  color: white;
+  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);
+}
+
+/* ===== KPIS (same style as Dashboard) ===== */
+.analysis-kpis-container {
+  border: 1px solid rgba(99, 102, 241, 0.12);
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 24px;
+}
+
+.analysis-kpis-container .dashboard-kpis {
+  margin-bottom: 0;
+  grid-template-columns: repeat(6, 1fr);
+}
+
+.analysis-kpis-container .kpi-card {
+  padding: 16px 18px;
+  gap: 8px;
+}
+
+.analysis-kpis-container .kpi-icon-wrapper {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  margin-bottom: 4px;
+}
+
+.analysis-kpis-container .kpi-icon-wrapper svg {
+  width: 16px;
+  height: 16px;
+}
+
+.analysis-kpis-container .kpi-title {
+  font-size: 11px;
+}
+
+.analysis-kpis-container .kpi-value {
+  font-size: 18px;
+}
+
+.analysis-kpis-container .kpi-subtitle {
+  font-size: 12px;
+}
+
+.analysis-kpis-container .kpi-progress-bar {
+  height: 3px;
+}
+
+.analysis-kpis-container .kpi-badge {
+  font-size: 9px;
+  padding: 1px 5px;
+}
+
+/* ===== CHART ===== */
+.analysis-chart {
+  background: linear-gradient(145deg, var(--bg-card) 0%, var(--bg-secondary) 100%);
+  border: 1px solid var(--border-subtle);
+  border-top: 3px solid var(--accent-1);
+  border-radius: 14px;
+  padding: 20px 22px;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.analysis-chart::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent-1), transparent 60%);
+  opacity: 0.05;
+  pointer-events: none;
+}
+
+.analysis-chart:hover {
+  background: var(--bg-card-hover);
+  border-color: rgba(99, 102, 241, 0.4);
+  box-shadow: var(--shadow-xl), 0 0 20px rgba(99, 102, 241, 0.22);
+}
+
+.analysis-chart:hover::before {
+  opacity: 0.1;
+}
+
+/* ===== 2-COL GRID ===== */
+.analysis-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+/* ===== FULL-WIDTH SECTION ===== */
+.analysis-full {
+  width: 100%;
+}
+
+/* ===== CARD TITLE HEADER (same style as Dashboard) ===== */
+.card-title-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border-soft);
+  margin-bottom: 4px;
+}
+
+.card-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-height: 160px;
+  color: var(--text-tertiary);
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+.card-empty svg {
+  opacity: 0.5;
+}
+
+/* Hide conflicting internal component titles inside report cards */
+.analysis-card .ad-title,
+.analysis-card .ip-title {
+  display: none;
+}
+
+/* ===== GENERIC CARD (uses .app-card from cards.css) ===== */
+.analysis-card {
+  height: 400px;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.analysis-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* ===== LOADING ===== */
+.analysis-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  gap: 16px;
+  color: var(--text-secondary);
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--border-subtle);
+  border-top: 3px solid var(--accent-1);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.analysis-error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  color: var(--accent-3);
+  text-align: center;
+  padding: 24px;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 1200px) {
+  .analysis-kpis-container .dashboard-kpis {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 1024px) {
+  .analysis-grid-2 {
+    grid-template-columns: 1fr;
+  }
+  .analysis-date-picker {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+  }
+  .date-spinner-input {
+    width: 80px;
+  }
+  .date-spinner-input[type="number"] {
+    width: 70px;
+  }
+  .export-actions {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 768px) {
+  .analysis-kpis-container .dashboard-kpis {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ===== MONEDAS CARD ===== */
+.monedas-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.monedas-toggles {
+  display: flex;
+  gap: 4px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border-soft);
+  border-radius: 8px;
+  padding: 3px;
+  margin-top: 2px;
+}
+
+.monedas-toggle {
+  flex: 1;
+  padding: 5px 0;
+  border: none;
+  border-radius: 6px;
+  background: none;
+  color: var(--text-tertiary);
+  font-size: 0.75rem;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.monedas-toggle:hover {
+  color: var(--text-primary);
+}
+
+.monedas-toggle.active {
+  background: var(--accent-1);
+  color: white;
+}
+
+.monedas-amount {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.monedas-paid {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+@media (max-width: 640px) {
+  .analysis-kpis-container .dashboard-kpis {
+    grid-template-columns: 1fr;
+  }
+
+  .analysis-page {
+    padding: 16px;
+  }
+  .analysis-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .analysis-card {
+    padding: 16px;
+  }
+  .analysis-date-picker {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .analysis-date-picker select {
+    width: 100%;
+  }
+  .export-actions {
+    width: 100%;
+    justify-content: center;
+  }
+}
+

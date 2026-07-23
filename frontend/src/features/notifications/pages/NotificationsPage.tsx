@@ -8,7 +8,7 @@ import { NotificationFilters } from '../components/NotificationFilters/Notificat
 import { NotificationEmptyState } from '../components/NotificationEmptyState/NotificationEmptyState';
 import { groupNotificationsByDate } from '../utils/notificationUtils';
 import type { Notification, NotificationType } from '../types';
-import '../styles/notifications.css';
+import '../../../styles/notifications/notifications.css';
 
 export const NotificationsPage: React.FC = () => {
   const [notifications, setNotifications] = useState<Notification[]>([]);

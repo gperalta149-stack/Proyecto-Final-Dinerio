@@ -3,7 +3,7 @@ import React, { useMemo } from "react";
 import { motion } from "framer-motion";
 import { TrendingUp } from "lucide-react";
 import { formatCurrency } from "../../../../shared/utils/formatters";
-import "./EvolutionChart.css";
+import '../../../../styles/reports/EvolutionChart.css';
 
 interface EvolutionData {
   month: number;

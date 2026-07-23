@@ -12,7 +12,7 @@ import {
 import { useAuth } from "../../../../shared/contexts/AuthContext";
 import { validateEmail, validatePassword } from "../../../../shared/utils/validators";
 import { useEmailCheck } from "../../hooks/useEmailCheck";
-import "./RegisterForm.css";
+import '../../../../styles/auth/RegisterForm.css';
 
 interface RegisterFormProps {
   onSuccess?: () => void;

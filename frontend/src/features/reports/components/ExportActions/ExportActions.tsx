@@ -1,6 +1,6 @@
 import React from "react";
 import { FileText, FileSpreadsheet, File } from "lucide-react";
-import "./ExportActions.css";
+import '../../../../styles/reports/ExportActions.css';
 
 interface ExportActionsProps {
   onExportCSV: () => void;

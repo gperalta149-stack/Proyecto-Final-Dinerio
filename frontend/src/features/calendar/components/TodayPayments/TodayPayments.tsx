@@ -3,7 +3,7 @@ import React from 'react';
 import { AlertTriangle, CheckCircle2 } from 'lucide-react';
 import { formatCurrency } from '../../../../shared/utils/formatters';
 import type { CalendarEvent } from '../../types';
-import './TodayPayments.css';
+import '../../../../styles/calendar/TodayPayments.css';
 
 interface TodayPaymentsProps {
   events: CalendarEvent[];

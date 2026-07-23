@@ -3,7 +3,7 @@ import React, { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, CheckCircle2, AlertCircle, AlertTriangle, Info } from 'lucide-react';
 import type { Toast as ToastType } from '../../../hooks/useToast';
-import './Toast.css';
+import '../../../../styles/shared/Toast.css';
 
 interface ToastProps {
   toast: ToastType;

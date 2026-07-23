@@ -8,7 +8,7 @@ import {
 } from "lucide-react";
 import type { Debt } from "../../types";
 import { formatCurrency, formatShortDate, getDaysUntilNextPayment, parseAmount } from "../../../../shared/utils/formatters";
-import "./DebtTable.css";
+import '../../../../styles/debts/DebtTable.css';
 
 interface DebtTableProps {
   debts: Debt[];

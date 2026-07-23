@@ -2,7 +2,7 @@
 import React from "react";
 import { ArrowUp, ArrowDown, Minus } from "lucide-react";
 import { formatCurrency } from "../../../../shared/utils/formatters";
-import "./CategoryTable.css";
+import '../../../../styles/reports/CategoryTable.css';
 
 interface CategoryData {
   name: string;

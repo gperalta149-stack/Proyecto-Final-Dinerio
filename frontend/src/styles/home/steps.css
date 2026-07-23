@@ -1,0 +1,91 @@
+/* frontend/src/features/home/styles/components/steps.css */
+@import '../shared/variables.css';
+
+.steps {
+  background: var(--color-bg-primary);
+}
+
+.steps .section-header {
+  margin-bottom: 60px;
+  padding-top: 20px;
+}
+
+.steps-timeline {
+  position: relative;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--spacing-lg) 0;
+}
+
+.steps-timeline::before {
+  content: '';
+  position: absolute;
+  left: 32px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--gradient-primary);
+  opacity: 0.2;
+}
+
+.step-item {
+  display: flex;
+  gap: var(--spacing-lg);
+  margin-bottom: var(--spacing-xl);
+  position: relative;
+  padding-left: var(--spacing-sm);
+}
+
+.step-item:last-child {
+  margin-bottom: 0;
+}
+
+.step-marker {
+  flex-shrink: 0;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--gradient-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--text-xl);
+  font-weight: var(--font-bold);
+  color: white;
+  position: relative;
+  z-index: 2;
+  box-shadow: var(--shadow-glow);
+  transition: all var(--transition-smooth);
+}
+
+.step-item:hover .step-marker {
+  transform: scale(1.05);
+  box-shadow: 0 12px 40px rgba(99, 102, 241, 0.4);
+}
+
+.step-content {
+  flex: 1;
+  padding-top: var(--spacing-xs);
+}
+
+.step-content h3 {
+  font-size: var(--text-2xl);
+  font-weight: var(--font-semibold);
+  margin-bottom: var(--spacing-xs);
+}
+
+.step-content p {
+  color: var(--color-text-secondary);
+  line-height: var(--leading-relaxed);
+  font-size: var(--text-base);
+}
+
+.step-icon {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  color: var(--color-accent-1);
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  margin-top: var(--spacing-xs);
+}

@@ -1,7 +1,7 @@
 import React from "react";
 import { formatCurrency } from "../../../../shared/utils/formatters";
 import type { Subscription } from "../../../../shared/types";
-import "./ExecutiveSummary.css";
+import '../../../../styles/dashboard/ExecutiveSummary.css';
 
 interface ExecutiveSummaryProps {
   upcoming: Subscription[];

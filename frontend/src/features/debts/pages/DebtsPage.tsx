@@ -12,7 +12,7 @@ import { categoryService } from '../../categories/service/categoryService';
 import type { Category } from '../../categories/types';
 import type { Debt } from '../types';
 import { getDaysUntilNextPayment } from '../../../shared/utils/formatters';
-import '../styles/debts.css';
+import '../../../styles/debts/debts.css';
 
 export const DebtsPage: React.FC = () => {
   const { pendingDebts, paidDebts, summary, loading, createDebt, markAsPaid, postpone, removeDebt } = useDebts();

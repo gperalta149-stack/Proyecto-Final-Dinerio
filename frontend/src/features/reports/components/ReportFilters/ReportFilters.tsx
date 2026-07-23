@@ -1,6 +1,6 @@
 import React from "react";
 
-import "./ReportFilters.css";
+import '../../../../styles/reports/ReportFilters.css';
 
 interface ReportFiltersProps {
   selectedMonth: number;

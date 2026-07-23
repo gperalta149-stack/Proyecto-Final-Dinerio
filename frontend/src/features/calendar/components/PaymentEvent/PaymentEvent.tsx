@@ -3,7 +3,7 @@ import React from 'react';
 import { formatCurrency } from '../../../../shared/utils/formatters';
 import { BILLING_CYCLE_LABELS, STATUS_LABELS } from '../../constants/calendar';
 import type { CalendarEvent } from '../../types';
-import './PaymentEvent.css';
+import '../../../../styles/calendar/PaymentEvent.css';
 
 interface PaymentEventProps {
   event: CalendarEvent;

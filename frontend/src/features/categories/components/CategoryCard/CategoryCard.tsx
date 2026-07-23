@@ -3,7 +3,7 @@ import React from 'react';
 import { Edit3, Trash2 } from 'lucide-react';
 import { getCategoryIcon } from '../../utils/getCategoryIcon';
 import type { Category } from '../../types';
-import './CategoryCard.css';
+import '../../../../styles/categories/CategoryCard.css';
 
 interface CategoryCardProps {
   category: Category;

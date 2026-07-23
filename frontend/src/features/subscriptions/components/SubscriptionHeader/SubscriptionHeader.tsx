@@ -1,6 +1,6 @@
 import React from "react";
 import { Plus } from "lucide-react";
-import "./SubscriptionHeader.css";
+import '../../../../styles/subscriptions/SubscriptionHeader.css';
 
 interface SubscriptionHeaderProps {
   onAdd: () => void;

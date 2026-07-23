@@ -6,7 +6,7 @@ import { formatCurrency } from '../../../../shared/utils/formatters';
 import { KpiCard } from '../../../../shared/components/ui/KpiCard';
 import type { KpiCardColor } from '../../../../shared/components/ui/KpiCard';
 import type { Category } from '../../types';
-import './CategoryGrid.css';
+import '../../../../styles/categories/CategoryGrid.css';
 
 interface CategoryGridProps {
   categories: Category[];

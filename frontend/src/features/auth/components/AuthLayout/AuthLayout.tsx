@@ -1,7 +1,7 @@
 // frontend/src/features/auth/components/AuthLayout/AuthLayout.tsx
 import React from "react";
 import { motion } from "framer-motion";
-import "./AuthLayout.css";
+import '../../../../styles/auth/AuthLayout.css';
 
 interface AuthLayoutProps {
   children: React.ReactNode;

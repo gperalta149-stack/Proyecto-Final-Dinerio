@@ -3,7 +3,7 @@ import React from "react";
 import { Sparkles, AlertTriangle } from "lucide-react";
 import { formatCurrency } from "../../../../shared/utils/formatters";
 
-import "./BudgetProgress.css";
+import '../../../../styles/budget/BudgetProgress.css';
 
 interface BudgetProgressProps {
   spent: number;

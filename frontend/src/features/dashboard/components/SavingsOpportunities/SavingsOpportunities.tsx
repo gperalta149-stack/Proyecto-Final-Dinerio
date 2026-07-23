@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { Lightbulb, ArrowRight, DollarSign, Clock, Calendar, RefreshCw, CheckCircle2 } from "lucide-react";
 import type { Subscription } from "../../types";
 import { formatCurrency, parseAmount } from "../../../../shared/utils/formatters";
-import "./SavingsOpportunities.css";
+import '../../../../styles/dashboard/SavingsOpportunities.css';
 
 interface SavingsOpportunitiesProps {
   subscriptions: Subscription[];

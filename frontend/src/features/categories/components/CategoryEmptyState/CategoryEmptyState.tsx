@@ -1,7 +1,7 @@
 // frontend/src/features/categories/components/CategoryEmptyState/CategoryEmptyState.tsx
 import React from 'react';
 import { Plus, FolderOpen, Lightbulb } from 'lucide-react';
-import './CategoryEmptyState.css';
+import '../../../../styles/categories/CategoryEmptyState.css';
 
 interface CategoryEmptyStateProps {
   onAdd: () => void;

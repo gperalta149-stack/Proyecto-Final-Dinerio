@@ -6,7 +6,7 @@ import { FeaturesSection } from "../components/FeaturesSection";
 import { HowItWorksSection } from "../components/HowItWorksSection";
 import { CtaSection } from "../components/CtaSection";
 import { Footer } from "../components/Footer";
-import "../styles/homePage.css";
+import '../../../styles/home/homePage.css';
 
 export const HomePage: React.FC = () => {
   return (

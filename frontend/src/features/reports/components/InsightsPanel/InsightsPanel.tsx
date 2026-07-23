@@ -2,7 +2,7 @@ import React, { useMemo } from "react";
 import { TrendingUp, TrendingDown, BarChart3, Minus, Lightbulb } from "lucide-react";
 import { formatCurrency } from "../../../../shared/utils/formatters";
 import type { CategoryData } from "../../types";
-import "./InsightsPanel.css";
+import '../../../../styles/reports/InsightsPanel.css';
 
 interface MonthlyData {
   month: number;

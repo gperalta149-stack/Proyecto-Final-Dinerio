@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from "react";
 import { ChartLine, TrendingUp } from "lucide-react";
 import { formatCurrency } from "../../../../shared/utils/formatters";
-import "./MonthlyEvolution.css";
+import '../../../../styles/dashboard/MonthlyEvolution.css';
 
 interface MonthlyData {
   month: string;

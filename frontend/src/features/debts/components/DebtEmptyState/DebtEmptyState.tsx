@@ -1,7 +1,7 @@
 // frontend/src/features/debts/components/DebtEmptyState/DebtEmptyState.tsx
 import React from 'react';
 import { CheckCircle2, Plus } from 'lucide-react';
-import './DebtEmptyState.css';
+import '../../../../styles/debts/DebtEmptyState.css';
 
 interface DebtEmptyStateProps {
   onAdd: () => void;

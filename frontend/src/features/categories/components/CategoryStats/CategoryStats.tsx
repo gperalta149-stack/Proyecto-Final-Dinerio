@@ -1,7 +1,7 @@
 import React from 'react';
 import { BarChart3, Layers, CheckCircle2 } from 'lucide-react';
 import type { CategoryStats as CategoryStatsType } from '../../utils/getCategoryStats';
-import './CategoryStats.css';
+import '../../../../styles/categories/CategoryStats.css';
 
 interface CategoryStatsProps {
   stats: CategoryStatsType;

@@ -1,0 +1,15 @@
+@import './auth-variables.css';
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--auth-spacing-md);
+}
+
+.auth-spinner {
+  animation: authSpin 0.8s linear infinite;
+}
+
+@keyframes authSpin {
+  to { transform: rotate(360deg); }
+}

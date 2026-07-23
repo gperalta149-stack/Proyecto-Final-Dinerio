@@ -1,0 +1,520 @@
+@import './debts-variables.css';
+
+.debt-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(6, 7, 11, 0.7);
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 24px;
+}
+
+.debt-modal {
+  background: var(--bg-primary);
+  border: 1px solid var(--debt-border-soft);
+  border-radius: 20px;
+  width: 100%;
+  max-width: 520px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(99, 102, 241, 0.06) inset;
+  animation: debtModalSlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes debtModalSlideIn {
+  from { opacity: 0; transform: translateY(-12px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.debt-modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 24px 24px 0;
+}
+
+.debt-modal-header-info {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.debt-modal-header-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 11px;
+  background: rgba(239, 68, 68, 0.14);
+  color: var(--debt-red);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.debt-modal-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--debt-text-primary);
+  margin: 0 0 4px;
+  letter-spacing: -0.01em;
+}
+
+.debt-modal-subtitle {
+  font-size: 0.82rem;
+  color: var(--debt-text-tertiary);
+  margin: 0;
+}
+
+.debt-modal-close {
+  width: 32px;
+  height: 32px;
+  background: transparent;
+  border: none;
+  color: var(--debt-text-tertiary);
+  cursor: pointer;
+  border-radius: 9px;
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.debt-modal-close:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--debt-text-primary);
+}
+
+.debt-modal-form {
+  padding: 20px 24px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.debt-modal-error {
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  color: var(--debt-red);
+  font-size: 0.82rem;
+  font-weight: 500;
+}
+
+.debt-modal-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.debt-modal-label {
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--debt-text-secondary);
+}
+
+.debt-modal-input {
+  width: 100%;
+  padding: 10px 14px;
+  background: linear-gradient(145deg, var(--bg-card) 0%, var(--bg-secondary) 100%);
+  border: 1px solid var(--debt-border-subtle);
+  border-radius: 12px;
+  color: var(--debt-text-primary);
+  font-size: 0.9rem;
+  font-family: inherit;
+  transition: all 0.2s ease;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.debt-modal-input:focus {
+  border-color: var(--debt-accent-1);
+}
+
+.debt-modal-input:focus-visible {
+  outline: none;
+}
+
+.debt-modal-input::placeholder {
+  color: var(--debt-text-tertiary);
+}
+
+.debt-modal-row {
+  display: flex;
+  gap: 12px;
+}
+
+.debt-modal-row .debt-modal-field {
+  flex: 1;
+}
+
+.debt-modal-amount-wrapper {
+  display: flex;
+  align-items: center;
+  background: linear-gradient(145deg, var(--bg-card) 0%, var(--bg-secondary) 100%);
+  border: 1px solid var(--debt-border-subtle);
+  border-radius: 12px;
+  transition: border-color 0.2s ease;
+  position: relative;
+  overflow: visible;
+}
+
+.debt-modal-amount-wrapper:focus-within {
+  border-color: var(--debt-accent-1);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+
+.debt-modal-amount-symbol {
+  padding: 0 4px 0 14px;
+  color: var(--debt-text-tertiary);
+  font-weight: 700;
+  font-size: 1rem;
+  user-select: none;
+  flex-shrink: 0;
+}
+
+.debt-modal-amount-input {
+  border: none;
+  background: transparent;
+  border-radius: 0;
+  padding: 10px 8px;
+  flex: 1;
+}
+
+.debt-modal-amount-input:focus {
+  box-shadow: none;
+}
+
+.debt-modal-conversion {
+  font-size: 0.75rem;
+  color: var(--debt-text-tertiary);
+  margin-top: 4px;
+  padding-left: 2px;
+}
+
+.debt-modal-conversion strong {
+  color: var(--debt-text-secondary);
+  font-weight: 600;
+}
+
+.debt-modal-currency-selector {
+  position: relative;
+}
+
+.debt-modal-currency-trigger {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 12px 0 10px;
+  border-left: 1px solid var(--debt-border-subtle);
+  cursor: pointer;
+  user-select: none;
+  color: var(--debt-text-secondary);
+  font-size: 0.82rem;
+  font-weight: 600;
+  height: 50px;
+  background: none;
+  border-right: none;
+  border-top: none;
+  border-bottom: none;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  font-family: inherit;
+}
+
+.debt-modal-currency-trigger:hover {
+  background: var(--bg-primary);
+}
+
+.debt-modal-currency-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  min-width: 100px;
+  background: var(--bg-primary);
+  border: 1px solid var(--debt-border-subtle);
+  border-radius: 10px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+  z-index: 9999;
+  padding: 4px;
+}
+
+.debt-modal-currency-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  width: 100%;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: var(--debt-text-primary);
+  transition: background 0.15s ease;
+  text-align: left;
+  font-family: inherit;
+}
+
+.debt-modal-currency-option:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.debt-modal-currency-option.selected {
+  background: rgba(99, 102, 241, 0.12);
+  color: #a5b4fc;
+}
+
+.debt-modal-date-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: linear-gradient(145deg, var(--bg-card) 0%, var(--bg-secondary) 100%);
+  border: 1px solid var(--debt-border-subtle);
+  border-radius: 12px;
+  transition: border-color 0.2s ease;
+}
+
+.debt-modal-date-wrapper:focus-within {
+  border-color: var(--debt-accent-1);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+
+.debt-modal-date-icon {
+  position: absolute;
+  left: 14px;
+  color: var(--debt-text-tertiary);
+  pointer-events: none;
+}
+
+.debt-modal-date-input {
+  padding: 10px 14px 10px 40px;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  outline: none;
+  width: 100%;
+  box-sizing: border-box;
+  color: var(--debt-text-primary);
+  font-size: 0.9rem;
+  font-family: inherit;
+}
+
+.debt-modal-date-input::-webkit-calendar-picker-indicator {
+  opacity: 0;
+  cursor: pointer;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+
+.debt-modal-category-selector {
+  position: relative;
+  background: linear-gradient(145deg, var(--bg-card) 0%, var(--bg-secondary) 100%);
+  border: 1px solid var(--debt-border-subtle);
+  border-radius: 12px;
+  transition: border-color 0.2s ease;
+}
+
+.debt-modal-category-selector:focus-within {
+  border-color: var(--debt-accent-1);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+
+.debt-modal-category-trigger {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 14px 10px 38px;
+  cursor: pointer;
+  user-select: none;
+  font-size: 0.9rem;
+  color: var(--debt-text-primary);
+  min-height: 42px;
+  transition: color 0.2s ease;
+  width: 100%;
+  background: none;
+  border: none;
+  font-family: inherit;
+  text-align: left;
+}
+
+.debt-modal-category-trigger:hover {
+  color: var(--debt-text-primary);
+}
+
+.debt-modal-category-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  pointer-events: none;
+}
+
+.debt-modal-category-placeholder {
+  color: rgba(255, 255, 255, 0.2);
+  flex: 1;
+}
+
+.debt-modal-category-option-icon {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  width: 18px;
+  justify-content: center;
+}
+
+.debt-modal-chevron {
+  margin-left: auto;
+  color: var(--debt-text-tertiary);
+  flex-shrink: 0;
+}
+
+.debt-modal-category-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: 4px;
+  background: var(--bg-primary);
+  border: 1px solid var(--debt-border-soft);
+  border-radius: 10px;
+  overflow: hidden;
+  z-index: 10;
+  max-height: 220px;
+  overflow-y: auto;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.debt-modal-category-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 10px 14px;
+  background: none;
+  border: none;
+  color: var(--debt-text-primary);
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.1s ease;
+  text-align: left;
+  font-family: inherit;
+}
+
+.debt-modal-category-option:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.debt-modal-category-option.selected {
+  background: rgba(99, 102, 241, 0.1);
+  color: var(--debt-accent-1);
+}
+
+.debt-modal-notes-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  color: var(--debt-text-tertiary);
+  font-size: 0.82rem;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 4px 0;
+  transition: color 0.15s ease;
+  font-family: inherit;
+}
+
+.debt-modal-notes-toggle:hover {
+  color: var(--debt-text-primary);
+}
+
+.debt-modal-textarea {
+  resize: vertical;
+  min-height: 72px;
+  line-height: 1.5;
+  width: 100%;
+  padding: 10px 14px;
+  background: linear-gradient(145deg, var(--bg-card) 0%, var(--bg-secondary) 100%);
+  border: 1px solid var(--debt-border-subtle);
+  border-radius: 12px;
+  color: var(--debt-text-primary);
+  font-size: 0.9rem;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.2s ease;
+  box-sizing: border-box;
+}
+
+.debt-modal-textarea:focus {
+  border-color: var(--debt-accent-1);
+}
+
+.debt-modal-textarea:focus-visible {
+  outline: none;
+}
+
+.debt-modal-textarea::placeholder {
+  color: var(--debt-text-tertiary);
+}
+
+.debt-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 16px;
+  border-top: 1px solid var(--debt-border-subtle);
+  gap: 10px;
+}
+
+.debt-modal-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 11px 24px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 0.88rem;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  min-width: 110px;
+  font-family: inherit;
+}
+
+.debt-modal-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.debt-modal-btn.secondary {
+  background: transparent;
+  color: var(--debt-text-secondary);
+  border: 1px solid var(--debt-border-soft);
+}
+
+.debt-modal-btn.secondary:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--debt-text-primary);
+  border-color: rgba(255, 255, 255, 0.16);
+}
+
+.debt-modal-btn.primary {
+  background: var(--debt-red);
+  color: white;
+  box-shadow: 0 4px 14px rgba(239, 68, 68, 0.3);
+}
+
+.debt-modal-btn.primary:hover:not(:disabled) {
+  filter: brightness(1.1);
+  box-shadow: 0 6px 18px rgba(239, 68, 68, 0.4);
+}

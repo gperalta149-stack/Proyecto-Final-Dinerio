@@ -1,0 +1,36 @@
+/* frontend/src/features/auth/pages/LoginPage/LoginPage.css */
+
+.login-page .auth-title {
+  background: var(--gradient-title);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.login-page .auth-form {
+  gap: var(--auth-spacing-sm);
+}
+
+@media (max-width: 768px) {
+  .login-page .auth-title {
+    font-size: 1.25rem;
+  }
+  .login-page .auth-subtitle {
+    font-size: 0.85rem;
+  }
+  .login-page .auth-form {
+    gap: var(--auth-spacing-xs);
+  }
+}
+
+@media (max-width: 480px) {
+  .login-page .auth-title {
+    font-size: 1.1rem;
+  }
+  .login-page .auth-subtitle {
+    font-size: 0.8rem;
+  }
+  .login-page .auth-form {
+    gap: var(--auth-spacing-xs);
+  }
+}

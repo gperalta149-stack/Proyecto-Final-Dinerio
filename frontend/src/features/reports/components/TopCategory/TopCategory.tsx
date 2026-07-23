@@ -1,7 +1,7 @@
 import React, { useMemo } from "react";
 import { TrendingUp, TrendingDown, Minus } from "lucide-react";
 import { formatCurrency } from "../../../../shared/utils/formatters";
-import "./TopCategory.css";
+import '../../../../styles/reports/TopCategory.css';
 
 interface CategoryData {
   name: string;

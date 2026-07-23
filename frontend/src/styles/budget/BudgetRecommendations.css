@@ -1,0 +1,107 @@
+/* frontend/src/features/budget/components/BudgetRecommendations/BudgetRecommendations.css */
+@import './budget-variables.css';
+
+.budget-recommendations {
+  background: var(--budget-bg-card);
+  border: 1px solid var(--budget-border-subtle);
+  border-radius: 12px;
+  padding: 24px;
+  height: 100%;
+}
+
+.budget-recommendations-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--budget-text-primary);
+  margin-bottom: 16px;
+}
+
+.budget-recommendations-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.budget-recommendation-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.02);
+  transition: transform 0.25s ease, background 0.25s ease;
+}
+
+.budget-recommendation-item:hover {
+  transform: translateY(-1px);
+}
+
+.budget-recommendation-item.success {
+  background: rgba(34, 197, 94, 0.06);
+  border: 1px solid rgba(34, 197, 94, 0.15);
+}
+
+.budget-recommendation-item.warning {
+  background: rgba(245, 158, 11, 0.06);
+  border: 1px solid rgba(245, 158, 11, 0.15);
+}
+
+.budget-recommendation-item.danger {
+  background: rgba(239, 68, 68, 0.06);
+  border: 1px solid rgba(239, 68, 68, 0.15);
+}
+
+.budget-recommendation-item.info {
+  background: rgba(99, 102, 241, 0.06);
+  border: 1px solid rgba(99, 102, 241, 0.15);
+}
+
+.budget-recommendation-icon {
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.budget-recommendation-item.success .budget-recommendation-icon {
+  color: var(--budget-green);
+  background: rgba(34, 197, 94, 0.14);
+}
+
+.budget-recommendation-item.warning .budget-recommendation-icon {
+  color: var(--budget-orange);
+  background: rgba(245, 158, 11, 0.14);
+}
+
+.budget-recommendation-item.danger .budget-recommendation-icon {
+  color: var(--budget-red);
+  background: rgba(239, 68, 68, 0.14);
+}
+
+.budget-recommendation-item.info .budget-recommendation-icon {
+  color: var(--budget-accent-1);
+  background: rgba(99, 102, 241, 0.14);
+}
+
+.budget-recommendation-content {
+  flex: 1;
+  padding-top: 2px;
+}
+
+.budget-recommendation-title {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--budget-text-primary);
+}
+
+.budget-recommendation-description {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  color: var(--budget-text-secondary);
+  margin-top: 2px;
+}

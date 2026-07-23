@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { AlertCircle, Clock, CheckCircle2, Pencil, Trash2 } from 'lucide-react';
 import { formatCurrency, formatShortDate, getDaysUntilNextPayment, parseAmount } from '../../../../shared/utils/formatters';
 import type { Debt } from '../../types';
-import './DebtCard.css';
+import '../../../../styles/debts/DebtCard.css';
 
 interface DebtCardProps {
   debt: Debt;

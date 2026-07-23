@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react"
 import { Link } from "react-router-dom"
 import { Menu, X } from "lucide-react"
-import "../styles/components/header.css"
+import '../../../styles/home/header.css'
 
 const NAV_LINKS = [
   { href: "#features", label: "Características" },

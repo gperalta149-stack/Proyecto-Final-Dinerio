@@ -2,7 +2,7 @@
 import React from 'react';
 import { BarChart3 } from 'lucide-react';
 import type { CalendarStats as CalendarStatsType } from '../../types';
-import './CalendarStats.css';
+import '../../../../styles/calendar/CalendarStats.css';
 
 interface CalendarStatsProps {
   stats: CalendarStatsType;

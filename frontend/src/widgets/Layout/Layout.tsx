@@ -3,7 +3,7 @@ import type React from "react"
 import { useState } from "react"
 import { Header } from "../Header"
 import { Sidebar } from "../Sidebar"
-import "./Layout.css"
+import '../../styles/widgets/Layout.css'
 
 interface LayoutProps {
   children: React.ReactNode

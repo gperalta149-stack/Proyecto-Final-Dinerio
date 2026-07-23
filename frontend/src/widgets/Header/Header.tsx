@@ -7,7 +7,7 @@ import { useLocation } from "react-router-dom"
 import { Menu, TrendingUp, TrendingDown, Minus, Loader2, Home, CreditCard, CalendarDays, BarChart3, Wallet, Landmark, Tags, Bell, UserCircle2 } from "lucide-react"
 import { useExchangeRate } from "../../shared/hooks/useExchangeRate"
 import { NotificationBell } from "../../features/notifications/components/NotificationBell/NotificationBell"
-import "./Header.css"
+import '../../styles/widgets/Header.css'
 
 // Mapeo de rutas a nombres, descripciones e íconos
 const PAGE_INFO: Record<string, { title: string; description: string; icon: React.ElementType }> = {

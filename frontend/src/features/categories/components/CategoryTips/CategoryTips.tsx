@@ -1,7 +1,7 @@
 // frontend/src/features/categories/components/CategoryTips/CategoryTips.tsx
 import React from 'react';
 import { Lightbulb, Sparkles } from 'lucide-react';
-import './CategoryTips.css';
+import '../../../../styles/categories/CategoryTips.css';
 
 export const CategoryTips: React.FC = () => {
   const tips = [

@@ -2,7 +2,7 @@ import React, { useState, useMemo } from "react";
 import { TrendingUp, TrendingDown, ChevronLeft, ChevronRight } from "lucide-react";
 import { formatCurrency } from "../../../../shared/utils/formatters";
 import ExchangeRateService from "../../../../shared/services/exchangeRateService";
-import "./AnnualDistribution.css";
+import '../../../../styles/reports/AnnualDistribution.css';
 
 interface CategoryData {
   name: string;

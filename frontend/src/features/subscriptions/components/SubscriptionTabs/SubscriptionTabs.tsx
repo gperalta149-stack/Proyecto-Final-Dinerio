@@ -1,5 +1,5 @@
 import React from "react";
-import "./SubscriptionTabs.css";
+import '../../../../styles/subscriptions/SubscriptionTabs.css';
 
 export type FilterKey = "all" | "active" | "paused" | "cancelled";
 

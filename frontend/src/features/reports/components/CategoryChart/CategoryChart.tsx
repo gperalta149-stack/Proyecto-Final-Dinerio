@@ -3,7 +3,7 @@ import React, { useMemo } from "react";
 import { motion } from "framer-motion";
 import { PieChart } from "lucide-react";
 import { formatCurrency } from "../../../../shared/utils/formatters";
-import "./CategoryChart.css";
+import '../../../../styles/reports/CategoryChart.css';
 
 interface CategoryData {
   name: string;

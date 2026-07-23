@@ -2,7 +2,7 @@
 import React from 'react';
 import { getCategoryIcon } from '../../utils/getCategoryIcon';
 import type { Category } from '../../types';
-import './CategoryList.css';
+import '../../../../styles/categories/CategoryList.css';
 
 interface CategoryListProps {
   categories: Category[];

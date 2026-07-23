@@ -2,7 +2,7 @@ import React from "react";
 import { X, CreditCard, Calendar, DollarSign, Repeat, Tag, FileText, Globe, Clock } from "lucide-react";
 import type { Subscription } from "../../../../shared/types";
 import { formatCurrency, formatDate, getBillingCycleLabel, parseAmount } from "../../../../shared/utils/formatters";
-import "./ViewSubscriptionModal.css";
+import '../../../../styles/subscriptions/ViewSubscriptionModal.css';
 
 interface ViewSubscriptionModalProps {
   subscription: Subscription;

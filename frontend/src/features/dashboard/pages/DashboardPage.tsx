@@ -6,8 +6,8 @@ import { BudgetAlert } from "../components/BudgetAlert";
 import { DashboardKpis } from "../components/DashboardKpis";
 import { auditService, type AuditLog } from "../../audit/service/auditService";
 import { parseAmount } from "../../../shared/utils/formatters";
-import "../styles/dashboard.css";
-import "../../../shared/styles/cards.css";
+import '../../../styles/dashboard/dashboard.css';
+import '../../../styles/shared/cards.css';
 
 const DONUT_RADIUS = 60;
 const DONUT_STROKE = 14;

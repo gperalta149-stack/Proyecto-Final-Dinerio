@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { X, Wallet, AlertTriangle, Target } from "lucide-react";
 import { formatCurrency } from "../../../../shared/utils/formatters";
-import "./BudgetModal.css";
+import '../../../../styles/budget/BudgetModal.css';
 
 interface BudgetModalProps {
   isOpen: boolean;

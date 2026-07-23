@@ -1,6 +1,6 @@
 // frontend/src/features/auth/components/AuthCard/AuthCard.tsx
 import React from "react";
-import "./AuthCard.css";
+import '../../../../styles/auth/AuthCard.css';
 
 interface AuthCardProps {
   title: string;

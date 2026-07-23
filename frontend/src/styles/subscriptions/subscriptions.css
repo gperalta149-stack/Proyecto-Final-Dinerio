@@ -1,0 +1,229 @@
+@import './subscriptions-variables.css';
+@import '../shared/cards.css';
+
+.subs-page {
+  min-height: 100vh;
+  background: var(--subs-bg-primary);
+  padding: 24px;
+}
+
+.subs-container {
+  max-width: 1280px;
+  margin: 0 auto;
+  animation: subsPageIn 0.4s ease;
+}
+
+@keyframes subsPageIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.subs-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+}
+
+.subs-kpis-container {
+  border: 1px solid rgba(99, 102, 241, 0.12);
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 24px;
+}
+
+.subs-kpis-container .dashboard-kpis {
+  margin-bottom: 0;
+  grid-template-columns: repeat(6, 1fr);
+}
+
+.subs-kpis-container .kpi-card {
+  padding: 20px 18px 20px 22px;
+  align-items: flex-start;
+}
+
+.subs-summary-bar {
+  margin-bottom: 20px;
+  padding: 10px 18px;
+  background: transparent;
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  text-align: center;
+}
+
+.subs-summary-text {
+  font-size: 0.9rem;
+  color: var(--subs-accent-1);
+}
+
+.subs-summary-text strong {
+  color: var(--subs-accent-1);
+}
+
+.subs-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.subs-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  flex: 1;
+  max-width: 320px;
+}
+
+.subs-search-icon {
+  color: var(--text-tertiary);
+  flex-shrink: 0;
+}
+
+.subs-search-input {
+  background: none;
+  border: none;
+  outline: none;
+  color: var(--text-primary);
+  font-size: 0.85rem;
+  width: 100%;
+}
+
+.subs-search-input::placeholder {
+  color: var(--text-tertiary);
+}
+
+.subs-sort {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.subs-sort-label {
+  font-size: 0.8rem;
+  color: var(--text-tertiary);
+}
+
+.subs-sort-select {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  padding: 8px 12px;
+  color: var(--text-primary);
+  font-size: 0.85rem;
+  outline: none;
+  cursor: pointer;
+}
+.subs-sort-select option {
+  background: #11131f;
+  color: #fff;
+}
+
+.subs-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-top: 3px solid var(--accent-1);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.subs-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+}
+
+@media (max-width: 640px) {
+  .subs-page {
+    padding: 16px;
+  }
+.delete-modal {
+  max-width: 440px;
+}
+
+.delete-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.subs-add-button.secondary {
+  background: transparent;
+  border: 1px solid var(--subs-border-subtle);
+  color: var(--subs-text-secondary);
+}
+
+.subs-add-button.secondary:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--subs-text-primary);
+  box-shadow: none;
+  transform: none;
+}
+
+.subs-add-button.danger {
+  background: #ef4444;
+}
+
+.subs-add-button.danger:hover {
+  background: #dc2626;
+  box-shadow: 0 8px 24px rgba(239, 68, 68, 0.3);
+}
+
+.subs-filters-wrapper {
+  border: 1px solid rgba(99, 102, 241, 0.12);
+  border-radius: 14px;
+  padding: 16px 20px;
+  margin-bottom: 24px;
+}
+
+.subs-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .subs-search {
+    max-width: none;
+  }
+}
+
+.subs-pages {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 12px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  margin-top: 4px;
+}
+
+.subs-page-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: var(--text-tertiary);
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.subs-page-btn:hover {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.subs-page-btn.active {
+  color: #a5b4fc;
+  background: rgba(99, 102, 241, 0.15);
+}

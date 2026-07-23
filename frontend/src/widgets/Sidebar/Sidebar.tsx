@@ -19,7 +19,7 @@ import {
 } from "lucide-react"
 import { useAuth } from "../../shared/contexts/AuthContext"
 import { debtService } from "../../features/debts/service/debtService"
-import "./Sidebar.css"
+import '../../styles/widgets/Sidebar.css'
 
 const NAV_ITEMS = [
   { path: "/dashboard", label: "Inicio", icon: Home },
