@@ -27,7 +27,6 @@ const colorFor = (seed: string) => {
 
 const getNextPaymentInfo = (date: string, status: string) => {
   const days = Math.ceil((new Date(date).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
-  if (status === "active" && days < 0) return { text: "Al día", color: "#22c55e" };
   if (days < 0) return { text: "Vencida", color: "#ef4444" };
   if (days === 0) return { text: "Hoy", color: "#f59e0b" };
   if (days <= 3) return { text: formatShortDate(date), color: "#eab308" };

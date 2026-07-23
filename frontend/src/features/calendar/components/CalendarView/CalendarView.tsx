@@ -1,11 +1,28 @@
 // frontend/src/features/calendar/components/CalendarView/CalendarView.tsx
 import React, { useState, useMemo } from 'react';
 import { buildCalendarGrid, getEventsForDay } from '../../utils/calendar';
-import { isToday } from '../../utils/date';
+import { isToday, formatDateKey } from '../../utils/date';
 import { DAY_NAMES } from '../../constants/calendar';
 import { PaymentEvent } from '../PaymentEvent/PaymentEvent';
 import type { CalendarEvent } from '../../types';
 import './CalendarView.css';
+
+const getDayStatusClass = (events: CalendarEvent[], todayStr: string): string => {
+  let hasPaid = false;
+  let hasOverdue = false;
+  let hasPending = false;
+
+  for (const e of events) {
+    if (e.status === 'paid') hasPaid = true;
+    else if (e.status === 'pending' && e.date < todayStr) hasOverdue = true;
+    else if (e.status === 'pending') hasPending = true;
+  }
+
+  if (hasOverdue) return 'status-overdue';
+  if (hasPaid) return 'status-paid';
+  if (hasPending) return 'status-pending';
+  return '';
+};
 
 interface CalendarViewProps {
   currentDate: Date;
@@ -21,6 +38,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
 
   const grid = useMemo(() => buildCalendarGrid(currentDate), [currentDate]);
+  const todayStr = useMemo(() => formatDateKey(new Date()), []);
 
   const handleDayClick = (day: number, isCurrentMonth: boolean) => {
     if (!isCurrentMonth) return;
@@ -43,16 +61,17 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
           );
           const isSelected = isCurrentMonth && day === selectedDay;
           const dayEvents = getEventsForDay(day, currentDate, eventsByDay);
+          const statusClass = dayEvents.length > 0 ? getDayStatusClass(dayEvents, todayStr) : '';
 
           return (
             <div
               key={index}
-              className={`calendar-day ${!isCurrentMonth ? 'other-month' : ''} ${isTodayDay ? 'today' : ''} ${isSelected ? 'selected' : ''} ${dayEvents.length > 0 ? 'has-events' : ''}`}
+              className={`calendar-day ${!isCurrentMonth ? 'other-month' : ''} ${isTodayDay ? 'today' : ''} ${isSelected ? 'selected' : ''} ${statusClass}`}
               onClick={() => handleDayClick(day, isCurrentMonth)}
             >
               <div className="day-number">
                 {day}
-                {dayEvents.length > 0 && <span className="event-dot" />}
+                {dayEvents.length > 0 && <span className={`event-dot ${statusClass}`} />}
               </div>
 
               {isCurrentMonth && dayEvents.length > 0 && (
@@ -77,12 +96,20 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
 
       <div className="calendar-legend">
         <div className="legend-item">
-          <div className="legend-color today" />
-          <span>Hoy</span>
+          <div className="legend-color status-pending" />
+          <span>Pendiente</span>
         </div>
         <div className="legend-item">
-          <div className="legend-color has-events" />
-          <span>Con pagos</span>
+          <div className="legend-color status-paid" />
+          <span>Pagado</span>
+        </div>
+        <div className="legend-item">
+          <div className="legend-color status-overdue" />
+          <span>Vencido</span>
+        </div>
+        <div className="legend-item">
+          <div className="legend-color today" />
+          <span>Hoy</span>
         </div>
         <div className="legend-item">
           <div className="legend-color selected" />

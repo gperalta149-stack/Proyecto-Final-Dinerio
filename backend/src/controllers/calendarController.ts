@@ -19,7 +19,7 @@ export const getCalendarEvents = async (req: Request, res: Response) => {
         c.color as "category_color"
       FROM subscriptions s
       LEFT JOIN categories c ON s.category_id = c.id
-      WHERE s.user_id = $1 AND s.status = 'active'
+      WHERE s.user_id = $1 AND s.status IN ('active', 'cancelled')
     `;
     const params: any[] = [userId];
     // Se va a filtrar por mes y año si se proporcionan

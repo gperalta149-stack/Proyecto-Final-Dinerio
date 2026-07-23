@@ -5,15 +5,11 @@ export const normalizeCalendarEvent = (subscription: any): CalendarEvent => {
   let eventStatus: 'pending' | 'paid' | 'cancelled';
 
   switch (subscription.status) {
-    case 'active': {
-      const nextBilling = new Date(subscription.next_billing_date);
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      eventStatus = nextBilling > today ? 'pending' : 'paid';
+    case 'active':
+      eventStatus = 'pending';
       break;
-    }
     case 'cancelled':
-      eventStatus = 'cancelled';
+      eventStatus = 'paid';
       break;
     case 'paused':
       eventStatus = 'pending';

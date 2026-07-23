@@ -6,6 +6,7 @@ export class NotificationJob {
       console.log("Ejecutando tareas programadas de notificaciones...")
       await NotificationGeneratorService.generatePaymentReminders()
       await NotificationGeneratorService.generateBudgetAlerts()
+      await NotificationGeneratorService.cleanupOldNotifications()
       await DebtGeneratorService.generateDebtsFromOverdueSubscriptions()
       console.log("Tareas programadas completadas")
     } catch (error) {
