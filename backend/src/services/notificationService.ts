@@ -139,6 +139,19 @@ export class NotificationGeneratorService {
   }
 
   // Método para crear notificaciones al crear suscripciones
+  static async cleanupOldNotifications(): Promise<void> {
+    try {
+      const result = await pool.query(
+        `DELETE FROM notifications WHERE created_at < CURRENT_DATE - INTERVAL '7 days'`
+      )
+      if (result.rowCount !== null && result.rowCount > 0) {
+        console.log(`Notificaciones antiguas eliminadas: ${result.rowCount}`)
+      }
+    } catch (error) {
+      console.error("Error limpiando notificaciones antiguas:", error)
+    }
+  }
+
   static async createSubscriptionNotification(
     userId: string,
     subscriptionId: string,

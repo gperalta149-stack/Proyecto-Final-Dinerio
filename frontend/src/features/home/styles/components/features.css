@@ -16,7 +16,7 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   gap: var(--space-4);
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
 }
 

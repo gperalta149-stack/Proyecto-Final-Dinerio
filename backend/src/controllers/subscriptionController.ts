@@ -82,12 +82,22 @@ export const createSubscription = async (req: AuthRequest, res: Response): Promi
     return
   }
 
-  if (!category_id) {
-    res.status(400).json({ error: "La categoría es requerida" })
-    return
-  }
+    if (!category_id) {
+      res.status(400).json({ error: "La categoría es requerida" })
+      return
+    }
 
-  try {
+    const duplicateName = await pool.query(
+      `SELECT id FROM subscriptions WHERE name ILIKE $1 AND user_id = $2`,
+      [name, req.user!.userId]
+    )
+
+    if (duplicateName.rows.length > 0) {
+      res.status(400).json({ error: "Ya existe una suscripción con ese nombre" })
+      return
+    }
+
+    try {
     const categoryCheck = await pool.query(
       `SELECT id FROM categories
         WHERE id = $1 AND (user_id = $2 OR user_id IS NULL)`,
@@ -149,6 +159,20 @@ export const createSubscription = async (req: AuthRequest, res: Response): Promi
       console.error("Error creando notificación de suscripción:", notificationError)
     }
 
+    // Si la fecha ya pasó, crear deuda pendiente automáticamente
+    if (next_billing_date && new Date(next_billing_date) < new Date(new Date().toDateString())) {
+      try {
+        await pool.query(
+          `INSERT INTO debts (user_id, subscription_id, category_id, name, amount, currency, due_date, status)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, 'pending')`,
+          [req.user!.userId, created.id, category_id, name, amount, currency || "USD", next_billing_date]
+        )
+        console.log(`Deuda creada automáticamente para suscripción vencida: ${name}`)
+      } catch (debtError) {
+        console.error("Error creando deuda automática:", debtError)
+      }
+    }
+
     res.status(201).json({
       message: "Suscripción creada exitosamente",
       subscription: completeSubscription.rows[0],
@@ -201,6 +225,18 @@ export const updateSubscription = async (req: AuthRequest, res: Response): Promi
 
       if (categoryCheck.rows.length === 0) {
         res.status(400).json({ error: "La categoría seleccionada no es válida" })
+        return
+      }
+    }
+
+    if (name) {
+      const duplicateName = await pool.query(
+        `SELECT id FROM subscriptions WHERE name ILIKE $1 AND user_id = $2 AND id != $3`,
+        [name, req.user!.userId, id]
+      )
+
+      if (duplicateName.rows.length > 0) {
+        res.status(400).json({ error: "Ya existe una suscripción con ese nombre" })
         return
       }
     }
@@ -265,7 +301,7 @@ export const deleteSubscription = async (req: AuthRequest, res: Response): Promi
 
   try {
     const subCheck = await pool.query(
-      "SELECT status, next_billing_date FROM subscriptions WHERE id = $1 AND user_id = $2",
+      "SELECT status, next_billing_date, name FROM subscriptions WHERE id = $1 AND user_id = $2",
       [id, req.user!.userId]
     )
 
@@ -274,7 +310,7 @@ export const deleteSubscription = async (req: AuthRequest, res: Response): Promi
       return
     }
 
-    const { status, next_billing_date } = subCheck.rows[0]
+    const { status, next_billing_date, name } = subCheck.rows[0]
     const billingDate = new Date(next_billing_date)
     const today = new Date()
     today.setHours(0, 0, 0, 0)
@@ -294,6 +330,13 @@ export const deleteSubscription = async (req: AuthRequest, res: Response): Promi
       return
     }
 
+    // Desvincular deudas pagadas para preservar historial
+    await pool.query(
+      "UPDATE debts SET subscription_id = NULL WHERE subscription_id = $1 AND user_id = $2 AND status = 'paid'",
+      [id, req.user!.userId]
+    )
+
+    // Eliminar deudas pendientes (no debería haber, pero por seguridad)
     await pool.query("DELETE FROM debts WHERE subscription_id = $1 AND user_id = $2", [id, req.user!.userId])
 
     const result = await pool.query(
@@ -306,7 +349,7 @@ export const deleteSubscription = async (req: AuthRequest, res: Response): Promi
       return
     }
 
-    await createAuditLog(req, "DELETE", "subscription", id, { name: result.rows[0].name })
+    await createAuditLog(req, "DELETE", "subscription", id, { name })
 
     res.json({ message: "Suscripción eliminada permanentemente" })
   } catch (error) {

@@ -4,41 +4,50 @@ import { normalizeCalendarEvent } from '../mappers/calendarMapper';
 import type { CalendarEvent } from '../types';
 import type { UpcomingPayment } from '../types';
 
+const normalizeDebtEvent = (debt: any): CalendarEvent => ({
+  id: `debt-${debt.id}`,
+  title: debt.name,
+  amount: Number(debt.amount) || 0,
+  currency: debt.currency || 'ARS',
+  date: debt.due_date,
+  billingCycle: 'once',
+  status: debt.status === 'paid' ? 'paid' : 'pending',
+  categoryName: debt.category_name || 'Sin categoría',
+  categoryColor: debt.category_color || '#6B7280',
+});
+
+const filterByMonth = (events: CalendarEvent[], month: number, year: number) =>
+  events.filter((event) => {
+    try {
+      const d = new Date(event.date);
+      return d.getMonth() + 1 === month && d.getFullYear() === year;
+    } catch {
+      console.warn('Fecha inválida:', event.date);
+      return false;
+    }
+  });
+
 export const getCalendarEvents = async (month?: number, year?: number): Promise<CalendarEvent[]> => {
-  try {
-    const response = await api.get('/subscriptions');
+    const [subRes, debtRes] = await Promise.all([
+      api.get('/subscriptions?status=active').catch(() => ({ data: { subscriptions: [] } })),
+      api.get('/debts').catch(() => ({ data: { debts: [] } })),
+    ]);
 
-    if (!response.data.subscriptions) {
-      return [];
-    }
+  const subEvents: CalendarEvent[] = (subRes.data.subscriptions || []).map(normalizeCalendarEvent);
+  const debtEvents: CalendarEvent[] = (debtRes.data.debts || []).map(normalizeDebtEvent);
 
-    const calendarEvents: CalendarEvent[] = response.data.subscriptions.map(normalizeCalendarEvent);
+  const allEvents = [...subEvents, ...debtEvents];
 
-    if (month !== undefined && year !== undefined) {
-      const filteredEvents = calendarEvents.filter((event: CalendarEvent) => {
-        try {
-          const eventDate = new Date(event.date);
-          return eventDate.getMonth() + 1 === month && eventDate.getFullYear() === year;
-        } catch (error) {
-          console.warn('Fecha inválida:', event.date);
-          return false;
-        }
-      });
-
-      return filteredEvents;
-    }
-
-    return calendarEvents;
-
-  } catch (error) {
-    console.error('Error obteniendo suscripciones:', error);
-    return [];
+  if (month !== undefined && year !== undefined) {
+    return filterByMonth(allEvents, month, year);
   }
+
+  return allEvents;
 };
 
 export const getUpcomingPayments = async (days: number = 30): Promise<UpcomingPayment[]> => {
   try {
-    const response = await api.get('/subscriptions');
+    const response = await api.get('/subscriptions?status=all');
     const subscriptions = response.data.subscriptions;
 
     const today = new Date();

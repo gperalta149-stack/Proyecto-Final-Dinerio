@@ -110,13 +110,23 @@ export const markDebtAsPaid = async (req: AuthRequest, res: Response): Promise<v
       `UPDATE debts
        SET status = 'paid', paid_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP
        WHERE id = $1 AND user_id = $2
-       RETURNING id`,
+       RETURNING id, subscription_id`,
       [id, req.user!.userId]
     );
 
     if (result.rows.length === 0) {
       res.status(404).json({ error: 'Deuda no encontrada' });
       return;
+    }
+
+    const subId = result.rows[0].subscription_id;
+    if (subId) {
+      await pool.query(
+        `UPDATE subscriptions
+         SET status = 'cancelled', updated_at = CURRENT_TIMESTAMP
+         WHERE id = $1 AND user_id = $2 AND status = 'active'`,
+        [subId, req.user!.userId]
+      );
     }
 
     await createAuditLog(req, 'UPDATE', 'debt', id, { status: 'paid' });
