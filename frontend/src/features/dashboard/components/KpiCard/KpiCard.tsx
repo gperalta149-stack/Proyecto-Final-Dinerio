@@ -1,6 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
-import "./KpiCard.css";
+import '../../../../styles/dashboard/KpiCard.css';
 
 export type KpiCardColor = "spent" | "subscriptions" | "next-payment" | "budget" | "danger" | "warning" | "success" | "info" | "orange" | "red";
 

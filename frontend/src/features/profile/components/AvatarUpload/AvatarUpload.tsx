@@ -3,7 +3,7 @@ import React, { useState, useRef } from 'react';
 import { Camera, X, Upload, Image as ImageIcon } from 'lucide-react';
 import type { User } from '../../types';
 import { useToast } from '../../../../shared/hooks/useToast';
-import './AvatarUpload.css';
+import '../../../../styles/profile/AvatarUpload.css';
 
 interface AvatarUploadProps {
   user: User;

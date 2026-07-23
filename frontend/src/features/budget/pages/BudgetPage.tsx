@@ -9,7 +9,7 @@ import { BudgetRecommendations } from "../components/BudgetRecommendations/Budge
 import { BudgetSummary } from "../components/BudgetSummary/BudgetSummary";
 import { useBudget } from "../hooks/useBudget";
 import { Button } from "../../../shared/components/ui/Button";
-import "../styles/budget.css";
+import '../../../styles/budget/budget.css';
 
 const MONTHS = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
 

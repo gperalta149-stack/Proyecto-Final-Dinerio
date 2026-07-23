@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import { TrendingDown, TrendingUp } from "lucide-react";
-import "./TrendsCard.css";
+import '../../../../styles/reports/TrendsCard.css';
 
 interface MonthlyData {
   month: number;

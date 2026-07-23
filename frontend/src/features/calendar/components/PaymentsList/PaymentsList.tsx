@@ -4,7 +4,7 @@ import { Calendar } from 'lucide-react';
 import { formatCurrency } from '../../../../shared/utils/formatters';
 import { STATUS_LABELS } from '../../constants/calendar';
 import type { CalendarEvent } from '../../types';
-import './PaymentsList.css';
+import '../../../../styles/calendar/PaymentsList.css';
 
 interface PaymentsListProps {
   events: CalendarEvent[];

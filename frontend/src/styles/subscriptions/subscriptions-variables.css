@@ -1,0 +1,23 @@
+/* frontend/src/features/subscriptions/styles/subscriptions-variables.css */
+.subs-page {
+  --subs-bg-primary: var(--bg-primary);
+  --subs-bg-secondary: var(--bg-secondary);
+  --subs-bg-tertiary: var(--bg-tertiary);
+  --subs-bg-card: var(--bg-card);
+  --subs-bg-card-hover: var(--bg-card-hover);
+
+  --subs-text-primary: var(--text-primary);
+  --subs-text-secondary: var(--text-secondary);
+  --subs-text-tertiary: var(--text-tertiary);
+
+  --subs-accent-1: var(--accent-1);
+  --subs-accent-2: var(--accent-2);
+
+  --subs-green: var(--success);
+  --subs-red: var(--danger);
+  --subs-orange: var(--warning);
+  --subs-blue: #3b82f6;
+
+  --subs-border-subtle: var(--border-subtle);
+  --subs-border-soft: var(--border-soft);
+}

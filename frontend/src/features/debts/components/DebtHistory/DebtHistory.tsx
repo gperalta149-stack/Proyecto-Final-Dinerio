@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { Search, CheckCircle2, ChevronLeft, ChevronRight } from 'lucide-react';
 import { formatCurrency, formatShortDate, parseAmount } from '../../../../shared/utils/formatters';
 import type { Debt } from '../../types';
-import './DebtHistory.css';
+import '../../../../styles/debts/DebtHistory.css';
 
 interface DebtHistoryProps {
   debts: Debt[];

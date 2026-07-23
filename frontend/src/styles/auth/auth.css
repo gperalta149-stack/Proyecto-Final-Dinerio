@@ -1,0 +1,300 @@
+/* frontend/src/features/auth/styles/auth.css */
+@import './auth-variables.css';
+
+/* ===== PAGE CONTAINER ===== */
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--auth-bg-primary);
+  padding: var(--auth-spacing-md);
+  position: relative;
+  overflow: hidden;
+}
+
+.auth-page::before {
+  content: '';
+  position: absolute;
+  width: 600px;
+  height: 600px;
+  top: -10%;
+  right: -10%;
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.08), transparent 70%);
+  pointer-events: none;
+}
+
+.auth-page::after {
+  content: '';
+  position: absolute;
+  width: 500px;
+  height: 500px;
+  bottom: -20%;
+  left: -10%;
+  background: radial-gradient(circle, rgba(6, 182, 212, 0.06), transparent 70%);
+  pointer-events: none;
+}
+
+/* ===== AUTH CARD ===== */
+.auth-card {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 440px;
+  padding: var(--auth-spacing-xl);
+  background: var(--auth-bg-card);
+  border: 1px solid var(--auth-border-subtle);
+  border-radius: var(--auth-radius-lg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: var(--auth-shadow-card);
+}
+
+/* ===== AUTH HEADER ===== */
+.auth-header {
+  text-align: center;
+  margin-bottom: var(--auth-spacing-lg);
+}
+
+.auth-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--auth-spacing-sm);
+  text-decoration: none;
+  margin-bottom: var(--auth-spacing-sm);
+}
+
+.auth-logo-icon {
+  width: 48px;
+  height: 48px;
+  background: var(--auth-gradient);
+  border-radius: var(--auth-radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  box-shadow: var(--auth-shadow-glow);
+}
+
+.auth-logo-text {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--auth-text-primary);
+  letter-spacing: -0.03em;
+}
+
+.auth-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--auth-text-primary);
+  margin-bottom: var(--auth-spacing-xs);
+}
+
+.auth-subtitle {
+  color: var(--auth-text-secondary);
+  font-size: 1rem;
+}
+
+/* ===== AUTH FORM ===== */
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--auth-spacing-md);
+}
+
+.auth-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--auth-spacing-xs);
+}
+
+.auth-form-label {
+  display: flex;
+  align-items: center;
+  gap: var(--auth-spacing-xs);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--auth-text-secondary);
+}
+
+.auth-form-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--auth-border-subtle);
+  border-radius: var(--auth-radius-sm);
+  color: var(--auth-text-primary);
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  outline: none;
+}
+
+.auth-form-input:focus {
+  border-color: var(--auth-accent-1);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.auth-form-input::placeholder {
+  color: var(--auth-text-tertiary);
+}
+
+.auth-form-input.error {
+  border-color: #ef4444;
+}
+
+.auth-form-input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.auth-form-error {
+  display: flex;
+  align-items: center;
+  gap: var(--auth-spacing-xs);
+  padding: var(--auth-spacing-sm);
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: var(--auth-radius-sm);
+  color: #ef4444;
+  font-size: 0.875rem;
+}
+
+/* ===== AUTH BUTTONS ===== */
+.auth-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--auth-spacing-xs);
+  padding: 0.85rem 2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: var(--auth-radius-sm);
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+}
+
+.auth-btn-primary {
+  background: var(--auth-gradient);
+  color: white;
+  box-shadow: var(--auth-shadow-glow);
+}
+
+.auth-btn-primary::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  transition: left 0.6s ease;
+}
+
+.auth-btn-primary:hover:not(:disabled)::before {
+  left: 100%;
+}
+
+.auth-btn-primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(99, 102, 241, 0.4);
+}
+
+.auth-btn-primary:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+.auth-btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.auth-btn-secondary {
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--auth-text-primary);
+  border: 1px solid var(--auth-border-soft);
+}
+
+.auth-btn-secondary:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+}
+
+/* ===== AUTH FOOTER ===== */
+.auth-footer {
+  margin-top: var(--auth-spacing-lg);
+  padding-top: var(--auth-spacing-lg);
+  border-top: 1px solid var(--auth-border-subtle);
+  text-align: center;
+}
+
+.auth-footer-text {
+  color: var(--auth-text-tertiary);
+  font-size: 0.875rem;
+}
+
+.auth-footer-link {
+  color: var(--auth-accent-1);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.auth-footer-link:hover {
+  color: var(--auth-accent-2);
+}
+
+/* ===== AUTH ROW (para nombre/apellido) ===== */
+.auth-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--auth-spacing-sm);
+}
+
+/* ===== LOADING SPINNER ===== */
+.auth-spinner {
+  animation: authSpin 0.8s linear infinite;
+}
+
+@keyframes authSpin {
+  to { transform: rotate(360deg); }
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 640px) {
+  .auth-card {
+    padding: var(--auth-spacing-lg);
+  }
+  
+  .auth-row {
+    grid-template-columns: 1fr;
+  }
+  
+  .auth-title {
+    font-size: 1.25rem;
+  }
+  
+  .auth-subtitle {
+    font-size: 0.875rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .auth-card {
+    padding: var(--auth-spacing-md);
+  }
+  
+  .auth-logo-icon {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .auth-logo-text {
+    font-size: 1.25rem;
+  }
+}

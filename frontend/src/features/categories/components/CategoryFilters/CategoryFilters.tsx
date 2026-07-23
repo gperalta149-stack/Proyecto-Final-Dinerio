@@ -1,7 +1,7 @@
 // frontend/src/features/categories/components/CategoryFilters/CategoryFilters.tsx
 import React from 'react';
 import { Search, Grid, List } from 'lucide-react';
-import './CategoryFilters.css';
+import '../../../../styles/categories/CategoryFilters.css';
 
 interface CategoryFiltersProps {
   searchTerm: string;

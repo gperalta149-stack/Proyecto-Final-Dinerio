@@ -1,7 +1,7 @@
 // frontend/src/features/debts/components/DebtFilters/DebtFilters.tsx
 import React from 'react';
 import { Search } from 'lucide-react';
-import './DebtFilters.css';
+import '../../../../styles/debts/DebtFilters.css';
 
 export type DebtFilter = 'all' | 'pending' | 'overdue' | 'today' | 'paid';
 

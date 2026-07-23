@@ -8,7 +8,7 @@ import {
 } from "lucide-react";
 import type { Subscription } from "../../../../shared/types";
 import { formatCurrency, formatShortDate, getBillingCycleLabel, parseAmount } from "../../../../shared/utils/formatters";
-import "./SubscriptionTable.css";
+import '../../../../styles/subscriptions/SubscriptionTable.css';
 
 interface SubscriptionTableProps {
   subscriptions: Subscription[];

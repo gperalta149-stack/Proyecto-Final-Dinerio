@@ -1,0 +1,34 @@
+/* ============================================
+   AUTH - VARIABLES (referencia al Design System)
+   ============================================ */
+:root {
+  --auth-bg-primary: var(--bg-primary);
+  --auth-bg-secondary: var(--bg-secondary);
+  --auth-bg-card: var(--bg-card);
+  --auth-bg-card-hover: var(--bg-card-hover);
+
+  --auth-text-primary: var(--text-primary);
+  --auth-text-secondary: var(--text-secondary);
+  --auth-text-tertiary: var(--text-tertiary);
+
+  --auth-accent-1: var(--accent-1);
+  --auth-accent-2: var(--accent-2);
+  --auth-gradient: var(--gradient-primary);
+
+  --auth-border-subtle: var(--border-subtle);
+  --auth-border-soft: var(--border-soft);
+
+  --auth-shadow-card: var(--shadow-xl);
+  --auth-shadow-glow: var(--glow-primary);
+
+  --auth-spacing-xs: var(--space-2);
+  --auth-spacing-sm: var(--space-4);
+  --auth-spacing-md: var(--space-6);
+  --auth-spacing-lg: var(--space-7);
+  --auth-spacing-xl: var(--space-9);
+
+  --auth-radius-sm: var(--radius-sm);
+  --auth-radius-md: var(--radius-md);
+  --auth-radius-lg: var(--radius-lg);
+  --auth-radius-full: var(--radius-full);
+}

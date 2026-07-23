@@ -1,7 +1,7 @@
 // frontend/src/features/notifications/components/NotificationEmptyState/NotificationEmptyState.tsx
 import React from 'react';
 import { Bell } from 'lucide-react';
-import './NotificationEmptyState.css';
+import '../../../../styles/notifications/NotificationEmptyState.css';
 
 export const NotificationEmptyState: React.FC = () => {
   return (

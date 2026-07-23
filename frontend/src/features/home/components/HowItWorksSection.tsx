@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { SectionHeader } from "./SectionHeader";
 import { STEPS } from "../data/homeData";
 import { CheckCircle } from "lucide-react";
-import "../styles/components/steps.css";
+import '../../../styles/home/steps.css';
 
 export const HowItWorksSection: React.FC = () => {
   return (

@@ -1,0 +1,92 @@
+/* frontend/src/features/debts/components/DebtFilters/DebtFilters.css */
+@import './debts-variables.css';
+
+.debt-filters {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.debt-filters-tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.debt-filter-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  border: 1px solid var(--debt-border-subtle);
+  background: transparent;
+  color: var(--debt-text-secondary);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.debt-filter-tab:hover {
+  border-color: var(--debt-border-soft);
+  color: var(--debt-text-primary);
+}
+
+.debt-filter-tab.active {
+  background: var(--debt-accent-1);
+  border-color: var(--debt-accent-1);
+  color: white;
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.35);
+}
+
+.debt-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.debt-search-icon {
+  position: absolute;
+  left: 10px;
+  color: var(--debt-text-tertiary);
+}
+
+.debt-search-input {
+  padding: 8px 12px 8px 34px;
+  border: 1px solid var(--debt-border-subtle);
+  border-radius: 8px;
+  font-size: 0.85rem;
+  background: var(--debt-bg-secondary);
+  color: var(--debt-text-primary);
+  outline: none;
+  width: 200px;
+  transition: border-color 0.2s ease;
+}
+
+.debt-search-input:focus {
+  border-color: var(--debt-accent-1);
+}
+
+.debt-search-input::placeholder {
+  color: var(--debt-text-tertiary);
+}
+
+@media (max-width: 768px) {
+  .debt-filters {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .debt-filters-tabs {
+    overflow-x: auto;
+  }
+
+  .debt-search-input {
+    width: 100%;
+  }
+}
+
+

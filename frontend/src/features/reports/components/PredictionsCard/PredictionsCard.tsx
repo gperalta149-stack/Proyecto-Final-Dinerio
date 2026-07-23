@@ -1,7 +1,7 @@
 import React, { useMemo } from "react";
 import { Sparkles } from "lucide-react";
 import { formatCurrency } from "../../../../shared/utils/formatters";
-import "./PredictionsCard.css";
+import '../../../../styles/reports/PredictionsCard.css';
 
 interface MonthlyData {
   month: number;

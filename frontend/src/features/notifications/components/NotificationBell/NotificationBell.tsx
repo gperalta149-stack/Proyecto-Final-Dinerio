@@ -7,7 +7,7 @@ import { getRelativeTime } from '../../utils/notificationUtils';
 import { NOTIFICATION_ICONS, NOTIFICATION_COLORS } from '../../constants/notificationConstants';
 import type { Notification } from '../../types';
 import type { NotificationType } from '../../types';
-import './NotificationBell.css';
+import '../../../../styles/notifications/NotificationBell.css';
 
 export const NotificationBell: React.FC = () => {
   const [notifications, setNotifications] = useState<Notification[]>([]);

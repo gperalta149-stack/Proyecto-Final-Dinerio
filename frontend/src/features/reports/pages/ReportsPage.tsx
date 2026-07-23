@@ -10,7 +10,7 @@ import { formatCurrency } from "../../../shared/utils/formatters";
 import { useReports } from "../hooks";
 import type { CategoryData } from "../types";
 import ExchangeRateService from "../../../shared/services/exchangeRateService";
-import "../styles/reports.css";
+import '../../../styles/reports/reports.css';
 
 const MONTHS = [
   "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",

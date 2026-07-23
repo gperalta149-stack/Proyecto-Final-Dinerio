@@ -453,9 +453,9 @@ export const getMonthlyEvolution = async (req: AuthRequest, res: Response) => {
       monthName: monthNames[i],
       monthly_total: Math.round(monthlyTotals[i]),
       monthly_total_ars: Math.round(monthlyTotalsARS[i]),
-      monthly_total_usd: Math.round(monthlyTotalsUSD[i]),
+      monthly_total_usd: Math.round(monthlyTotalsUSD[i] * 100) / 100,
       monthly_paid_ars: Math.round(monthlyPaidARS[i]),
-      monthly_paid_usd: Math.round(monthlyPaidUSD[i]),
+      monthly_paid_usd: Math.round(monthlyPaidUSD[i] * 100) / 100,
       subscription_count: subscriptionCounts[i],
     }));
 

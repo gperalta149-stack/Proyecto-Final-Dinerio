@@ -1,0 +1,6 @@
+.ip-wrapper { width: 100%; }
+
+.insight-highlight {
+  color: var(--text-primary);
+  font-weight: 700;
+}

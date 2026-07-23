@@ -3,7 +3,7 @@ import React from 'react';
 import { Search, Filter, X } from 'lucide-react';
 import { NOTIFICATION_TYPE_LABELS } from '../../constants/notificationConstants';
 import type { NotificationType, NotificationPriority } from '../../types';
-import './NotificationFilters.css';
+import '../../../../styles/notifications/NotificationFilters.css';
 
 interface NotificationFiltersProps {
   activeFilter: 'all' | 'unread' | 'read';

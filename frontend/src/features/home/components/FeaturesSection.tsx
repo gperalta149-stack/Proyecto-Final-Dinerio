@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { FeatureCard } from "./FeatureCard";
 import { SectionHeader } from "./SectionHeader";
 import { FEATURES } from "../data/homeData";
-import "../styles/components/features.css";
+import '../../../styles/home/features.css';
 
 const containerVariants = {
   hidden: { opacity: 0 },

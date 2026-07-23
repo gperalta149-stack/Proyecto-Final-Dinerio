@@ -1,0 +1,42 @@
+/* frontend/src/features/subscriptions/components/SubscriptionTabs/SubscriptionTabs.css */
+@import './subscriptions-variables.css';
+
+.subs-tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+
+.subs-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  border: 1px solid var(--subs-border-subtle);
+  background: transparent;
+  color: var(--subs-text-secondary);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.subs-tab:hover {
+  border-color: var(--subs-border-soft);
+  color: var(--subs-text-primary);
+}
+
+.subs-tab.active {
+  background: var(--subs-accent-1);
+  border-color: var(--subs-accent-1);
+  color: white;
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.35);
+}
+
+.subs-tab.danger.active {
+  background: var(--subs-red);
+  border-color: var(--subs-red);
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.35);
+}

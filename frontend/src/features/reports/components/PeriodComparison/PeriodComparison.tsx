@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import { formatCurrency } from "../../../../shared/utils/formatters";
-import "./PeriodComparison.css";
+import '../../../../styles/reports/PeriodComparison.css';
 
 interface MonthlyData {
   month: number;

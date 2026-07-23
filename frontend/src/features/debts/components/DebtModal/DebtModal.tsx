@@ -4,7 +4,7 @@ import { getCategoryIcon } from '../../../categories/utils/getCategoryIcon';
 import ExchangeRateService from "../../../../shared/services/exchangeRateService";
 import type { Category } from '../../../categories/types';
 import type { Debt } from '../../types';
-import "./DebtModal.css";
+import '../../../../styles/debts/DebtModal.css';
 
 const CURRENCIES = [
   { value: "ARS", label: "ARS", symbol: "$" },

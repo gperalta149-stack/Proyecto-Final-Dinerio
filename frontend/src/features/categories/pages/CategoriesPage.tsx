@@ -8,7 +8,7 @@ import { CategoryStats } from '../components/CategoryStats/CategoryStats';
 import { CategoryTips } from '../components/CategoryTips/CategoryTips';
 import { formatCurrency } from '../../../shared/utils/formatters';
 import type { Category } from '../types';
-import '../styles/categories.css';
+import '../../../styles/categories/categories.css';
 
 export const CategoriesPage: React.FC = () => {
   const [showForm, setShowForm] = useState(false);

@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Lock, Eye, EyeOff, CheckCircle2, AlertCircle } from 'lucide-react';
 import { userService } from '../../../auth/service/userService';
-import './ChangePassword.css';
+import '../../../../styles/profile/ChangePassword.css';
 
 export const ChangePassword: React.FC = () => {
   const [formData, setFormData] = useState({

@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
 import { ArrowRight, Layers, Inbox } from "lucide-react";
 import type { Subscription } from "../../../../shared/types";
 import { formatCurrency, parseAmount } from "../../../../shared/utils/formatters";
-import "./RecentSubscriptions.css";
+import '../../../../styles/dashboard/RecentSubscriptions.css';
 
 interface RecentSubscriptionsProps {
   subscriptions: Subscription[];

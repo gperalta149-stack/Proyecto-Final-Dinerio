@@ -1,0 +1,64 @@
+.tc-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.tc-header {
+  margin-bottom: 16px;
+}
+
+.tc-label {
+  font-size: 0.8rem;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.tc-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  flex: 1;
+  gap: 8px;
+}
+
+.tc-name {
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.tc-amount {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.tc-pct {
+  font-size: 0.85rem;
+  color: var(--text-tertiary);
+}
+
+.tc-trend {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-top: 4px;
+  padding: 4px 12px;
+  border-radius: 8px;
+}
+
+.tc-trend.up {
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.tc-trend.down {
+  color: #22c55e;
+  background: rgba(34, 197, 94, 0.1);
+}

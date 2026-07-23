@@ -5,7 +5,7 @@ import { isToday, formatDateKey } from '../../utils/date';
 import { DAY_NAMES } from '../../constants/calendar';
 import { PaymentEvent } from '../PaymentEvent/PaymentEvent';
 import type { CalendarEvent } from '../../types';
-import './CalendarView.css';
+import '../../../../styles/calendar/CalendarView.css';
 
 const getDayStatusClass = (events: CalendarEvent[], todayStr: string): string => {
   let hasPaid = false;

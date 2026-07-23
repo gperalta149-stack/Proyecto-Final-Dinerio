@@ -2,7 +2,7 @@ import React, { useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Mail, Lock, ArrowRight, Loader2 } from "lucide-react";
 import { useAuth } from "../../../../shared/contexts/AuthContext";
-import "./LoginForm.css";
+import '../../../../styles/auth/LoginForm.css';
 
 interface LoginFormProps {
   onSuccess?: () => void;

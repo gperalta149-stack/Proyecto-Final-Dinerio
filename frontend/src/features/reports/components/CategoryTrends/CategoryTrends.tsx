@@ -2,7 +2,7 @@ import React, { useMemo } from "react";
 import { motion } from "framer-motion";
 import { TrendingUp, TrendingDown } from "lucide-react";
 import { formatCurrency } from "../../../../shared/utils/formatters";
-import "./CategoryTrends.css";
+import '../../../../styles/reports/CategoryTrends.css';
 
 interface CategoryData {
   name: string;

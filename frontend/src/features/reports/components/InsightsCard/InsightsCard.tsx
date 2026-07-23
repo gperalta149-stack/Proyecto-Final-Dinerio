@@ -2,7 +2,7 @@
 import React from "react";
 import { Lightbulb, AlertTriangle, CheckCircle } from "lucide-react";
 import { formatCurrency } from "../../../../shared/utils/formatters";
-import "./InsightsCard.css";
+import '../../../../styles/reports/InsightsCard.css';
 
 interface InsightsCardProps {
   budgetUsage: number;

@@ -1,0 +1,177 @@
+/* frontend/src/features/dashboard/components/UpcomingPayments/UpcomingPayments.css */
+@import './dashboard-variables.css';
+
+.upcoming-container {
+  width: 100%;
+}
+
+.upcoming-empty {
+  text-align: center;
+  padding: 30px 20px;
+  color: var(--dashboard-text-tertiary);
+}
+
+.upcoming-empty svg {
+  color: var(--dashboard-text-tertiary);
+  margin-bottom: 10px;
+}
+
+.upcoming-empty p {
+  font-weight: 500;
+  color: var(--dashboard-text-secondary);
+}
+
+.upcoming-empty-sub {
+  font-size: 0.8rem;
+  display: block;
+  margin-top: 4px;
+}
+
+.upcoming-header {
+  margin-bottom: 16px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--dashboard-border-subtle);
+}
+
+.upcoming-count {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--dashboard-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.upcoming-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.upcoming-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.upcoming-item:hover {
+  background: rgba(108, 99, 255, 0.08);
+  border-color: rgba(108, 99, 255, 0.15);
+}
+
+.upcoming-item.overdue {
+  background: rgba(239, 68, 68, 0.06);
+  border-color: rgba(239, 68, 68, 0.15);
+}
+
+.upcoming-item.overdue:hover {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.25);
+}
+
+.upcoming-item.overdue .upcoming-item-name {
+  color: #ef4444;
+}
+
+.upcoming-item.overdue .upcoming-item-date {
+  color: rgba(239, 68, 68, 0.5);
+}
+
+.upcoming-item.overdue .upcoming-item-amount {
+  color: #ef4444;
+}
+
+.upcoming-item-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  flex: 1;
+}
+
+.upcoming-item-icon {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  color: white;
+  font-size: 0.85rem;
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+.upcoming-item:hover .upcoming-item-icon {
+  box-shadow: 0 0 14px currentColor;
+  transform: scale(1.08);
+}
+
+.upcoming-item-name {
+  font-weight: 600;
+  font-size: 13.5px;
+  color: var(--dashboard-text-primary);
+}
+
+.upcoming-item-date {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.35);
+  margin-top: 1px;
+}
+
+.upcoming-item-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  flex-shrink: 0;
+  min-width: 100px;
+  text-align: right;
+}
+
+.upcoming-item-amount {
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--dashboard-text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.upcoming-item-days {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 5px;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.upcoming-item-days.overdue {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+}
+
+.upcoming-item-days.today {
+  background: rgba(245, 158, 11, 0.15);
+  color: #f59e0b;
+}
+
+.upcoming-item-days.soon {
+  background: rgba(245, 158, 11, 0.15);
+  color: #f59e0b;
+}
+
+.upcoming-item-days.upcoming {
+  background: rgba(6, 182, 212, 0.15);
+  color: #06b6d4;
+}
+
+.upcoming-item-days.far {
+  background: rgba(59, 130, 246, 0.15);
+  color: #3b82f6;
+}
+

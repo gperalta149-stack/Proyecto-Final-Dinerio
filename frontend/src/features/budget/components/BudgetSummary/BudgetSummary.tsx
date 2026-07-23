@@ -2,7 +2,7 @@
 import React from "react";
 import { CreditCard, DollarSign, PiggyBank, Calendar } from "lucide-react";
 import { formatCurrency } from "../../../../shared/utils/formatters";
-import "./BudgetSummary.css";
+import '../../../../styles/budget/BudgetSummary.css';
 
 interface BudgetSummaryProps {
   spent: number;

@@ -3,7 +3,7 @@ import React from 'react';
 import { Calendar } from 'lucide-react';
 import { formatCurrency } from '../../../../shared/utils/formatters';
 import type { CalendarEvent } from '../../types';
-import './UpcomingPayments.css';
+import '../../../../styles/calendar/UpcomingPayments.css';
 
 interface UpcomingPaymentsProps {
   events: CalendarEvent[];

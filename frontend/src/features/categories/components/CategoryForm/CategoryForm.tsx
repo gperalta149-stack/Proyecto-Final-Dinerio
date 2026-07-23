@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { DEFAULT_COLORS } from '../../constants/categoryColors';
 import type { Category, CategoryFormData } from '../../types';
-import './CategoryForm.css';
+import '../../../../styles/categories/CategoryForm.css';
 
 interface CategoryFormProps {
   category?: Category;

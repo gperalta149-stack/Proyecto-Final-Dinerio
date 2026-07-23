@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react';
 import { Calendar, Clock, Mail, Award, Camera } from 'lucide-react';
 import type { User } from '../../types';
 import { formatDate } from '../../../../shared/utils/formatters';
-import './ProfileInfo.css';
+import '../../../../styles/profile/ProfileInfo.css';
 
 interface ProfileInfoProps {
   user: User;

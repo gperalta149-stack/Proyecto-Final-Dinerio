@@ -6,7 +6,7 @@ import { getRelativeTime } from '../../utils/notificationUtils';
 import { NOTIFICATION_ICONS, NOTIFICATION_COLORS, NOTIFICATION_PRIORITY_LABELS } from '../../constants/notificationConstants';
 import type { Notification } from '../../types';
 import type { NotificationType, NotificationPriority } from '../../types';
-import './NotificationCard.css';
+import '../../../../styles/notifications/NotificationCard.css';
 
 interface NotificationCardProps {
   notification: Notification;

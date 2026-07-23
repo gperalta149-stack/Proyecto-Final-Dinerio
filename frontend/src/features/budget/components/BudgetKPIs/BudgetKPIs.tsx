@@ -2,7 +2,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Wallet, TrendingDown, TrendingUp } from "lucide-react";
 import { formatCurrency } from "../../../../shared/utils/formatters";
-import "./BudgetKPIs.css";
+import '../../../../styles/budget/BudgetKPIs.css';
 
 interface BudgetKPIsProps {
   budget: number;

@@ -1,0 +1,143 @@
+/* frontend/src/features/calendar/components/PaymentsList/PaymentsList.css */
+@import './calendar-variables.css';
+
+.payments-list {
+  background: var(--calendar-bg-card);
+  border: 1px solid var(--calendar-border-subtle);
+  border-radius: 12px;
+  padding: 24px;
+  transition: all 0.25s ease;
+}
+
+.payments-list:hover {
+  border-color: var(--calendar-border-soft);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.payments-list-empty {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.payments-list-empty-icon {
+  display: flex;
+  justify-content: center;
+  color: var(--calendar-text-tertiary);
+  margin-bottom: 12px;
+}
+
+.payments-list-empty-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--calendar-text-primary);
+  margin-bottom: 4px;
+}
+
+.payments-list-empty-description {
+  color: var(--calendar-text-secondary);
+  font-size: 0.9rem;
+}
+
+.payments-list-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.payments-list-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--calendar-text-primary);
+  text-transform: capitalize;
+}
+
+.payments-list-count {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--calendar-accent-1);
+  background: rgba(99, 102, 241, 0.1);
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-variant-numeric: tabular-nums;
+}
+
+.payments-list-items {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.payments-list-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--calendar-border-subtle);
+  border-left-width: 3px;
+  transition: all 0.2s ease;
+}
+
+.payments-list-item:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: var(--calendar-border-soft);
+  transform: translateX(2px);
+}
+
+.payments-list-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  flex: 1;
+}
+
+.payments-list-name {
+  font-weight: 600;
+  color: var(--calendar-text-primary);
+}
+
+.payments-list-date {
+  font-size: 0.8rem;
+  color: var(--calendar-text-tertiary);
+  text-transform: capitalize;
+}
+
+.payments-list-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-shrink: 0;
+}
+
+.payments-list-amount {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--calendar-text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.payments-list-status {
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 3px 12px;
+  border-radius: 4px;
+}
+
+.payments-list-status.pending {
+  background: rgba(245, 158, 11, 0.15);
+  color: var(--calendar-orange);
+}
+
+.payments-list-status.paid {
+  background: rgba(34, 197, 94, 0.15);
+  color: var(--calendar-green);
+}
+
+.payments-list-status.cancelled {
+  background: rgba(239, 68, 68, 0.15);
+  color: var(--calendar-red);
+}

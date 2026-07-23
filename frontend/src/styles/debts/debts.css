@@ -1,0 +1,357 @@
+/* frontend/src/features/debts/styles/debts.css */
+@import './debts-variables.css';
+@import '../shared/cards.css';
+
+/* ===== KPI CONTAINER ===== */
+.debt-kpis-container {
+  border: 1px solid rgba(99, 102, 241, 0.12);
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 24px;
+}
+
+.debt-kpis-container .dashboard-kpis {
+  margin-bottom: 0;
+  grid-template-columns: repeat(5, 1fr);
+}
+
+.debt-kpis-container .kpi-card {
+  padding: 16px 18px;
+  gap: 8px;
+}
+
+.debt-kpis-container .kpi-icon-wrapper {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  margin-bottom: 4px;
+}
+
+.debt-kpis-container .kpi-icon-wrapper svg {
+  width: 16px;
+  height: 16px;
+}
+
+.debt-kpis-container .kpi-title {
+  font-size: 11px;
+}
+
+.debt-kpis-container .kpi-value {
+  font-size: 18px;
+}
+
+.debt-kpis-container .kpi-subtitle {
+  font-size: 12px;
+}
+
+.debt-kpis-container .kpi-progress-bar {
+  height: 3px;
+}
+
+.debt-kpis-container .kpi-badge {
+  font-size: 9px;
+  padding: 1px 5px;
+}
+
+/* ===== PAGE ===== */
+.debt-page {
+  padding: 24px;
+  min-height: 100vh;
+  background: var(--debt-bg-primary);
+}
+
+@keyframes debtPageIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.debt-container {
+  max-width: 1280px;
+  margin: 0 auto;
+  animation: debtPageIn 0.4s ease;
+}
+
+/* ===== LOADING ===== */
+.debt-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--debt-border-subtle);
+  border-top: 3px solid var(--debt-accent-1);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ===== HEADER ===== */
+.debt-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.debt-header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.debt-header-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(99, 102, 241, 0.05) 100%);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--debt-accent-1);
+  flex-shrink: 0;
+  box-shadow: inset 0 0 8px rgba(99, 102, 241, 0.1);
+}
+
+.debt-header-icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.debt-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--debt-text-primary);
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+.debt-subtitle {
+  color: var(--debt-text-secondary);
+  font-size: 0.8rem;
+  margin: 1px 0 0;
+}
+
+.debt-history-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: 10px;
+  border: none;
+  background: linear-gradient(135deg, var(--debt-accent-1), #7c3aed);
+  color: white;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.debt-history-btn:hover {
+  opacity: 0.92;
+  transform: translateY(-1px);
+}
+
+.debt-history-btn:active {
+  transform: scale(0.97);
+}
+
+/* ===== ALERT BANNER ===== */
+.debt-alert-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 18px;
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(239, 68, 68, 0.03) 100%);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: 12px;
+  color: var(--debt-red);
+  margin-bottom: 20px;
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.05);
+}
+
+.debt-alert-banner svg {
+  flex-shrink: 0;
+}
+
+/* ===== DEBT LIST ===== */
+.debt-filters-wrapper {
+  border: 1px solid rgba(99, 102, 241, 0.12);
+  border-radius: 14px;
+  padding: 4px 10px 4px 6px;
+  margin-bottom: 24px;
+}
+
+.debt-table-container {
+  border: 1px solid var(--debt-border-subtle);
+  border-top: 3px solid var(--accent-1);
+  border-radius: 14px;
+  overflow: hidden;
+  background: linear-gradient(160deg, var(--debt-bg-card) 0%, var(--debt-bg-secondary) 100%);
+}
+
+/* ===== FORM ===== */
+.debt-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.debt-form-error {
+  padding: 10px 14px;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: 8px;
+  color: var(--debt-red);
+  font-size: 0.85rem;
+}
+
+.debt-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.debt-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.debt-form-label {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--debt-text-secondary);
+}
+
+.debt-form-input {
+  padding: 10px 12px;
+  background: var(--debt-bg-card);
+  border: 1px solid var(--debt-border-subtle);
+  border-radius: 8px;
+  color: var(--debt-text-primary);
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+.debt-form-input:focus {
+  border-color: var(--debt-accent-1);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.debt-form-input::placeholder {
+  color: var(--debt-text-tertiary);
+}
+
+.debt-form-input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.debt-form-textarea {
+  resize: vertical;
+  min-height: 80px;
+  font-family: inherit;
+}
+
+.debt-form-actions {
+  display: flex;
+  gap: 12px;
+  padding-top: 16px;
+  border-top: 1px solid var(--debt-border-subtle);
+}
+
+.debt-form-btn {
+  flex: 1;
+  padding: 10px 20px;
+  border-radius: var(--radius-sm);
+  font-weight: var(--font-semibold);
+  font-size: var(--text-sm);
+  border: none;
+  cursor: pointer;
+  transition: all var(--transition-base);
+}
+
+.debt-form-btn.primary {
+  background: var(--debt-accent-1);
+  color: white;
+}
+
+.debt-form-btn.primary:hover:not(:disabled) {
+  background: var(--debt-accent-2);
+  transform: translateY(-1px);
+}
+
+.debt-form-btn.secondary {
+  background: transparent;
+  color: var(--debt-text-secondary);
+  border: 1px solid var(--debt-border-subtle);
+}
+
+.debt-form-btn.secondary:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--debt-text-primary);
+}
+
+.debt-form-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 1200px) {
+  .debt-kpis-container .dashboard-kpis {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .debt-kpis-container .dashboard-kpis {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .debt-page {
+    padding: 16px;
+  }
+
+  .debt-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .debt-history-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .debt-form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .debt-form-actions {
+    flex-direction: column;
+  }
+
+}
+
+@media (max-width: 640px) {
+  .debt-kpis-container .dashboard-kpis {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .debt-title {
+    font-size: 1.4rem;
+  }
+}
+

@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { WalletCards, Send } from "lucide-react";
 import { FaGithub, FaInstagram, FaLinkedin, FaXTwitter } from "react-icons/fa6";
 import { FOOTER_COLUMNS } from "../data/homeData";
-import "../styles/components/footer.css";
+import '../../../styles/home/footer.css';
 
 export const Footer: React.FC = () => {
   const currentYear = new Date().getFullYear();

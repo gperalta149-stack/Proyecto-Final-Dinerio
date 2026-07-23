@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { ChartPie, BarChart3 } from "lucide-react";
 import type { Subscription } from "../../../../shared/types";
 import { formatCurrency, parseAmount } from "../../../../shared/utils/formatters";
-import "./CategoryChart.css";
+import '../../../../styles/dashboard/CategoryChart.css';
 
 interface CategoryChartProps {
   subscriptions: Subscription[];

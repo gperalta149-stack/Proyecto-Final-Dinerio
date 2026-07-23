@@ -7,7 +7,7 @@ import { userService } from '../../auth/service/userService';
 import { ProfileInfo } from '../components/ProfileInfo/ProfileInfo';
 import { ChangePassword } from '../components/ChangePassword/ChangePassword';
 import type { User as UserType } from '../types';
-import '../styles/ProfilePage.css';
+import '../../../styles/profile/ProfilePage.css';
 
 
 export const ProfilePage: React.FC = () => {

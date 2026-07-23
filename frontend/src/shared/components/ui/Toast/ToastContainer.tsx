@@ -3,7 +3,7 @@ import React from 'react';
 import { AnimatePresence } from 'framer-motion';
 import { Toast } from './Toast';
 import { useToast } from '../../../hooks/useToast';
-import './Toast.css';
+import '../../../../styles/shared/Toast.css';
 
 export const ToastContainer: React.FC = () => {
   const { toasts, removeToast } = useToast();

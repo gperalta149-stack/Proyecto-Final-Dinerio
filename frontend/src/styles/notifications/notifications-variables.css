@@ -1,0 +1,22 @@
+/* frontend/src/features/notifications/styles/notifications-variables.css */
+:root {
+  --notif-bg-primary: var(--bg-primary);
+  --notif-bg-secondary: var(--bg-secondary);
+  --notif-bg-card: var(--bg-card);
+  --notif-bg-card-hover: var(--bg-card-hover);
+
+  --notif-text-primary: var(--text-primary);
+  --notif-text-secondary: var(--text-secondary);
+  --notif-text-tertiary: var(--text-tertiary);
+
+  --notif-accent-1: var(--accent-1);
+  --notif-accent-2: var(--accent-2);
+  --notif-green: var(--success);
+  --notif-red: var(--danger);
+  --notif-orange: var(--warning);
+  --notif-yellow: #eab308;
+
+  --notif-border-subtle: var(--border-subtle);
+  --notif-border-soft: var(--border-soft);
+  --notif-shadow-card: var(--shadow-xl);
+}

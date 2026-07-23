@@ -4,8 +4,8 @@ import { LoginForm } from "../../components/LoginForm";
 import { AuthLayout } from "../../components/AuthLayout/AuthLayout";
 import { AuthBrand } from "../../components/AuthBrand/AuthBrand";
 import { AuthCard } from "../../components/AuthCard/AuthCard";
-import "../../styles/auth.css";
-import "./LoginPage.css";
+import '../../../../styles/auth/auth.css';
+import '../../../../styles/auth/LoginPage.css';
 
 export const LoginPage: React.FC = () => {
   return (

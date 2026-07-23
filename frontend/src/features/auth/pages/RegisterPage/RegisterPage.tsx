@@ -4,8 +4,8 @@ import { RegisterForm } from "../../components/RegisterForm";
 import { AuthLayout } from "../../components/AuthLayout/AuthLayout";
 import { AuthBrand } from "../../components/AuthBrand/AuthBrand";
 import { AuthCard } from "../../components/AuthCard/AuthCard";
-import "../../styles/auth.css";
-import "./RegisterPage.css";
+import '../../../../styles/auth/auth.css';
+import '../../../../styles/auth/RegisterPage.css';
 
 export const RegisterPage: React.FC = () => {
   return (

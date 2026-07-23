@@ -1,0 +1,112 @@
+/* frontend/src/features/calendar/components/MonthSelector/MonthSelector.css */
+@import './calendar-variables.css';
+
+.month-selector {
+  background: var(--calendar-bg-card);
+  border: 1px solid var(--calendar-border-subtle);
+  border-radius: 12px;
+  padding: 28px 24px;
+  margin-bottom: 24px;
+  transition: all 0.25s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.month-selector:hover {
+  border-color: var(--calendar-border-soft);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.month-selector-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.month-selector-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.month-selector-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid var(--calendar-border-subtle);
+  background: transparent;
+  color: var(--calendar-text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.month-selector-btn:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--calendar-text-primary);
+  border-color: var(--calendar-border-soft);
+}
+
+.month-selector-value {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--calendar-text-primary);
+  min-width: 80px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.month-value {
+  min-width: 100px;
+  text-transform: capitalize;
+}
+
+.month-selector-divider {
+  width: 1px;
+  height: 30px;
+  background: var(--calendar-border-subtle);
+}
+
+.month-selector-today-btn {
+  padding: 7px 16px;
+  border-radius: 999px;
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  background: rgba(99, 102, 241, 0.08);
+  color: var(--calendar-accent-1);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.month-selector-today-btn:hover:not(:disabled) {
+  background: var(--calendar-accent-1);
+  color: white;
+}
+
+.month-selector-today-btn:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+@media (max-width: 640px) {
+  .month-selector {
+    padding: 12px 16px;
+  }
+
+  .month-selector-container {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .month-selector-divider {
+    width: 100%;
+    height: 1px;
+  }
+}

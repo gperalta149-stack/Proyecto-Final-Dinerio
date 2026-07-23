@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { CalendarClock } from "lucide-react";
 import type { Subscription } from "../../types";
 import { formatCurrency, parseAmount } from "../../../../shared/utils/formatters";
-import "./UpcomingPayments.css";
+import '../../../../styles/dashboard/UpcomingPayments.css';
 
 interface UpcomingPaymentsProps {
   subscriptions: Subscription[];

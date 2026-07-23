@@ -1,0 +1,56 @@
+/* frontend/src/features/debts/components/DebtEmptyState/DebtEmptyState.css */
+@import './debts-variables.css';
+
+.debt-empty-state {
+  text-align: center;
+  padding: 60px 40px;
+}
+
+.debt-empty-icon {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--debt-border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+}
+
+.debt-empty-icon svg {
+  color: var(--debt-text-tertiary);
+}
+
+.debt-empty-title {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: var(--debt-text-primary);
+  margin-bottom: 8px;
+}
+
+.debt-empty-description {
+  color: var(--debt-text-secondary);
+  margin-bottom: 24px;
+}
+
+.debt-empty-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: 10px;
+  border: none;
+  background: linear-gradient(135deg, var(--debt-accent-1), #7c3aed);
+  color: white;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.debt-empty-btn:hover {
+  opacity: 0.92;
+  transform: translateY(-2px);
+}
+

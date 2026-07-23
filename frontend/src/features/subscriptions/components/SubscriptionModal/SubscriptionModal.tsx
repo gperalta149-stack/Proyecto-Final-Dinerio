@@ -7,7 +7,7 @@ import { CategoryForm } from '../../../categories/components/CategoryForm/Catego
 import type { CategoryFormData } from '../../../categories/types';
 import type { Subscription, Category } from "../../types";
 import { useToast } from '../../../../shared/hooks/useToast';
-import "./SubscriptionModal.css";
+import '../../../../styles/subscriptions/SubscriptionModal.css';
 
 const BILLING_CYCLES = [
   { value: "monthly", label: "Mensual" },
