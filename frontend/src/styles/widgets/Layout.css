@@ -40,12 +40,11 @@
     padding: var(--space-4);
   }
 
-  .mobile-menu-open::after {
-    content: '';
+  .mobile-overlay {
     position: fixed;
     inset: 0;
-    background: var(--bg-overlay);
-    z-index: 49;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 99;
   }
 }
 

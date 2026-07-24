@@ -33,9 +33,11 @@ const NAV_ITEMS = [
 interface SidebarProps {
   collapsed?: boolean
   onToggle?: () => void
+  mobileOpen?: boolean
+  onMobileClose?: () => void
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ collapsed = false, onToggle }) => {
+export const Sidebar: React.FC<SidebarProps> = ({ collapsed = false, onToggle, mobileOpen = false, onMobileClose }) => {
   const location = useLocation()
   const navigate = useNavigate()
   const { user, logout } = useAuth()
@@ -63,7 +65,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed = false, onToggle })
   const initial = fullName.charAt(0).toUpperCase()
 
   return (
-    <aside className={`sidebar ${collapsed ? "sidebar-collapsed" : ""}`}>
+    <aside className={`sidebar ${collapsed ? "sidebar-collapsed" : ""} ${mobileOpen ? "sidebar-mobile-open" : ""}`}>
       {/* Top - Logo con wrapper */}
       <div className="sidebar-top">
         <div className="sidebar-logo-wrap">
@@ -96,6 +98,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed = false, onToggle })
               to={item.path}
               className={`sidebar-item ${isActive ? "sidebar-item-active" : ""}`}
               title={collapsed ? item.label : undefined}
+              onClick={onMobileClose}
             >
               <span className="sidebar-item-icon">
                 <Icon size={20} />

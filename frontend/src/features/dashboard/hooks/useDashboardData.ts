@@ -40,14 +40,11 @@ export function useDashboardData(stats: DashboardStats | null, subscriptions: Su
 
   const totalMonthly = subscriptions
     .filter(sub => {
-      if (sub.status !== "active") return false;
-
       const paymentDate = new Date(sub.next_billing_date);
-
-      return (
-        paymentDate >= startOfMonth &&
-        paymentDate < endOfMonth
-      );
+      const isThisMonth = paymentDate >= startOfMonth && paymentDate < endOfMonth;
+      const isOverdue = paymentDate < startOfMonth;
+      const isFuturePaused = sub.status === "paused" && paymentDate >= endOfMonth;
+      return (isThisMonth || isOverdue) && !isFuturePaused;
     })
     .reduce((sum, sub) => {
       return sum + (sub.arsAmount || parseAmount(sub.amount));

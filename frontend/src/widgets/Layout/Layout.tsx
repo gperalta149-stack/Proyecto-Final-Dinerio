@@ -23,11 +23,14 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   return (
     <div className="layout">
-      <Sidebar collapsed={sidebarCollapsed} onToggle={handleSidebarToggle} />
+      <Sidebar collapsed={sidebarCollapsed} onToggle={handleSidebarToggle} mobileOpen={mobileMenuOpen} onMobileClose={() => setMobileMenuOpen(false)} />
       <Header 
         onMenuToggle={handleMenuToggle}
         sidebarCollapsed={sidebarCollapsed}
       />
+      {mobileMenuOpen && (
+        <div className="mobile-overlay" onClick={() => setMobileMenuOpen(false)} />
+      )}
       <main className={`layout-main ${sidebarCollapsed ? 'collapsed' : ''} ${mobileMenuOpen ? 'mobile-menu-open' : ''}`}>
         <div className="layout-content">{children}</div>
       </main>

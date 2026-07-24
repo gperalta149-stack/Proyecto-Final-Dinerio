@@ -21,8 +21,10 @@ export const BudgetProgress: React.FC<BudgetProgressProps> = ({
   daysRemaining,
 }) => {
   const dailyAllowance = daysRemaining > 0 ? (budget - spent) / daysRemaining : 0;
+  const daysElapsed = 30 - daysRemaining;
+  const dailyAvg = daysElapsed > 0 ? spent / daysElapsed : 0;
   const projectedSpending = daysRemaining > 0 
-    ? spent + (spent / (30 - daysRemaining)) * daysRemaining 
+    ? spent + dailyAvg * daysRemaining 
     : spent;
 
   const getStatusColor = () => {

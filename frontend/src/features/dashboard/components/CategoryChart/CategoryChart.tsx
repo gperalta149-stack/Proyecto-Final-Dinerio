@@ -49,7 +49,7 @@ export const CategoryChart: React.FC<CategoryChartProps> = ({
   if (categoryData.length === 0) {
     return (
       <div className="category-chart-empty">
-        <span className="empty-icon"><BarChart3 size={48} /></span>
+        <span className="empty-icon"><ChartPie size={48} /></span>
         <p>No hay suscripciones para mostrar</p>
       </div>
     );

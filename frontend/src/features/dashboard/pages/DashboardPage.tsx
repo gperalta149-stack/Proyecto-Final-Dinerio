@@ -5,7 +5,7 @@ import { useAuth } from "../../../shared/contexts/AuthContext";
 import { BudgetAlert } from "../components/BudgetAlert";
 import { DashboardKpis } from "../components/DashboardKpis";
 import { auditService, type AuditLog } from "../../audit/service/auditService";
-import { parseAmount } from "../../../shared/utils/formatters";
+import { parseAmount, formatCurrency } from "../../../shared/utils/formatters";
 import '../../../styles/dashboard/dashboard.css';
 import '../../../styles/shared/cards.css';
 
@@ -37,9 +37,6 @@ const getAvatarColor = (name: string) => {
   for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
   return colors[Math.abs(hash) % colors.length];
 };
-
-const formatCurrency = (amount: number, currency = "ARS") =>
-  new Intl.NumberFormat("es-AR", { style: "currency", currency, minimumFractionDigits: 2 }).format(amount);
 
 interface TipData {
   icon: React.ReactNode;
@@ -94,7 +91,6 @@ const getSmartTip = (
 
   const tips: TipData[] = [];
 
-  // 🔴 Critical alerts (priority 1)
   if (dueToday) {
     const amt = formatCurrency(dueToday.arsAmount || parseAmount(dueToday.amount) || 0, dueToday.currency || "ARS");
     tips.push({
@@ -111,7 +107,6 @@ const getSmartTip = (
     });
   }
 
-  // 🟠 Savings opportunities (priority 2)
   if (mostExpensive && parseAmount(mostExpensive.amount) > 50000) {
     tips.push({
       icon: <Zap size={16} />,
@@ -127,7 +122,6 @@ const getSmartTip = (
     });
   }
 
-  // 🟢 Budget status (priority 3)
   if (budgetPercentage >= 80) {
     tips.push({
       icon: <BarChart3 size={16} />,
@@ -152,7 +146,6 @@ const getSmartTip = (
     }
   }
 
-  // 📅 Upcoming payments (priority 4)
   if (dueTomorrow) {
     tips.push({
       icon: <CalendarClock size={16} />,
@@ -175,7 +168,6 @@ const getSmartTip = (
     });
   }
 
-  // 🔵 Achievements (priority 5)
   if (overdue.length === 0 && activeSubscriptions > 0) {
     tips.push({
       icon: <Award size={16} />,
@@ -184,7 +176,6 @@ const getSmartTip = (
     });
   }
 
-  // 📉 Statistics (priority 6)
   if (topCat && topCat.amount > 0) {
     const pct = ((topCat.amount / categoryData.reduce((s, c) => s + c.amount, 0)) * 100).toFixed(0);
     tips.push({
@@ -201,21 +192,18 @@ const getSmartTip = (
     });
   }
 
-  // 🎯 Optimization (priority 7)
   tips.push({
     icon: <Target size={16} />,
     text: `Revisá tus suscripciones cada mes. Cancelar una que no uses puede representar un ahorro importante.`,
     priority: 7,
   });
 
-  // 📆 Reminders (priority 8)
   tips.push({
     icon: <Bell size={16} />,
     text: `Es un buen momento para revisar tu presupuesto y organizar tus gastos.`,
     priority: 8,
   });
 
-  // 🎓 Financial education (priority 9)
   tips.push({
     icon: <BookOpen size={16} />,
     text: `Revisar tus gastos una vez por semana ayuda a mantener el control financiero.`,

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { X, CreditCard, Calendar, DollarSign, Repeat, Tag, FileText, Globe, Clock } from "lucide-react";
 import type { Subscription } from "../../../../shared/types";
 import { formatCurrency, formatDate, getBillingCycleLabel, parseAmount } from "../../../../shared/utils/formatters";
@@ -32,6 +32,14 @@ export const ViewSubscriptionModal: React.FC<ViewSubscriptionModalProps> = ({ su
   const amount = sub.arsAmount ?? parseAmount(sub.amount);
   const currency = sub.arsAmount ? "ARS" : sub.currency;
   const statusLabel = sub.status === "active" ? "Activa" : sub.status === "paused" ? "Pausada" : "Pagada";
+
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    document.addEventListener("keydown", handleKey);
+    return () => document.removeEventListener("keydown", handleKey);
+  }, [onClose]);
 
   const rows: Row[] = [
     { kind: "text", label: "Nombre", value: sub.name, icon: CreditCard },

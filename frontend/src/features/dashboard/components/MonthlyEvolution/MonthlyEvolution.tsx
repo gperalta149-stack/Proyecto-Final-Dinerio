@@ -103,7 +103,7 @@ export const MonthlyEvolution: React.FC<MonthlyEvolutionProps> = ({
             return (
               <g key={i}>
                 <line x1={40} y1={y} x2={filtered.length * 70 + 40} y2={y}
-                  stroke="rgba(255,255,255,0.04)" strokeWidth="1" strokeDasharray="4 4" />
+                  stroke="rgba(255,255,255,0.12)" strokeWidth="1" strokeDasharray="4 4" />
                 <text x={36} y={y + 4} fill="rgba(255,255,255,0.3)" fontSize="10" textAnchor="end">
                   {formatCurrency(value, currency)}
                 </text>

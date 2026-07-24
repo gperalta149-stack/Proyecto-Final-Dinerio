@@ -35,6 +35,15 @@ export const BudgetModal: React.FC<BudgetModalProps> = ({
     }
   }, [isOpen, currentBudget, currentThreshold]);
 
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    document.addEventListener("keydown", handleKey);
+    return () => document.removeEventListener("keydown", handleKey);
+  }, [isOpen, onClose]);
+
   const validate = (): boolean => {
     const newErrors: { budget?: string; threshold?: string } = {};
     const budgetNum = parseFloat(budget);

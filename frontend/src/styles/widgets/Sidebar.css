@@ -354,35 +354,34 @@
 /* ===== RESPONSIVE ===== */
 @media (max-width: 768px) {
   .sidebar {
-    transform: translateX(0);
+    transform: translateX(-100%);
     transition: transform var(--transition-base), width var(--transition-base);
     box-shadow: var(--shadow-md);
     z-index: 100;
-  }
-
-  .sidebar-collapsed {
-    transform: translateX(-100%);
     width: 256px;
     min-width: 256px;
   }
 
-  .sidebar-collapsed .sidebar-logo-text {
+  .sidebar-mobile-open {
+    transform: translateX(0);
+  }
+
+  .sidebar-mobile-open .sidebar-logo-text {
     opacity: 1;
     width: auto;
   }
 
-  .sidebar-collapsed .sidebar-item-label {
+  .sidebar-mobile-open .sidebar-item-label {
     opacity: 1;
     width: auto;
   }
 
-  .sidebar-collapsed .sidebar-profile-info {
+  .sidebar-mobile-open .sidebar-profile-info {
     opacity: 1;
     width: auto;
   }
 
   .sidebar-collapse-btn {
-    right: -16px;
-    top: 100%;
+    display: none;
   }
 }

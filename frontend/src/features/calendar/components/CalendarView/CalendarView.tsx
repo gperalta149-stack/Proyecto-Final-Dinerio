@@ -1,5 +1,5 @@
 // frontend/src/features/calendar/components/CalendarView/CalendarView.tsx
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef, useEffect, useCallback } from 'react';
 import { buildCalendarGrid, getEventsForDay } from '../../utils/calendar';
 import { isToday, formatDateKey } from '../../utils/date';
 import { DAY_NAMES } from '../../constants/calendar';
@@ -36,6 +36,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
   onEventClick,
 }) => {
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
+  const gridRef = useRef<HTMLDivElement>(null);
 
   const grid = useMemo(() => buildCalendarGrid(currentDate), [currentDate]);
   const todayStr = useMemo(() => formatDateKey(new Date()), []);
@@ -45,6 +46,35 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
     setSelectedDay(day === selectedDay ? null : day);
   };
 
+  const daysInMonth = grid.filter(d => d.isCurrentMonth).length;
+  const firstDay = grid.find(d => d.isCurrentMonth)?.day ?? 1;
+  const lastDay = firstDay + daysInMonth - 1;
+
+  const navigateDay = useCallback((dir: number) => {
+    setSelectedDay(prev => {
+      if (prev === null) return firstDay;
+      const next = prev + dir;
+      if (next < firstDay) return firstDay;
+      if (next > lastDay) return lastDay;
+      return next;
+    });
+  }, [firstDay, lastDay]);
+
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      if (selectedDay === null) return;
+      switch (e.key) {
+        case "ArrowLeft": e.preventDefault(); navigateDay(-1); break;
+        case "ArrowRight": e.preventDefault(); navigateDay(1); break;
+        case "ArrowUp": e.preventDefault(); navigateDay(-7); break;
+        case "ArrowDown": e.preventDefault(); navigateDay(7); break;
+        case "Escape": setSelectedDay(null); break;
+      }
+    };
+    document.addEventListener("keydown", handleKey);
+    return () => document.removeEventListener("keydown", handleKey);
+  }, [selectedDay, navigateDay]);
+
   return (
     <div className="calendar-view">
       <div className="calendar-weekdays">
@@ -53,7 +83,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
         ))}
       </div>
 
-      <div className="calendar-grid">
+      <div className="calendar-grid" ref={gridRef} role="grid" aria-label="Calendario de pagos">
         {grid.map((dayObj, index) => {
           const { day, isCurrentMonth } = dayObj;
           const isTodayDay = isCurrentMonth && isToday(
@@ -66,6 +96,10 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
           return (
             <div
               key={index}
+              role="gridcell"
+              tabIndex={isCurrentMonth ? 0 : -1}
+              aria-label={`${day} de ${currentDate.toLocaleDateString('es-ES', { month: 'long' })}${isTodayDay ? ', hoy' : ''}${dayEvents.length > 0 ? `, ${dayEvents.length} evento${dayEvents.length !== 1 ? 's' : ''}` : ''}`}
+              aria-selected={isSelected}
               className={`calendar-day ${!isCurrentMonth ? 'other-month' : ''} ${isTodayDay ? 'today' : ''} ${isSelected ? 'selected' : ''} ${statusClass}`}
               onClick={() => handleDayClick(day, isCurrentMonth)}
             >

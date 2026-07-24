@@ -24,6 +24,7 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
     name: '',
     color: DEFAULT_COLORS[0],
   });
+  const [error, setError] = useState("");
 
   useEffect(() => {
     if (category) {
@@ -42,9 +43,10 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name.trim()) {
-      alert('El nombre de la categoría es requerido');
+      setError("El nombre de la categoría es requerido");
       return;
     }
+    setError("");
     onSubmit(formData);
   };
 
@@ -63,12 +65,13 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
         </div>
 
         <form onSubmit={handleSubmit} className="category-form-body">
+          {error && <div className="category-form-error">{error}</div>}
           <div className="category-form-group">
             <label className="category-form-label">Nombre de la categoría *</label>
             <input
               type="text"
               value={formData.name}
-              onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+              onChange={(e) => { setFormData(prev => ({ ...prev, name: e.target.value })); setError(""); }}
               className="category-form-input"
               placeholder="Ej: Entretenimiento, Trabajo, Salud..."
               required

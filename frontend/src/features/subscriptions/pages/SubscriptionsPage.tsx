@@ -76,7 +76,7 @@ export const SubscriptionsPage: React.FC = () => {
       else await subscriptionService.create(data);
       setShowModal(false);
       await loadAll();
-    } catch { alert("Error al guardar la suscripción"); }
+    } catch { showToast("Error al guardar la suscripción", "error"); }
   };
 
   const counts = useMemo(() => ({
@@ -120,14 +120,11 @@ export const SubscriptionsPage: React.FC = () => {
 
     return subscriptions
       .filter((sub) => {
-        if (sub.status !== "active") return false;
-
         const billingDate = new Date(sub.next_billing_date);
-
-        return (
-          billingDate.getMonth() === currentMonth &&
-          billingDate.getFullYear() === currentYear
-        );
+        const isThisMonth = billingDate.getMonth() === currentMonth && billingDate.getFullYear() === currentYear;
+        const isOverdue = billingDate.getTime() < new Date(currentYear, currentMonth, 1).getTime();
+        const isFuturePaused = sub.status === "paused" && (billingDate.getFullYear() > currentYear || (billingDate.getFullYear() === currentYear && billingDate.getMonth() > currentMonth));
+        return (isThisMonth || isOverdue) && !isFuturePaused;
       })
       .reduce((sum, sub) => sum + (sub.arsAmount || parseAmount(sub.amount)), 0);
   }, [subscriptions]);
