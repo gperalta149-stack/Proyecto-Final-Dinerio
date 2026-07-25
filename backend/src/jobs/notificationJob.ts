@@ -1,16 +1,17 @@
 import { NotificationGeneratorService } from "../services/notificationService.js"
 import { DebtGeneratorService } from "../services/debtGeneratorService.js"
+import logger from "../config/logger.js"
 export class NotificationJob {
   static async runScheduledTasks(): Promise<void> {
     try {
-      console.log("Ejecutando tareas programadas de notificaciones...")
+      logger.info("Ejecutando tareas programadas de notificaciones...")
       await NotificationGeneratorService.generatePaymentReminders()
       await NotificationGeneratorService.generateBudgetAlerts()
       await NotificationGeneratorService.cleanupOldNotifications()
       await DebtGeneratorService.generateDebtsFromOverdueSubscriptions()
-      console.log("Tareas programadas completadas")
+      logger.info("Tareas programadas completadas")
     } catch (error) {
-      console.error("Error en tareas programadas:", error)
+      logger.error("Error en tareas programadas:", error)
     }
   }
 }

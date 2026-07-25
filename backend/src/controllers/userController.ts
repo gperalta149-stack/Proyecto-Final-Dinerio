@@ -1,5 +1,6 @@
 import { Response } from "express"
 import { pool } from "../config/database.js"
+import logger from "../config/logger.js"
 import type { AuthRequest } from "../types/index.js"
 import bcrypt from "bcryptjs";
 
@@ -25,7 +26,7 @@ export const getUserProfile = async (
 
     res.json({ user: result.rows[0] });
   } catch (error) {
-    console.error("Get user profile error:", error);
+    logger.error("Get user profile error:", error);
     res.status(500).json({ error: "Error al obtener perfil" });
   }
 };
@@ -57,7 +58,7 @@ export const updateUserProfile = async (req: AuthRequest, res: Response): Promis
       user: result.rows[0]
     })
   } catch (error) {
-    console.error("Update user profile error:", error)
+    logger.error("Update user profile error:", error)
     res.status(500).json({ error: "Error al actualizar perfil" })
   }
 }
@@ -82,7 +83,7 @@ export const updateUserSettings = async (req: AuthRequest, res: Response): Promi
       settings: result.rows[0]
     })
   } catch (error) {
-    console.error("Update user settings error:", error)
+    logger.error("Update user settings error:", error)
     res.status(500).json({ error: "Error al actualizar configuración" })
   }
 }
@@ -91,7 +92,7 @@ export const changePassword = async (req: AuthRequest, res: Response): Promise<v
   try {
     const { currentPassword, newPassword } = req.body;
 
-    console.log("[BACKEND] Cambio de contraseña recibido:", {
+    logger.debug("[BACKEND] Cambio de contraseña recibido:", {
       userId: req.user!.userId,
       tieneCurrentPassword: !!currentPassword,
       tieneNewPassword: !!newPassword,
@@ -99,7 +100,7 @@ export const changePassword = async (req: AuthRequest, res: Response): Promise<v
     });
 
     if (!currentPassword || !newPassword) {
-      console.log("[BACKEND] Faltan campos requeridos");
+      logger.debug("[BACKEND] Faltan campos requeridos");
       res.status(400).json({ error: "Contraseña actual y nueva contraseña son requeridas" });
       return;
     }
@@ -110,20 +111,20 @@ export const changePassword = async (req: AuthRequest, res: Response): Promise<v
     );
 
     if (userResult.rows.length === 0) {
-      console.log("[BACKEND] Usuario no encontrado");
+      logger.debug("[BACKEND] Usuario no encontrado");
       res.status(404).json({ error: "Usuario no encontrado" });
       return;
     }
 
     const user = userResult.rows[0];
-    console.log("[BACKEND] Usuario encontrado:", user.id);
+    logger.debug("[BACKEND] Usuario encontrado:", user.id);
     if (newPassword.length < 6) {
-      console.log("[BACKEND] Contraseña muy corta");
+      logger.debug("[BACKEND] Contraseña muy corta");
       res.status(400).json({ error: "La nueva contraseña debe tener al menos 6 caracteres" });
       return;
     }
 
-    console.log("[BACKEND] Saltando verificación de contraseña actual (modo testing)");
+    logger.debug("[BACKEND] Saltando verificación de contraseña actual (modo testing)");
 
     const salt = await bcrypt.genSalt(10);
     const passwordHash = await bcrypt.hash(newPassword, salt);
@@ -133,11 +134,11 @@ export const changePassword = async (req: AuthRequest, res: Response): Promise<v
       [passwordHash, req.user!.userId]
     );
 
-    console.log("[BACKEND] Contraseña actualizada exitosamente");
+    logger.info("[BACKEND] Contraseña actualizada exitosamente");
     res.json({ message: "Contraseña actualizada exitosamente" });
 
   } catch (error) {
-    console.error("[BACKEND] Error cambiando contraseña:", error);
+    logger.error("[BACKEND] Error cambiando contraseña:", error);
     res.status(500).json({ error: "Error al cambiar contraseña" });
   }
 };

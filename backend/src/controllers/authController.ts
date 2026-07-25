@@ -4,6 +4,7 @@ import { Response } from "express"
 import jwt from "jsonwebtoken"
 import { pool } from "../config/database.js"
 import type { AuthRequest } from "../types/index.js"
+import logger from "../config/logger.js"
 
 // Se genera token JWT
 const generateToken = (userId: string, email: string, name?: string): string => {
@@ -22,7 +23,7 @@ export const register = async (req: AuthRequest, res: Response): Promise<void> =
   const { email, password, first_name, last_name } = req.body
 
   try {
-    console.log("Register attempt for:", email)
+    logger.debug("Register attempt for:", email)
 
     // Verificar si el usuario ya existe
     const userExists = await pool.query("SELECT id FROM users WHERE email = $1", [email])
@@ -59,7 +60,7 @@ export const register = async (req: AuthRequest, res: Response): Promise<void> =
       },
     })
   } catch (error) {
-    console.error("Register error:", error)
+    logger.error("Register error:", error)
     res.status(500).json({ error: "Server error during registration" })
   }
 }
@@ -68,7 +69,7 @@ export const login = async (req: AuthRequest, res: Response): Promise<void> => {
   const { email, password } = req.body
 
   try {
-    console.log("Login attempt for:", email)
+    logger.debug("Login attempt for:", email)
 
     const result = await pool.query(
       "SELECT id, email, password, first_name, last_name, monthly_budget FROM users WHERE email = $1",
@@ -76,7 +77,7 @@ export const login = async (req: AuthRequest, res: Response): Promise<void> => {
     )
 
     if (result.rows.length === 0) {
-      console.log("User not found")
+      logger.debug("User not found")
       res.status(401).json({ error: "Contraseña o Email incorrectos, ingréselo nuevamente" })
       return
     }
@@ -86,7 +87,7 @@ export const login = async (req: AuthRequest, res: Response): Promise<void> => {
     // Crear nombre completo
     const fullName = `${user.first_name} ${user.last_name}`.trim()
 
-    console.log("User found:", {
+    logger.debug("User found:", {
       id: user.id,
       email: user.email,
       hasPassword: !!user.password,
@@ -101,16 +102,16 @@ export const login = async (req: AuthRequest, res: Response): Promise<void> => {
     }
 
     // Verificar contraseña
-    console.log("Comparing passwords...")
+    logger.debug("Comparing passwords...")
     const isValidPassword = await bcrypt.compare(password, user.password)
 
     if (!isValidPassword) {
-      console.log("Invalid password")
+      logger.debug("Invalid password")
       res.status(401).json({ error: "Contraseña o Email incorrectos, ingréselo nuevamente" })
       return
     }
 
-    console.log("Login successful")
+    logger.info("Login successful")
     const token = generateToken(user.id, user.email, fullName)
 
     res.json({
@@ -124,7 +125,7 @@ export const login = async (req: AuthRequest, res: Response): Promise<void> => {
       },
     })
   } catch (error) {
-    console.error("LOGIN ERROR:", error)
+    logger.error("LOGIN ERROR:", error)
     res.status(500).json({
       error: "Server error during login",
       details: error instanceof Error ? error.message : "Unknown error"
@@ -212,10 +213,10 @@ export const requestPasswordReset = async (req: AuthRequest, res: Response): Pro
       [userId, token, expiresAt]
     )
 
-    console.log(`Password reset token for ${email}: ${token}`)
+    logger.info(`Password reset token for ${email}: ${token}`)
     res.json({ message: "If the email exists, a reset link will be sent" })
   } catch (error) {
-    console.error("Password reset request error:", error)
+    logger.error("Password reset request error:", error)
     res.status(500).json({ error: "Server error" })
   }
 }

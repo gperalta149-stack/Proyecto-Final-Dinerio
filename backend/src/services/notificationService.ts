@@ -1,9 +1,10 @@
 import { pool } from "../config/database.js"
+import logger from "../config/logger.js"
 
 export class NotificationGeneratorService {
   static async generatePaymentReminders(): Promise<void> {
     try {
-      console.log("Generando recordatorios de pago...");
+      logger.info("Generando recordatorios de pago...");
 
       const activeSubscriptions = await pool.query(
         `SELECT s.id, s.user_id, s.name, s.amount, s.currency, s.next_billing_date,
@@ -16,7 +17,7 @@ export class NotificationGeneratorService {
          ORDER BY s.next_billing_date ASC`
       );
 
-      console.log(`Suscripciones a procesar: ${activeSubscriptions.rows.length}`);
+      logger.debug(`Suscripciones a procesar: ${activeSubscriptions.rows.length}`);
 
       for (const sub of activeSubscriptions.rows) {
         const daysUntilDue = Math.ceil(
@@ -52,7 +53,7 @@ export class NotificationGeneratorService {
              VALUES ($1, $2, $3, $4, $5)`,
             [sub.user_id, sub.id, 'payment_due', title, message]
           );
-          console.log(`Notificación creada: ${title} - ${sub.name}`);
+          logger.info(`Notificación creada: ${title} - ${sub.name}`);
         } else {
           const daysOverdue = Math.abs(daysUntilDue);
 
@@ -73,11 +74,11 @@ export class NotificationGeneratorService {
              VALUES ($1, $2, $3, $4, $5)`,
             [sub.user_id, sub.id, 'payment_overdue', title, message]
           );
-          console.log(`Notificación creada: ${title} - ${sub.name} (${daysOverdue} día${daysOverdue !== 1 ? 's' : ''})`);
+          logger.info(`Notificación creada: ${title} - ${sub.name} (${daysOverdue} día${daysOverdue !== 1 ? 's' : ''})`);
         }
       }
 
-      console.log("Generación de recordatorios completada");
+      logger.info("Generación de recordatorios completada");
     } catch (error) {
       console.error("Error generando recordatorios:", error);
     }
@@ -85,7 +86,7 @@ export class NotificationGeneratorService {
 
   static async generateBudgetAlerts(): Promise<void> {
     try {
-      console.log("Verificando alertas de presupuesto...")
+      logger.info("Verificando alertas de presupuesto...")
 
       const usersExceedingBudget = await pool.query(
         `SELECT
@@ -142,11 +143,11 @@ export class NotificationGeneratorService {
             ]
           )
 
-          console.log(`Alerta de presupuesto creada para usuario ${user.user_id}`)
+          logger.info(`Alerta de presupuesto creada para usuario ${user.user_id}`)
         }
       }
 
-      console.log("Verificación de presupuesto completada")
+      logger.info("Verificación de presupuesto completada")
     } catch (error) {
       console.error("Error verificando presupuesto:", error)
     }
@@ -159,7 +160,7 @@ export class NotificationGeneratorService {
         `DELETE FROM notifications WHERE created_at < CURRENT_DATE - INTERVAL '7 days'`
       )
       if (result.rowCount !== null && result.rowCount > 0) {
-        console.log(`Notificaciones antiguas eliminadas: ${result.rowCount}`)
+        logger.info(`Notificaciones antiguas eliminadas: ${result.rowCount}`)
       }
     } catch (error) {
       console.error("Error limpiando notificaciones antiguas:", error)
@@ -175,7 +176,7 @@ export class NotificationGeneratorService {
     billingCycle: string
   ): Promise<void> {
     try {
-      console.log(`Creando notificación para nueva suscripción: ${subscriptionName}`)
+      logger.info(`Creando notificación para nueva suscripción: ${subscriptionName}`)
 
       const cycleLabel = billingCycle === "monthly" ? "/mes" : billingCycle === "yearly" ? "/año" : billingCycle === "quarterly" ? "/trimestre" : billingCycle === "weekly" ? "/semana" : ""
       const message = `Has agregado "${subscriptionName}" por ${currency} ${amount}${cycleLabel}`
@@ -192,7 +193,7 @@ export class NotificationGeneratorService {
         ]
       )
 
-      console.log(`Notificación creada exitosamente para: ${subscriptionName}`)
+      logger.info(`Notificación creada exitosamente para: ${subscriptionName}`)
     } catch (error) {
       console.error("Error creando notificación de suscripción:", error)
       throw error

@@ -3,6 +3,7 @@ import { validationResult } from "express-validator"
 import { pool } from "../config/database.js"
 import { createAuditLog } from "../middleware/auditLog.js"
 import type { AuthRequest } from "../types/index.js"
+import logger from "../config/logger.js"
 
 // Lista de suscripciones. Soporta ?status=... (por defecto solo 'active')
 export const getSubscriptions = async (req: AuthRequest, res: Response): Promise<void> => {
@@ -167,7 +168,7 @@ export const createSubscription = async (req: AuthRequest, res: Response): Promi
            VALUES ($1, $2, $3, $4, $5, $6, $7, 'pending')`,
           [req.user!.userId, created.id, category_id, name, amount, currency || "USD", next_billing_date]
         )
-        console.log(`Deuda creada automáticamente para suscripción vencida: ${name}`)
+        logger.info(`Deuda creada automáticamente para suscripción vencida: ${name}`)
       } catch (debtError) {
         console.error("Error creando deuda automática:", debtError)
       }

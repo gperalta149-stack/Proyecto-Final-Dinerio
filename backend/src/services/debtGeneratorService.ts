@@ -1,4 +1,5 @@
 import { pool } from "../config/database.js"
+import logger from "../config/logger.js"
 
 export class DebtGeneratorService {
   /**
@@ -7,7 +8,7 @@ export class DebtGeneratorService {
    * crea una fila en `debts`. Corre junto al job de notificaciones.
    */
   static async generateDebtsFromOverdueSubscriptions(): Promise<void> {
-    console.log('💸 Generando deudas desde suscripciones vencidas...');
+    logger.info('💸 Generando deudas desde suscripciones vencidas...');
     try {
       const overdue = await pool.query(
         `SELECT id, user_id, category_id, name, amount, currency, next_billing_date
@@ -26,7 +27,7 @@ export class DebtGeneratorService {
            VALUES ($1, $2, $3, $4, $5, $6, $7, 'pending')`,
           [sub.user_id, sub.id, sub.category_id, sub.name, sub.amount, sub.currency, sub.next_billing_date]
         );
-        console.log(`  Deuda generada: ${sub.name} (venció ${sub.next_billing_date})`);
+        logger.info(`  Deuda generada: ${sub.name} (venció ${sub.next_billing_date})`);
       }
     } catch (error) {
       console.error('Error generando deudas:', error);

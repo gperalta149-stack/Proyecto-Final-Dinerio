@@ -5,8 +5,7 @@ dotenv.config()
 
 const { Pool } = pg
 
-// helper: logs only when DEBUG=true
-const debug = (...args: any[]) => { if (process.env.DEBUG === 'true') console.log(...args); }
+import logger from './logger.js'
 
 export const pool = new Pool({
   host: process.env.DB_HOST || "localhost",
@@ -20,7 +19,7 @@ export const pool = new Pool({
 })
 
 pool.on("connect", () => {
-  debug("Database connected successfully")
+  logger.info("Database connected successfully")
 })
 
 pool.on("error", (err) => {
@@ -34,7 +33,7 @@ export const query = async (text: string, params?: any[]) => {
     const res = await pool.query(text, params)
     const duration = Date.now() - start
     // avoid logging full SQL text in production; include it only when DEBUG
-    debug("Executed query", { duration, rows: res.rowCount })
+    logger.debug("Executed query", { duration, rows: res.rowCount })
     return res
   } catch (error) {
     console.error("Database query error:", error)

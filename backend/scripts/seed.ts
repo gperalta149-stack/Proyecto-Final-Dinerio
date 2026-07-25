@@ -3,33 +3,32 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { query } from '../src/config/database.js';
 
-// helper logger: logs only when DEBUG=true in env
-const debug = (...args: any[]) => { if (process.env.DEBUG === 'true') console.log(...args); };
+import logger from '../src/config/logger.js';
 
-debug('Importaciones completadas');
+logger.debug('Importaciones completadas');
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-debug('__dirname calculado:', __dirname);
+logger.debug('__dirname calculado:', __dirname);
 async function seedDatabase()  {
     try {
-        debug('Starting database seed...');
+        logger.info('Starting database seed...');
 
         const seedPath = path.join(__dirname, '../db/seedData.sql');
-        debug('Seed file path:', seedPath);
+        logger.debug('Seed file path:', seedPath);
 
     if (!fs.existsSync(seedPath))  {
             console.error('Seed file not found at:', seedPath);
         return;
     }
-        debug('Seed file exists');
+        logger.debug('Seed file exists');
 
     const seedSQL = fs.readFileSync(seedPath, 'utf8');
-    debug('Seed file read successfully');
+    logger.debug('Seed file read successfully');
 
-    debug('Executing seed statements...');
+    logger.debug('Executing seed statements...');
 
     const statements = seedSQL.split(';').filter(stmt => stmt.trim());
-        debug('Found', statements.length, 'SQL statements');
+        logger.debug('Found', statements.length, 'SQL statements');
 
     let successCount = 0;
     let errorCount = 0 ;
@@ -38,10 +37,10 @@ async function seedDatabase()  {
         const statement = statements[i];
         if (statement.trim()) {
             try {
-            console.log(`DEBUG: Executing statement ${i + 1}/${statements.length}`);
+            logger.debug(`Executing statement ${i + 1}/${statements.length}`);
             const result = await query(statement + ';');
             successCount++;
-            debug(`Statement ${i + 1} executed successfully`);
+            logger.debug(`Statement ${i + 1} executed successfully`);
             } catch (error: any) {
             console.error(`Error executing statement ${i + 1}:`, error.message);
             errorCount++;
@@ -49,36 +48,36 @@ async function seedDatabase()  {
         }
     }
 
-    console.log(`\n SEED COMPLETED! ${successCount} statements executed, ${errorCount} errors`);
+    logger.info(`\n SEED COMPLETED! ${successCount} statements executed, ${errorCount} errors`);
 
-        console.log('\n VERIFICANDO DATOS INSERTADOS:');
+            logger.info('\n VERIFICANDO DATOS INSERTADOS:');
 
         try {
             const users = await query('SELECT email, first_name, role FROM users;');
             // Print only summary counts to avoid exposing email addresses in logs
-            console.log(`USUARIOS: ${users.rowCount}`);
+            logger.info(`USUARIOS: ${users.rowCount}`);
             debug('USUARIOS detalle (solo en DEBUG):', users.rows.map((u: any) => ({ email: u.email, name: u.first_name, role: u.role })));
 
             const subscriptions = await query('SELECT COUNT(*) as count FROM subscriptions;');
-            console.log(`SUSCRIPCIONES: ${subscriptions.rows[0].count}`);
+            logger.info(`SUSCRIPCIONES: ${subscriptions.rows[0].count}`);
 
             const categories = await query('SELECT COUNT(*) as count FROM categories;');
-            console.log(`CATEGORÍAS: ${categories.rows[0].count}`);
+            logger.info(`CATEGORÍAS: ${categories.rows[0].count}`);
 
             } catch (error: any) {
             console.error('Error verificando datos:', error.message);
             }
 
         // No imprimir contraseñas ni credenciales en claro. Indicar ubicación de credenciales de prueba.
-        console.log('\n CREDENCIALES PARA PRUEBAS: Ver README.md o db/seedData.sql (contraseñas no se muestran en logs)');
+        logger.info('\n CREDENCIALES PARA PRUEBAS: Ver README.md o db/seedData.sql (contraseñas no se muestran en logs)');
 
     } catch (error: any) {
         console.error('Fatal error seeding database:', error.message);
     }
 }
-debug('Llamando a seedDatabase...');
+logger.debug('Llamando a seedDatabase...');
 seedDatabase().then(() => {
-  console.log('Todo el proceso completado');
+  logger.info('Todo el proceso completado');
 }).catch((error: any) => {
-  console.error('Error general:', error.message);
+  logger.error('Error general:', error.message);
 });

@@ -43,23 +43,25 @@ app.use('/api/debts', debtRoutes);
 app.use(notFoundHandler)
 app.use(errorHandler)
 // Iniciar el servidor
+import logger from './config/logger.js'
+
 const startServer = async () => {
   try {
     app.listen(PORT, () => {
-      console.log(`🚀 Servidor corriendo en puerto ${PORT}`)
-      console.log(`📍 Ambiente: ${process.env.NODE_ENV || "development"}`)
-      console.log(`🔗 API: http://localhost:${PORT}`)
-      console.log(`📊 Endpoints disponibles:`)
-      console.log(`   • /api/auth`)
-      console.log(`   • /api/subscriptions`)
-      console.log(`   • /api/categories`)
-      console.log(`   • /api/users`)
-      console.log(`   • /api/notifications`)
-      console.log(`   • /api/audit`)
-      console.log(`   • /api/reports`)
-      console.log(`   • /api/upload`)
-      console.log(`   • /api/calendar`)
-      console.log(`   • /api/debts`)
+      logger.info(`🚀 Servidor corriendo en puerto ${PORT}`)
+      logger.info(`📍 Ambiente: ${process.env.NODE_ENV || "development"}`)
+      logger.info(`🔗 API: http://localhost:${PORT}`)
+      logger.info(`📊 Endpoints disponibles:`)
+      logger.info(`   • /api/auth`)
+      logger.info(`   • /api/subscriptions`)
+      logger.info(`   • /api/categories`)
+      logger.info(`   • /api/users`)
+      logger.info(`   • /api/notifications`)
+      logger.info(`   • /api/audit`)
+      logger.info(`   • /api/reports`)
+      logger.info(`   • /api/upload`)
+      logger.info(`   • /api/calendar`)
+      logger.info(`   • /api/debts`)
     })
   } catch (error) {
     console.error("❌ Error al iniciar servidor:", error)
@@ -71,7 +73,7 @@ const startNotificationJob = async () => {
   try {
     const { NotificationJob } = await import('./jobs/notificationJob.js')
     // Ejecutar inmediatamente al iniciar
-    console.log("Iniciando job de notificaciones...")
+    logger.info("Iniciando job de notificaciones...")
     await NotificationJob.runScheduledTasks()
     const INTERVAL_MS = 60 * 60 * 1000
     setInterval(async () => {
@@ -82,9 +84,9 @@ const startNotificationJob = async () => {
         console.error("Error en job programado:", error)
       }
     }, INTERVAL_MS)
-    console.log(`Job de notificaciones programado (cada ${INTERVAL_MS / 1000 / 60} minutos)`)
+    logger.info(`Job de notificaciones programado (cada ${INTERVAL_MS / 1000 / 60} minutos)`)
   } catch (error) {
-    console.error("Error iniciando job de notificaciones:", error)
+    logger.error("Error iniciando job de notificaciones:", error)
   }
 }
 startServer().then(() => {
