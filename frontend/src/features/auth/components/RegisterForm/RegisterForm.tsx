@@ -50,15 +50,18 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
   };
 
   const handleEmailBlur = async (e: React.FocusEvent<HTMLInputElement>) => {
-    const email = e.target.value;
-    if (email && validateEmail(email)) {
+    const email = e.target.value.trim();
+    if (!email) return;
+    try {
       const isAvailable = await checkEmail(email);
       if (!isAvailable) {
-        setErrors((prev) => ({ 
-          ...prev, 
-          email: "Este email ya está registrado" 
+        setErrors((prev) => ({
+          ...prev,
+          email: "Este email ya está registrado"
         }));
       }
+    } catch {
+      // Silently ignore network errors on availability check
     }
   };
 

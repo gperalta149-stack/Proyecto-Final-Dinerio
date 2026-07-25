@@ -1,20 +1,42 @@
 import { useState, useEffect, useMemo } from "react";
 import { reportService } from "../../reports/service/reportService";
+import { debtService } from "../../debts/service/debtService";
 import type { MonthlyEvolutionData } from "../../reports/service/reportService";
 import type { Subscription, DashboardStats } from "../types";
+import type { Debt } from "../../../shared/types";
 import { formatCurrency, parseAmount } from "../../../shared/utils/formatters";
+import ExchangeRateService from "../../../shared/services/exchangeRateService";
 
 export function useDashboardData(stats: DashboardStats | null, subscriptions: Subscription[]) {
   const [monthlyEvolution, setMonthlyEvolution] = useState<MonthlyEvolutionData[]>([]);
   const [evolutionLoading, setEvolutionLoading] = useState(true);
+  const [paidDebtsTotal, setPaidDebtsTotal] = useState(0);
+
+  const today = new Date();
+  const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+  const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
 
   useEffect(() => {
     const load = async () => {
       try {
         setEvolutionLoading(true);
         const currentYear = new Date().getFullYear();
-        const data = await reportService.getMonthlyEvolution(currentYear);
+        const [data, debtsData] = await Promise.all([
+          reportService.getMonthlyEvolution(currentYear),
+          debtService.getAll(),
+        ]);
         setMonthlyEvolution(data.monthlyEvolution || []);
+
+        const paidThisMonth = debtsData.filter((d: Debt) => {
+          if (d.status !== 'paid' || !d.paid_at) return false;
+          const paidDate = new Date(d.paid_at);
+          return paidDate >= startOfMonth && paidDate < endOfMonth;
+        });
+        const total = paidThisMonth.reduce((sum: number, d: Debt) => {
+          const amount = parseAmount(d.amount);
+          return sum + (d.currency === 'USD' ? ExchangeRateService.convertUSDToARS(amount) : amount);
+        }, 0);
+        setPaidDebtsTotal(total);
       } catch {
         setMonthlyEvolution([]);
       } finally {
@@ -24,31 +46,18 @@ export function useDashboardData(stats: DashboardStats | null, subscriptions: Su
     load();
   }, []);
 
-  const today = new Date();
-
-  const startOfMonth = new Date(
-    today.getFullYear(),
-    today.getMonth(),
-    1
-  );
-
-  const endOfMonth = new Date(
-    today.getFullYear(),
-    today.getMonth() + 1,
-    1
-  );
-
-  const totalMonthly = subscriptions
-    .filter(sub => {
-      const paymentDate = new Date(sub.next_billing_date);
-      const isThisMonth = paymentDate >= startOfMonth && paymentDate < endOfMonth;
-      const isOverdue = paymentDate < startOfMonth;
-      const isFuturePaused = sub.status === "paused" && paymentDate >= endOfMonth;
-      return (isThisMonth || isOverdue) && !isFuturePaused;
-    })
-    .reduce((sum, sub) => {
-      return sum + (sub.arsAmount || parseAmount(sub.amount));
-    }, 0);
+  const totalMonthly =
+    subscriptions
+      .filter(sub => {
+        const paymentDate = new Date(sub.next_billing_date);
+        const isThisMonth = paymentDate >= startOfMonth && paymentDate < endOfMonth;
+        const isOverdue = paymentDate < startOfMonth;
+        const isFuturePaused = sub.status === "paused" && paymentDate >= endOfMonth;
+        return (isThisMonth || isOverdue) && !isFuturePaused;
+      })
+      .reduce((sum, sub) => {
+        return sum + (sub.arsAmount || parseAmount(sub.amount));
+      }, 0) + paidDebtsTotal;
 
   const activeSubscriptions = subscriptions.filter((s) => s.status === "active").length;
   const pausedSubscriptions = subscriptions.filter((s) => s.status === "paused").length;

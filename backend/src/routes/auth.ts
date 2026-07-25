@@ -1,5 +1,5 @@
 import { Router } from "express"
-import { register, login, getProfile, updateBudget, requestPasswordReset } from "../controllers/authController.js"
+import { register, login, getProfile, updateBudget, requestPasswordReset, checkAvailability } from "../controllers/authController.js"
 import { authenticate } from "../middleware/auth.js"
 
 const router = Router()
@@ -8,6 +8,7 @@ const router = Router()
 router.post("/register", register)
 router.post("/login", login)
 router.post("/password-reset", requestPasswordReset)
+router.get("/check-availability", checkAvailability)
 
 // Rutas protegidas
 router.get("/profile", authenticate, getProfile)

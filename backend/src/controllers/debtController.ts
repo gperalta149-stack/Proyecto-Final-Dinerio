@@ -2,6 +2,7 @@ import type { Response } from 'express';
 import { pool } from '../config/database.js';
 import { createAuditLog } from '../middleware/auditLog.js';
 import type { AuthRequest } from '../types/index.js';
+import { getExchangeRate } from '../services/exchangeRateService.js';
 
 const DEBT_WITH_CATEGORY = `
   SELECT
@@ -33,7 +34,8 @@ export const getDebtsSummary = async (req: AuthRequest, res: Response): Promise<
   try {
     const pendingResult = await pool.query(
       `SELECT
-        COALESCE(SUM(amount), 0)::float AS total,
+        COALESCE(SUM(amount) FILTER (WHERE currency = 'ARS'), 0)::float AS total_ars,
+        COALESCE(SUM(amount) FILTER (WHERE currency = 'USD'), 0)::float AS total_usd,
         COUNT(*)::int AS count,
         COALESCE(MAX(CURRENT_DATE - due_date), 0)::int AS oldest_days,
           (SELECT name FROM debts WHERE user_id = $1 AND status = 'pending'
@@ -52,12 +54,20 @@ export const getDebtsSummary = async (req: AuthRequest, res: Response): Promise<
       [req.user!.userId]
     );
 
+    const exchangeRate = await getExchangeRate();
+    const totalArs = parseFloat(pendingResult.rows[0].total_ars) || 0;
+    const totalUsd = parseFloat(pendingResult.rows[0].total_usd) || 0;
+    const totalOwedConverted = totalArs + totalUsd * exchangeRate;
+
     res.json({
-      totalOwed:        pendingResult.rows[0].total,
-      pendingCount:      pendingResult.rows[0].count,
-      oldestDays:        pendingResult.rows[0].oldest_days,
-      oldestName:        pendingResult.rows[0].oldest_name,
-      paidThisMonthCount: paidThisMonthResult.rows[0].count,
+      totalOwed:           totalArs,
+      totalOwedUSD:        totalUsd,
+      totalOwedConverted:  Math.round(totalOwedConverted * 100) / 100,
+      exchangeRate,
+      pendingCount:        pendingResult.rows[0].count,
+      oldestDays:          pendingResult.rows[0].oldest_days,
+      oldestName:          pendingResult.rows[0].oldest_name,
+      paidThisMonthCount:  paidThisMonthResult.rows[0].count,
     });
   } catch (error) {
     console.error('Get debts summary error:', error);
@@ -104,14 +114,20 @@ export const createManualDebt = async (req: AuthRequest, res: Response): Promise
 // ── Marcar como pagada ───────────────────────────────────────
 export const markDebtAsPaid = async (req: AuthRequest, res: Response): Promise<void> => {
   const { id } = req.params;
+  const { payment_method } = req.body;
+
+  if (payment_method && !['debito', 'credito', 'billetera_virtual', 'efectivo', 'transferencia'].includes(payment_method)) {
+    res.status(400).json({ error: 'Método de pago inválido' });
+    return;
+  }
 
   try {
     const result = await pool.query(
       `UPDATE debts
-        SET status = 'paid', paid_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP
-        WHERE id = $1 AND user_id = $2
+        SET status = 'paid', payment_method = $1, paid_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP
+        WHERE id = $2 AND user_id = $3
         RETURNING id, subscription_id`,
-      [id, req.user!.userId]
+      [payment_method || null, id, req.user!.userId]
     );
 
     if (result.rows.length === 0) {
@@ -129,7 +145,7 @@ export const markDebtAsPaid = async (req: AuthRequest, res: Response): Promise<v
       );
     }
 
-    await createAuditLog(req, 'UPDATE', 'debt', id, { status: 'paid' });
+    await createAuditLog(req, 'UPDATE', 'debt', id, { status: 'paid', payment_method });
 
     res.json({ message: 'Deuda marcada como pagada' });
   } catch (error) {

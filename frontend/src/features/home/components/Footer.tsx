@@ -1,7 +1,7 @@
 // frontend/src/features/home/components/Footer.tsx
 import React from "react";
 import { Link } from "react-router-dom";
-import { WalletCards, Send } from "lucide-react";
+import { Send } from "lucide-react";
 import { FaGithub, FaInstagram, FaLinkedin, FaXTwitter } from "react-icons/fa6";
 import { FOOTER_COLUMNS } from "../data/homeData";
 import '../../../styles/home/footer.css';
@@ -17,7 +17,7 @@ export const Footer: React.FC = () => {
           <div className="footer-brand">
             <Link to="/" className="header-logo">
               <div className="header-logo-icon">
-                <WalletCards size={22} />
+                <img src="/icons/logo.svg" width="22" height="22" alt="Dinerio" />
               </div>
               <span className="header-logo-text">
                 Dinerio

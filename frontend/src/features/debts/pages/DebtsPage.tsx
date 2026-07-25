@@ -1,6 +1,7 @@
 // frontend/src/features/debts/pages/DebtsPage.tsx
 import React, { useState, useEffect, useMemo } from 'react';
-import { AlertTriangle, History } from 'lucide-react';
+import { AlertTriangle, History, CheckCircle2, X } from 'lucide-react';
+import { useToast } from '../../../shared/hooks/useToast';
 import { useDebts } from '../hooks';
 import { DebtTable } from '../components/DebtTable/DebtTable';
 import { DebtStats } from '../components/DebtStats/DebtStats';
@@ -8,21 +9,33 @@ import { DebtFilters, type DebtFilter } from '../components/DebtFilters/DebtFilt
 import { DebtEmptyState } from '../components/DebtEmptyState/DebtEmptyState';
 import { DebtHistory } from '../components/DebtHistory/DebtHistory';
 import { DebtModal } from '../components/DebtModal/DebtModal';
+import { PayDebtModal } from '../components/PayDebtModal/PayDebtModal';
 import { categoryService } from '../../categories/service/categoryService';
 import type { Category } from '../../categories/types';
 import type { Debt } from '../types';
 import { getDaysUntilNextPayment } from '../../../shared/utils/formatters';
 import '../../../styles/debts/debts.css';
 
+const PAYMENT_LABELS: Record<string, string> = {
+  debito: "débito",
+  credito: "crédito",
+  billetera_virtual: "billetera virtual",
+  efectivo: "efectivo",
+  transferencia: "transferencia",
+};
+
 export const DebtsPage: React.FC = () => {
   const { pendingDebts, paidDebts, summary, loading, createDebt, markAsPaid, postpone, removeDebt } = useDebts();
+  const { showToast } = useToast();
   const [showForm, setShowForm] = useState(false);
   const [editingDebt, setEditingDebt] = useState<Debt | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
   const [actionLoading, setActionLoading] = useState(false);
   const [activeFilter, setActiveFilter] = useState<DebtFilter>('pending');
-  const [showHistory, setShowHistory] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
+const [showHistory, setShowHistory] = useState(false);
+const [searchTerm, setSearchTerm] = useState('');
+const [payingDebt, setPayingDebt] = useState<Debt | null>(null);
+const [paymentSuccess, setPaymentSuccess] = useState(false);
 
   useEffect(() => {
     categoryService.getAll().then(setCategories).catch(() => setCategories([]));
@@ -74,11 +87,20 @@ export const DebtsPage: React.FC = () => {
   }), [pendingDebts, paidDebts]);
 
   const handleMarkAsPaid = async (id: string) => {
+    const debt = pendingDebts.find(d => d.id === id);
+    if (debt) setPayingDebt(debt);
+  };
+
+  const handlePayConfirm = async (paymentMethod: string) => {
+    if (!payingDebt) return;
     try {
       setActionLoading(true);
-      await markAsPaid(id);
+      await markAsPaid(payingDebt.id, paymentMethod);
+      setPayingDebt(null);
+      setPaymentSuccess(true);
     } catch (err) {
       console.error(err);
+      showToast("Error al marcar la deuda como pagada", "error");
     } finally {
       setActionLoading(false);
     }
@@ -183,6 +205,28 @@ export const DebtsPage: React.FC = () => {
               setEditingDebt(null);
             }}
           />
+        )}
+
+        {payingDebt && (
+          <PayDebtModal
+            debt={payingDebt}
+            onConfirm={handlePayConfirm}
+            onClose={() => setPayingDebt(null)}
+          />
+        )}
+
+        {paymentSuccess && (
+          <div className="debt-modal-overlay" onClick={() => setPaymentSuccess(false)}>
+            <div className="paydebt-success-modal" onClick={(e) => e.stopPropagation()}>
+              <button className="debt-modal-close paydebt-success-close" onClick={() => setPaymentSuccess(false)}>
+                <X size={18} />
+              </button>
+              <div className="paydebt-success-icon">
+                <CheckCircle2 size={48} />
+              </div>
+              <h2 className="paydebt-success-title">Su pago se realizó correctamente</h2>
+            </div>
+          </div>
         )}
       </div>
     </div>

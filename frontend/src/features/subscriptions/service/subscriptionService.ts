@@ -1,7 +1,10 @@
 // frontend/src/features/subscriptions/service/subscriptionService.ts
 import api from "../../../shared/services/api";
-import type { Subscription, DashboardStats, Category, SubscriptionOrResponse } from "../../../shared/types";
 import ExchangeRateService from "../../../shared/services/exchangeRateService";
+import type { Category, DashboardStats, Subscription, SubscriptionOrResponse } from "../../../shared/types";
+
+// development-only logger (Vite exposes import.meta.env.DEV)
+const devLog = (...args: any[]) => { if (typeof import.meta !== 'undefined' && (import.meta as any).env && (import.meta as any).env.DEV) console.debug(...args); };
 
 const calculateSubscriptionWithConversion = async (subscription: Subscription): Promise<Subscription> => {
   const amount = typeof subscription.amount === 'string' ?
@@ -59,7 +62,7 @@ export const subscriptionService = {
       } else if (Array.isArray(response.data)) {
         subscriptions = response.data;
       } else {
-        console.warn("La API no devolvió un array válido:", response.data);
+        devLog("La API no devolvió un array válido:", response.data);
         return [];
       }
 
@@ -69,7 +72,7 @@ export const subscriptionService = {
 
       return subscriptionsWithConversion;
     } catch (error) {
-      console.error("Error fetching subscriptions:", error);
+      devLog("Error fetching subscriptions:", error);
       return [];
     }
   },
@@ -80,7 +83,7 @@ export const subscriptionService = {
       const subscription = response.data.subscription || response.data;
       return await calculateSubscriptionWithConversion(subscription);
     } catch (error) {
-      console.error(`Error fetching subscription ${id}:`, error);
+      devLog(`Error fetching subscription ${id}:`, error);
       throw error;
     }
   },
@@ -107,7 +110,7 @@ export const subscriptionService = {
       }
       return result;
     } catch (error: any) {
-      console.error("[SERVICE CREATE] Error:", error.response?.data || error.message);
+      devLog("[SERVICE CREATE] Error:", error.response?.data || error.message);
       throw error;
     }
   },
@@ -126,18 +129,18 @@ export const subscriptionService = {
       if (subscription.notes !== undefined) subscriptionData.notes = subscription.notes;
       if (subscription.status !== undefined) subscriptionData.status = subscription.status;
 
-      console.log("📤 [SERVICE UPDATE] Sending to API:", { url: `/subscriptions/${id}`, data: subscriptionData });
+      devLog("📤 [SERVICE UPDATE] Sending to API:", { url: `/subscriptions/${id}`, data: subscriptionData });
 
       const response = await api.put(`/subscriptions/${id}`, subscriptionData);
 
-      console.log("📥 [SERVICE UPDATE] Response:", response.data);
+      devLog("📥 [SERVICE UPDATE] Response:", response.data);
 
       if (response.data.subscription && response.data.subscription.category_name) {
         return response.data;
       } else {
-        console.log("🔄 [SERVICE UPDATE] No category_name in response, fetching complete subscription...");
+        devLog("🔄 [SERVICE UPDATE] No category_name in response, fetching complete subscription...");
         const completeSubscription = await this.getById(id);
-        console.log("✅ [SERVICE UPDATE] Complete subscription fetched:", completeSubscription);
+        devLog("✅ [SERVICE UPDATE] Complete subscription fetched:", completeSubscription);
         return {
           message: response.data.message || "Subscription updated successfully",
           subscription: completeSubscription

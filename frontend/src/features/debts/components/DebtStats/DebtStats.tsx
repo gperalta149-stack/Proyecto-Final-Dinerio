@@ -19,11 +19,23 @@ export const DebtStats: React.FC<DebtStatsProps> = ({
   upcomingCount,
   paidCount,
 }) => {
+  const hasUSD = summary.totalOwedUSD > 0;
+  const displayTotal = hasUSD
+    ? summary.totalOwedConverted
+    : summary.totalOwed;
+
   return (
     <div className="dashboard-kpis">
       <KpiCard
         title="Total adeudado"
-        value={formatCurrency(summary.totalOwed, "ARS")}
+        value={
+          <div className="debt-total-wrapper">
+            <span>{formatCurrency(displayTotal, "ARS")}</span>
+            {hasUSD && (
+              <span className="debt-total-usd">US$ {summary.totalOwedUSD.toFixed(2)}</span>
+            )}
+          </div>
+        }
         icon={<Wallet size={16} />}
         color="danger"
       />

@@ -5,6 +5,8 @@ import {
   Trash2,
   CreditCard,
   CalendarDays,
+  Tv,
+  Plus,
 } from "lucide-react";
 import type { Subscription } from "../../../../shared/types";
 import { formatCurrency, formatShortDate, getBillingCycleLabel, parseAmount } from "../../../../shared/utils/formatters";
@@ -15,6 +17,7 @@ interface SubscriptionTableProps {
   onEdit: (subscription: Subscription) => void;
   onDelete: (id: string) => void;
   onView: (subscription: Subscription) => void;
+  onAdd: () => void;
 }
 
 const AVATAR_COLORS = ["#8B5CF6", "#EC4899", "#3B82F6", "#10B981", "#F59E0B", "#EF4444", "#06B6D4"];
@@ -51,13 +54,18 @@ export const SubscriptionTable: React.FC<SubscriptionTableProps> = ({
   onEdit,
   onDelete,
   onView,
+  onAdd,
 }) => {
   if (subscriptions.length === 0) {
     return (
       <div className="subs-table-empty">
-        <span className="subs-empty-icon">📺</span>
+        <span className="subs-empty-icon"><Tv size={48} /></span>
         <p className="subs-empty-title">Todavía no agregaste suscripciones</p>
         <p className="subs-empty-sub">Agregá tu primera suscripción para empezar a controlar tus gastos</p>
+        <button onClick={onAdd} className="subs-empty-btn">
+          <Plus size={18} />
+          Agregar suscripción
+        </button>
       </div>
     );
   }

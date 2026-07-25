@@ -70,7 +70,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed = false, onToggle, m
       <div className="sidebar-top">
         <div className="sidebar-logo-wrap">
           <Link to="/" className="sidebar-logo">
-            <div className="sidebar-logo-icon">D</div>
+            <img src="/icons/logo.svg" width="28" height="28" alt="Dinerio" className="sidebar-logo-icon" />
             <span className="sidebar-logo-text">Dinerio</span>
           </Link>
         </div>
@@ -128,7 +128,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed = false, onToggle, m
           )}
           <div className="sidebar-profile-info">
             <div className="sidebar-profile-name">{fullName}</div>
-            <div className="sidebar-profile-role">Premium</div>
+            <div className="sidebar-profile-role">Gratis</div>
           </div>
         </button>
 

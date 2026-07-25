@@ -1,7 +1,7 @@
 // frontend/src/features/auth/components/AuthBrand/AuthBrand.tsx
 import React from "react";
 import { motion } from "framer-motion";
-import { Wallet, CheckCircle, TrendingUp, Calendar, FileSpreadsheet } from "lucide-react";
+import { CheckCircle, TrendingUp, Calendar, FileSpreadsheet } from "lucide-react";
 
 export const AuthBrand: React.FC = () => {
   return (
@@ -33,44 +33,17 @@ export const AuthBrand: React.FC = () => {
         }}
       />
 
-      {/* Logo con animación y brillo */}
+      {/* Logo */}
       <motion.div 
         className="auth-brand-logo"
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
         whileHover={{ scale: 1.05 }}
-        transition={{ type: "spring", stiffness: 300 }}
+        transition={{ duration: 0.5 }}
       >
-        <motion.div 
-          className="auth-brand-logo-icon"
-          animate={{
-            boxShadow: [
-              "0 0 20px rgba(99, 102, 241, 0.3)",
-              "0 0 40px rgba(99, 102, 241, 0.6)",
-              "0 0 60px rgba(139, 92, 246, 0.4)",
-              "0 0 20px rgba(99, 102, 241, 0.3)",
-            ]
-          }}
-          transition={{
-            duration: 3,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
-        >
-          <Wallet size={20} />
-        </motion.div>
+        <img src="/icons/logo.svg" width="28" height="28" alt="Dinerio" />
         <motion.span 
           className="auth-brand-logo-text"
-          animate={{
-            textShadow: [
-              "0 0 20px rgba(99, 102, 241, 0)",
-              "0 0 40px rgba(99, 102, 241, 0.2)",
-              "0 0 20px rgba(99, 102, 241, 0)",
-            ]
-          }}
-          transition={{
-            duration: 3,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
         >
           Dinerio
         </motion.span>

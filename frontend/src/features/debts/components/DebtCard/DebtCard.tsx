@@ -1,10 +1,10 @@
 // frontend/src/features/debts/components/DebtCard/DebtCard.tsx
+import { AnimatePresence, motion } from 'framer-motion';
+import { AlertCircle, CheckCircle2, Clock, Pencil, Trash2 } from 'lucide-react';
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { AlertCircle, Clock, CheckCircle2, Pencil, Trash2 } from 'lucide-react';
 import { formatCurrency, formatShortDate, getDaysUntilNextPayment, parseAmount } from '../../../../shared/utils/formatters';
-import type { Debt } from '../../types';
 import '../../../../styles/debts/DebtCard.css';
+import type { Debt } from '../../types';
 
 interface DebtCardProps {
   debt: Debt;
@@ -29,7 +29,7 @@ export const DebtCard: React.FC<DebtCardProps> = ({
   onEdit,
   loading,
 }) => {
-  console.log('DebtCard montado:', debt.id, debt.name);
+  if (typeof import.meta !== 'undefined' && (import.meta as any).env && (import.meta as any).env.DEV) console.debug('DebtCard montado:', debt.id, debt.name);
   const [showPostponeMenu, setShowPostponeMenu] = useState(false);
 
   const days = getDaysUntilNextPayment(debt.due_date);
