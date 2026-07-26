@@ -17,10 +17,10 @@ export const FeatureCard: React.FC<FeatureCardProps> = ({ feature, index = 0 }) 
       </div>
       <h3 className="feature-title">{feature.title}</h3>
       <p className="feature-description">{feature.description}</p>
-      <a href="#" className="feature-link">
+      <button type="button" className="feature-link" aria-label={`Saber más sobre ${feature.title}`}>
         Saber más
         <ArrowRight size={16} />
-      </a>
+      </button>
     </motion.div>
   );
 };

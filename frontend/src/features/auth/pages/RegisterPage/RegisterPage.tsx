@@ -6,6 +6,7 @@ import { AuthBrand } from "../../components/AuthBrand/AuthBrand";
 import { AuthCard } from "../../components/AuthCard/AuthCard";
 import '../../../../styles/auth/auth.css';
 import '../../../../styles/auth/RegisterPage.css';
+import { Link } from 'react-router-dom';
 
 export const RegisterPage: React.FC = () => {
   return (
@@ -21,8 +22,8 @@ export const RegisterPage: React.FC = () => {
           <div className="auth-footer" style={{ marginTop: 0, borderTop: "none", paddingTop: 0 }}>
             <p className="auth-footer-text" style={{ fontSize: "var(--text-xs)" }}>
               Al registrarte, aceptas nuestros{" "}
-              <a href="#" className="auth-footer-link">términos</a> y{" "}
-              <a href="#" className="auth-footer-link">política de privacidad</a>.
+              <Link to="/terms" className="auth-footer-link">términos</Link> y{" "}
+              <Link to="/privacy" className="auth-footer-link">política de privacidad</Link>.
             </p>
           </div>
         </AuthCard>

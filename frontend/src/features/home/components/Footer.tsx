@@ -50,10 +50,19 @@ export const Footer: React.FC = () => {
               <ul>
                 {column.links.map((link) => (
                   <li key={link.label}>
-                    {link.href.startsWith("#") ? (
-                      <a href={link.href}>{link.label}</a>
+                    {link.href && link.href !== '#' ? (
+                      link.href.startsWith("#") ? (
+                        <a href={link.href}>{link.label}</a>
+                      ) : (
+                        <Link to={link.href}>{link.label}</Link>
+                      )
                     ) : (
-                      <Link to={link.href}>{link.label}</Link>
+                      // map placeholder '#' to reasonable internal routes when possible
+                      (link.label.toLowerCase().includes('privacidad') && <Link to="/privacy">{link.label}</Link>) ||
+                      (link.label.toLowerCase().includes('términ') && <Link to="/terms">{link.label}</Link>) ||
+                      (link.label.toLowerCase().includes('ayuda') && <Link to="/help">{link.label}</Link>) ||
+                      (link.label.toLowerCase().includes('contact') && <Link to="/contact">{link.label}</Link>) ||
+                      <button type="button" className="footer-link-placeholder">{link.label}</button>
                     )}
                   </li>
                 ))}
@@ -84,9 +93,9 @@ export const Footer: React.FC = () => {
         <div className="footer-bottom">
           <p>© {currentYear} Dinerio. Todos los derechos reservados.</p>
           <div className="footer-bottom-links">
-            <a href="#">Privacidad</a>
-            <a href="#">Términos</a>
-            <a href="#">Cookies</a>
+            <Link to="/privacy">Privacidad</Link>
+            <Link to="/terms">Términos</Link>
+            <Link to="/cookies">Cookies</Link>
           </div>
         </div>
       </div>
