@@ -5,6 +5,7 @@ import { subscriptionService } from "../../subscriptions/service/subscriptionSer
 import { debtService } from "../../debts/service/debtService";
 import { parseAmount } from "../../../shared/utils/formatters";
 import ExchangeRateService from "../../../shared/services/exchangeRateService";
+import { amountToARS } from '../../../shared/utils/amounts';
 import type { User, Subscription, Debt } from "../../../shared/types";
 
 interface UseBudgetReturn {
@@ -32,7 +33,7 @@ export const useBudget = (selectedMonth?: number, selectedYear?: number): UseBud
   const budget = user?.monthly_budget || 0;
 
   const getMonthlyAmount = (sub: any): number => {
-    const amount = parseAmount(sub.amount);
+    const amount = amountToARS(sub);
     const cycle = sub.billing_cycle || 'monthly';
     let monthly = amount;
     if (cycle === 'yearly') monthly = amount / 12;
@@ -55,9 +56,7 @@ export const useBudget = (selectedMonth?: number, selectedYear?: number): UseBud
       if (debt.status !== 'paid' || !debt.paid_at) return total;
       const paidDate = new Date(debt.paid_at);
       if (paidDate.getMonth() + 1 !== month || paidDate.getFullYear() !== year) return total;
-      const amount = debt.currency === 'USD'
-        ? ExchangeRateService.convertUSDToARS(parseAmount(debt.amount), 'tarjeta')
-        : parseAmount(debt.amount);
+      const amount = amountToARS(debt);
       return total + amount;
     }, 0);
     return subsTotal + debtsTotal;

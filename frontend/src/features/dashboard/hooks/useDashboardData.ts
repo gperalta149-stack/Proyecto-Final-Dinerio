@@ -6,6 +6,7 @@ import type { Subscription, DashboardStats } from "../types";
 import type { Debt } from "../../../shared/types";
 import { formatCurrency, parseAmount } from "../../../shared/utils/formatters";
 import ExchangeRateService from "../../../shared/services/exchangeRateService";
+import { amountToARS } from '../../../shared/utils/amounts';
 
 export function useDashboardData(stats: DashboardStats | null, subscriptions: Subscription[]) {
   const [monthlyEvolution, setMonthlyEvolution] = useState<MonthlyEvolutionData[]>([]);
@@ -33,8 +34,7 @@ export function useDashboardData(stats: DashboardStats | null, subscriptions: Su
           return paidDate >= startOfMonth && paidDate < endOfMonth;
         });
         const total = paidThisMonth.reduce((sum: number, d: Debt) => {
-          const amount = parseAmount(d.amount);
-          return sum + (d.currency === 'USD' ? ExchangeRateService.convertUSDToARS(amount) : amount);
+          return sum + amountToARS(d);
         }, 0);
         setPaidDebtsTotal(total);
       } catch {
@@ -56,7 +56,7 @@ export function useDashboardData(stats: DashboardStats | null, subscriptions: Su
         return (isThisMonth || isOverdue) && !isFuturePaused;
       })
       .reduce((sum, sub) => {
-        return sum + (sub.arsAmount || parseAmount(sub.amount));
+        return sum + amountToARS(sub);
       }, 0) + paidDebtsTotal;
 
   const activeSubscriptions = subscriptions.filter((s) => s.status === "active").length;
@@ -66,7 +66,7 @@ export function useDashboardData(stats: DashboardStats | null, subscriptions: Su
     const cats: Record<string, number> = {};
     subscriptions.filter(s => s.status === "active").forEach((sub) => {
       const category = sub.category_name || "Otros";
-      const amount = sub.arsAmount || parseAmount(sub.amount);
+      const amount = amountToARS(sub);
       let monthly = amount;
       if (sub.billing_cycle === "yearly") monthly = amount / 12;
       else if (sub.billing_cycle === "quarterly") monthly = amount / 3;
@@ -88,7 +88,7 @@ export function useDashboardData(stats: DashboardStats | null, subscriptions: Su
     [subscriptions]
   );
 
-  const upcomingTotal = upcoming.reduce((sum, sub) => sum + parseAmount(sub.amount), 0);
+  const upcomingTotal = upcoming.reduce((sum, sub) => sum + amountToARS(sub), 0);
   const nextPayment = upcoming.length > 0 ? upcoming[0] : null;
 
   const nextPaymentInfo = useMemo(() => {
