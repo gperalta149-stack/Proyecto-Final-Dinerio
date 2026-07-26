@@ -118,6 +118,8 @@ React → Axios → Express → PostgreSQL
 | Tailwind CSS | ^4.1.17 | Estilos utilitarios |
 | PostCSS | ^8.5.6 | Procesamiento CSS |
 | Autoprefixer | ^10.4.22 | Prefijos CSS |
+| Vitest | ^4.1.10 | Tests unitarios |
+| ESLint | ^10.8.0 | Linter |
 
 ### Backend
 
@@ -133,6 +135,7 @@ React → Axios → Express → PostgreSQL
 | node-cron | ^3.0.3 | Tareas programadas |
 | express-validator | ^7.0.1 | Validación de datos |
 | cors | ^2.8.5 | CORS |
+| ESLint | ^10.8.0 | Linter |
 
 ---
 
@@ -160,7 +163,7 @@ CRUD completo con ciclos semanal, mensual, trimestral y anual. Filtros por estad
 KPIs de gasto mensual, evolución con gráfico de líneas, distribución por categorías (dona interactiva), pagos próximos con alertas de urgencia.
 
 ### Presupuesto
-Configuración de límite mensual con umbral de alerta (1-100%). Barra de progreso, proyección de gasto y gasto diario disponible.
+Configuración de límite por mes/año con umbral de alerta (1-100%). Barra de progreso, proyección de gasto y gasto diario disponible. Al crear una suscripción sin presupuesto definido advierte al usuario.
 
 ### Deudas
 Generación automática desde suscripciones vencidas. Creación manual, pago, posposición (+7 días) y resumen con total adeudado.
@@ -304,6 +307,7 @@ Solicitud → Axios Interceptor → ¿Token? → Sí → Adjunta Bearer → Expr
 erDiagram
     users ||--o{ subscriptions : tiene
     users ||--o{ categories : define
+    users ||--o{ monthly_budgets : establece
     users ||--o{ debts : debe
     users ||--o{ notifications : recibe
     users ||--o{ audit_logs : registra
@@ -315,9 +319,10 @@ erDiagram
 
 | Tabla | Descripción | Columnas clave |
 |-------|-------------|----------------|
-| `users` | Usuarios | email, password (bcrypt), monthly_budget |
+| `users` | Usuarios | email, password (bcrypt) |
 | `categories` | Categorías | name, color, icon, user_id (null = default) |
 | `subscriptions` | Suscripciones | name, amount, currency, billing_cycle, next_billing_date, status |
+| `monthly_budgets` | Presupuesto por mes | user_id, year, month, budget_amount, alert_threshold |
 | `debts` | Deudas | amount, due_date, status (pending/paid) |
 | `notifications` | Notificaciones | type, title, message, is_read |
 | `audit_logs` | Auditoría | action, entity_type, details (JSONB) |
@@ -452,6 +457,26 @@ cd frontend && npm run build && npm run preview
 
 ---
 
+## 🧪 Desarrollo
+
+```bash
+# Frontend
+cd frontend
+npm run dev          # Dev server http://localhost:5173
+npm run lint         # ESLint (0 errores esperados)
+npm test             # Tests unitarios (Vitest)
+npm run test:watch   # Tests en modo watch
+npm run typecheck    # TypeScript check (0 errores esperados)
+
+# Backend
+cd backend
+npm run dev          # Dev server http://localhost:3000 (hot-reload)
+npm run lint         # ESLint (0 errores esperados)
+npm run typecheck    # TypeScript check (0 errores esperados)
+```
+
+---
+
 ## 🌐 API Endpoints
 
 ### Salud
@@ -521,6 +546,14 @@ cd frontend && npm run build && npm run preview
 | PUT | `/api/debts/:id/pay` | Sí | Pagar |
 | PUT | `/api/debts/:id/postpone` | Sí | Posponer |
 | DELETE | `/api/debts/:id` | Sí | Eliminar |
+
+### Presupuesto (`/api/budgets`)
+
+| Método | Endpoint | Auth | Descripción |
+|--------|----------|------|-------------|
+| GET | `/api/budgets/:year/:month` | Sí | Obtener presupuesto del mes |
+| PUT | `/api/budgets/:year/:month` | Sí | Crear o actualizar presupuesto |
+| DELETE | `/api/budgets/:year/:month` | Sí | Eliminar presupuesto del mes |
 
 ### Reportes (`/api/reports`)
 

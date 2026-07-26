@@ -109,6 +109,8 @@ export const getFinancialReport = async (req: AuthRequest, res: Response) => {
       rangeEndTotal = rangeEndYear * 12 + rangeEndMonth
       rangeStartTotal = rangeEndTotal - currentRange + 1
     }
+    const rangeStartYear = Math.floor(rangeStartTotal / 12) || 1
+    const rangeStartMonth = rangeStartTotal % 12 || 12
 
     // --- Get all categories ---
     const allCategories = await pool.query(
@@ -196,6 +198,42 @@ export const getFinancialReport = async (req: AuthRequest, res: Response) => {
       if (count > 0) catAcc[catId].subCount++
     }
 
+    // --- Add paid debts within range ---
+    const debtParams: any[] = [req.user!.userId]
+    let debtDateFilter = ""
+    if (isDateMode) {
+      debtDateFilter = `AND EXTRACT(MONTH FROM d.paid_at) = $2 AND EXTRACT(YEAR FROM d.paid_at) = $3`
+      debtParams.push(rangeEndMonth, rangeEndYear)
+    } else {
+      debtDateFilter = `AND d.paid_at >= $2::date AND d.paid_at < ($3::date + interval '1 month')`
+      debtParams.push(
+        `${rangeStartYear}-${String(rangeStartMonth).padStart(2, "0")}-01`,
+        `${rangeEndYear}-${String(rangeEndMonth).padStart(2, "0")}-01`,
+      )
+    }
+
+    const debtResult = await pool.query(
+      `SELECT
+        d.category_id,
+        COALESCE(SUM(CASE WHEN d.currency = 'USD' THEN d.amount ELSE 0 END), 0) as debt_total_usd,
+        COALESCE(SUM(CASE WHEN d.currency = 'ARS' THEN d.amount ELSE 0 END), 0) as debt_total_ars
+      FROM debts d
+      WHERE d.user_id = $1
+        AND d.status = 'paid'
+        ${debtDateFilter}
+      GROUP BY d.category_id`,
+      debtParams
+    )
+
+    for (const debt of debtResult.rows) {
+      if (!debt.category_id) continue
+      const acc = catAcc[debt.category_id]
+      if (acc) {
+        acc.usd += Number(debt.debt_total_usd)
+        acc.ars += Number(debt.debt_total_ars)
+      }
+    }
+
     // --- Build final by_category array ---
     const categoryRows = allCategories.rows
       .map((cat: any) => {
@@ -205,14 +243,21 @@ export const getFinancialReport = async (req: AuthRequest, res: Response) => {
           name: cat.name,
           color: cat.color,
           subscription_count: acc ? acc.subCount : 0,
-          monthly_total_usd: acc ? Math.round(acc.usd) : 0,
-          monthly_total_ars: acc ? Math.round(acc.ars) : 0,
+          monthly_total_usd: acc ? Math.round(acc.usd * 100) / 100 : 0,
+          monthly_total_ars: acc ? Math.round(acc.ars * 100) / 100 : 0,
         }
       })
       .filter((r: any) => r.monthly_total_usd !== 0 || r.monthly_total_ars !== 0)
       .sort((a: any, b: any) => (b.monthly_total_ars + b.monthly_total_usd) - (a.monthly_total_ars + a.monthly_total_usd))
 
-    const userResult = await pool.query(`SELECT monthly_budget, currency FROM users WHERE id = $1`, [req.user!.userId])
+    const userResult = await pool.query(
+      `SELECT mb.budget_amount as monthly_budget, u.currency
+       FROM users u
+       LEFT JOIN monthly_budgets mb ON mb.user_id = u.id
+         AND mb.year = $2 AND mb.month = $3
+       WHERE u.id = $1`,
+      [req.user!.userId, rangeEndYear, rangeEndMonth]
+    )
 
     // Get subscriptions - filtrado por mes/rango
     const subsParams: any[] = [req.user!.userId]
@@ -294,7 +339,7 @@ export const getMonthlyEvolution = async (req: AuthRequest, res: Response) => {
     const result = await pool.query(
       `SELECT amount, currency, billing_cycle, start_date, next_billing_date, status
         FROM subscriptions
-        WHERE user_id = $1 AND status = 'active'`,
+        WHERE user_id = $1 AND status IN ('active', 'cancelled')`,
       [req.user!.userId]
     );
 
@@ -306,18 +351,20 @@ export const getMonthlyEvolution = async (req: AuthRequest, res: Response) => {
     const subscriptionCounts = Array(12).fill(0);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
+    const todayMonth = today.getMonth();
+    const todayYear = today.getFullYear();
 
     for (const row of result.rows) {
       const start = new Date(row.start_date);
       if (start.getFullYear() > targetYear) continue;
 
+      const isCancelled = row.status === 'cancelled';
       const cycle = row.billing_cycle;
       const cycles = getCycleMonths(cycle);
       const amount = Number(row.amount);
       const payAmount = paymentAmount(amount, row.currency);
       const isUSD = row.currency === 'USD';
 
-      // Raw monthly amount per currency (billing-cycle-adjusted)
       let monthlyRaw = amount;
       if (cycle === 'yearly') monthlyRaw = amount / 12;
       else if (cycle === 'quarterly') monthlyRaw = amount / 3;
@@ -325,8 +372,7 @@ export const getMonthlyEvolution = async (req: AuthRequest, res: Response) => {
 
       const next = new Date(row.next_billing_date);
 
-      // Find the first payment month in targetYear
-      let cursor = new Date(next);
+      const cursor = new Date(next);
       while (cursor.getFullYear() > targetYear) {
         cursor.setMonth(cursor.getMonth() - cycles);
       }
@@ -335,22 +381,45 @@ export const getMonthlyEvolution = async (req: AuthRequest, res: Response) => {
       }
       if (cursor.getFullYear() !== targetYear) continue;
 
-      // First payment month in targetYear
       const firstMonth = cursor.getMonth();
-
       const isPaid = next <= today;
 
-      if (cycle === "monthly" || cycle === "weekly") {
+      if (isCancelled) {
+        if (firstMonth > todayMonth && targetYear >= todayYear) continue;
         monthlyTotals[firstMonth] += payAmount;
         if (isUSD) {
           monthlyTotalsUSD[firstMonth] += monthlyRaw;
-          if (isPaid) monthlyPaidUSD[firstMonth] += monthlyRaw;
+          monthlyPaidUSD[firstMonth] += monthlyRaw;
         } else {
           monthlyTotalsARS[firstMonth] += monthlyRaw;
-          if (isPaid) monthlyPaidARS[firstMonth] += monthlyRaw;
+          monthlyPaidARS[firstMonth] += monthlyRaw;
         }
         subscriptionCounts[firstMonth]++;
+      } else if (cycle === "monthly" || cycle === "weekly") {
+        for (let m = firstMonth; m < 12; m++) {
+          monthlyTotals[m] += payAmount;
+          if (isUSD) {
+            monthlyTotalsUSD[m] += monthlyRaw;
+            if (isPaid) monthlyPaidUSD[m] += monthlyRaw;
+          } else {
+            monthlyTotalsARS[m] += monthlyRaw;
+            if (isPaid) monthlyPaidARS[m] += monthlyRaw;
+          }
+          subscriptionCounts[m]++;
+        }
       } else if (cycle === "yearly") {
+        const monthlyPay = payAmount / 12;
+        for (let m = firstMonth; m < 12; m++) {
+          monthlyTotals[m] += monthlyPay;
+          if (isUSD) {
+            monthlyTotalsUSD[m] += monthlyRaw;
+            if (isPaid) monthlyPaidUSD[m] += monthlyRaw;
+          } else {
+            monthlyTotalsARS[m] += monthlyRaw;
+            if (isPaid) monthlyPaidARS[m] += monthlyRaw;
+          }
+          subscriptionCounts[m]++;
+        }
         monthlyTotals[firstMonth] += payAmount;
         if (isUSD) {
           monthlyTotalsUSD[firstMonth] += monthlyRaw;

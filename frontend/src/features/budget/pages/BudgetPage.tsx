@@ -1,7 +1,7 @@
 // frontend/src/features/budget/pages/BudgetPage.tsx
 import React, { useState } from "react";
 import { Calendar, ChevronLeft, ChevronRight, Wallet, PiggyBank, CreditCard } from "lucide-react";
-import { parseAmount } from "../../../shared/utils/formatters";
+import { parseAmount, getBillingCycleLabel } from "../../../shared/utils/formatters";
 import { BudgetKPIs } from "../components/BudgetKPIs/BudgetKPIs";
 import { BudgetProgress } from "../components/BudgetProgress/BudgetProgress";
 import { BudgetModal } from "../components/BudgetModal/BudgetModal";
@@ -133,7 +133,7 @@ export const BudgetPage: React.FC = () => {
                       <div key={sub.id} className="budget-subscriptions-item">
                         <div className="budget-subscriptions-item-left">
                           <span className="budget-subscriptions-item-name">{sub.name}</span>
-                          <span className="budget-subscriptions-item-cycle">{sub.billing_cycle}</span>
+                          <span className="budget-subscriptions-item-cycle">{getBillingCycleLabel(sub.billing_cycle)}</span>
                         </div>
                         <span className="budget-subscriptions-item-amount">
                           ${parseAmount(sub.amount).toLocaleString('es-AR', { minimumFractionDigits: 2 })}

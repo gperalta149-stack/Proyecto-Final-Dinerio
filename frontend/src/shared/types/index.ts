@@ -26,6 +26,18 @@ export interface UserSettings {
   notifications_enabled: boolean;
 }
 
+// ===== PRESUPUESTO MENSUAL =====
+export interface MonthlyBudget {
+  id: string;
+  user_id: string;
+  year: number;
+  month: number;
+  budget_amount: number;
+  alert_threshold: number;
+  created_at?: string;
+  updated_at?: string;
+}
+
 // ===== SUSCRIPCIONES (Base) =====
 export interface Subscription {
   id: string;
@@ -135,6 +147,7 @@ export interface Debt {
   currency: string;
   due_date: string;
   status: 'pending' | 'paid';
+  amount_ars?: number | null;
   notes?: string | null;
   paid_at?: string | null;
   created_at: string;

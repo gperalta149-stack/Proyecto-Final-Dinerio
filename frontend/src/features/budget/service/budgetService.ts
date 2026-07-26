@@ -1,26 +1,21 @@
-// frontend/src/features/budget/service/budgetService.ts
 import api from '../../../shared/services/api';
-import type { User } from '../../../shared/types';
+import type { MonthlyBudget } from '../../../shared/types';
 
 export const budgetService = {
-  async getBudget(): Promise<{ budget: number; alertThreshold: number }> {
-    const response = await api.get('/users/profile');
-    return {
-      budget: response.data.user.monthly_budget || 0,
-      alertThreshold: response.data.user.alert_threshold || 80,
-    };
+  async getBudgetForMonth(year: number, month: number): Promise<MonthlyBudget | null> {
+    const response = await api.get(`/budgets/${year}/${month}`);
+    return response.data.budget;
   },
 
-  async updateBudget(budget: number): Promise<User> {
-    const response = await api.put('/users/profile', {
-      monthly_budget: budget,
+  async upsertBudget(year: number, month: number, budget_amount: number, alert_threshold: number = 80): Promise<MonthlyBudget> {
+    const response = await api.put(`/budgets/${year}/${month}`, {
+      budget_amount,
+      alert_threshold,
     });
-    return response.data.user;
+    return response.data.budget;
   },
 
-  async updateAlertThreshold(threshold: number): Promise<void> {
-    await api.put('/users/profile', {
-      alert_threshold: threshold,
-    });
+  async deleteBudget(year: number, month: number): Promise<void> {
+    await api.delete(`/budgets/${year}/${month}`);
   },
 };

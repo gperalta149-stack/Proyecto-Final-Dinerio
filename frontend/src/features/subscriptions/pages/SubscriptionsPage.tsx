@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useToast } from "../../../shared/hooks/useToast";
-import { Search, CreditCard, Calendar, Wallet, Layers, PauseCircle, CheckCircle, AlertTriangle, Trash2, X } from "lucide-react";
+import { Search, CreditCard, Calendar, Wallet, Layers, PauseCircle, CheckCircle, AlertTriangle, Trash2, X, DollarSign } from "lucide-react";
 import { SubscriptionHeader } from "../components/SubscriptionHeader/SubscriptionHeader";
 import { SubscriptionTabs, type FilterKey } from "../components/SubscriptionTabs/SubscriptionTabs";
 import { SubscriptionTable } from "../components/SubscriptionTable/SubscriptionTable";
@@ -9,8 +9,11 @@ import { ViewSubscriptionModal } from "../components/ViewSubscriptionModal/ViewS
 import { KpiCard } from "../../../shared/components/ui/KpiCard";
 import { subscriptionService } from "../service/subscriptionService";
 import { categoryService } from "../../categories/service/categoryService";
+import { debtService } from "../../debts/service/debtService";
+import { budgetService } from "../../budget/service/budgetService";
 import { parseAmount, formatCurrency } from "../../../shared/utils/formatters";
-import type { Subscription, Category } from "../../../shared/types";
+import ExchangeRateService from "../../../shared/services/exchangeRateService";
+import type { Subscription, Category, Debt } from "../../../shared/types";
 import '../../../styles/subscriptions/subscriptions.css';
 
 type SortKey = "name" | "amount-desc" | "amount-asc" | "next-payment" | "newest";
@@ -29,17 +32,36 @@ export const SubscriptionsPage: React.FC = () => {
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [subscriptionPage, setSubscriptionPage] = useState(0);
+  const [paidDebtsTotal, setPaidDebtsTotal] = useState(0);
+  const [paidDebtsCount, setPaidDebtsCount] = useState(0);
+  const [showBudgetWarning, setShowBudgetWarning] = useState(false);
   const perPage = 5;
 
   const loadAll = async () => {
     try {
       setLoading(true);
-      const [subsData, catsData] = await Promise.all([
+      const [subsData, catsData, debtsData] = await Promise.all([
         subscriptionService.getAll("all"),
         categoryService.getAll().catch(() => [] as Category[]),
+        debtService.getAll(),
       ]);
       setSubscriptions(subsData);
       setCategories(catsData);
+
+      const today = new Date();
+      const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+      const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+      const paidThisMonth = debtsData.filter((d: Debt) => {
+        if (d.status !== 'paid' || !d.paid_at) return false;
+        const paidDate = new Date(d.paid_at);
+        return paidDate >= startOfMonth && paidDate < endOfMonth;
+      });
+      const total = paidThisMonth.reduce((sum: number, d: Debt) => {
+        const amount = parseAmount(d.amount);
+        return sum + (d.currency === 'USD' ? ExchangeRateService.convertUSDToARS(amount) : amount);
+      }, 0);
+      setPaidDebtsTotal(total);
+      setPaidDebtsCount(paidThisMonth.length);
     } catch (error) {
       console.error("Error loading subscriptions:", error);
     } finally {
@@ -49,7 +71,23 @@ export const SubscriptionsPage: React.FC = () => {
 
   useEffect(() => { loadAll(); }, []);
 
-  const handleCreate = () => { setEditingSubscription(undefined); setShowModal(true); };
+  const handleCreate = async () => {
+    try {
+      const now = new Date();
+      const budgetData = await budgetService.getBudgetForMonth(now.getFullYear(), now.getMonth() + 1);
+      if (!budgetData || !budgetData.budget_amount || budgetData.budget_amount <= 0) {
+        setShowBudgetWarning(true);
+        return;
+      }
+    } catch { /* if fetch fails, proceed anyway */ }
+    setEditingSubscription(undefined);
+    setShowModal(true);
+  };
+  const handleProceedToCreate = () => {
+    setShowBudgetWarning(false);
+    setEditingSubscription(undefined);
+    setShowModal(true);
+  };
   const handleEdit = (sub: Subscription) => { setEditingSubscription(sub); setShowModal(true); };
   const handleView = (sub: Subscription) => { setViewingSubscription(sub); };
   const { showToast } = useToast();
@@ -94,11 +132,11 @@ export const SubscriptionsPage: React.FC = () => {
   };
 
   const counts = useMemo(() => ({
-    all: subscriptions.length,
+    all: subscriptions.length + paidDebtsCount,
     active: subscriptions.filter(s => s.status === "active").length,
     paused: subscriptions.filter(s => s.status === "paused").length,
-    cancelled: subscriptions.filter(s => s.status === "cancelled").length,
-  }), [subscriptions]);
+    cancelled: subscriptions.filter(s => s.status === "cancelled").length + paidDebtsCount,
+  }), [subscriptions, paidDebtsCount]);
 
   useEffect(() => { setSubscriptionPage(0); }, [filter, search]);
 
@@ -134,14 +172,14 @@ export const SubscriptionsPage: React.FC = () => {
 
     return subscriptions
       .filter((sub) => {
+        if (sub.status !== 'active') return false;
         const billingDate = new Date(sub.next_billing_date);
         const isThisMonth = billingDate.getMonth() === currentMonth && billingDate.getFullYear() === currentYear;
         const isOverdue = billingDate.getTime() < new Date(currentYear, currentMonth, 1).getTime();
-        const isFuturePaused = sub.status === "paused" && (billingDate.getFullYear() > currentYear || (billingDate.getFullYear() === currentYear && billingDate.getMonth() > currentMonth));
-        return (isThisMonth || isOverdue) && !isFuturePaused;
+        return isThisMonth || isOverdue;
       })
-      .reduce((sum, sub) => sum + (sub.arsAmount || parseAmount(sub.amount)), 0);
-  }, [subscriptions]);
+      .reduce((sum, sub) => sum + (sub.arsAmount || parseAmount(sub.amount)), 0) + paidDebtsTotal;
+  }, [subscriptions, paidDebtsTotal]);
 
   const nextPayment = useMemo(() => {
     const active = subscriptions.filter(s => s.status === "active").sort((a, b) => new Date(a.next_billing_date).getTime() - new Date(b.next_billing_date).getTime());
@@ -245,7 +283,7 @@ export const SubscriptionsPage: React.FC = () => {
               onEdit={handleEdit}
               onDelete={handleDelete}
               onView={handleView}
-              onAdd={() => setShowModal(true)}
+              onAdd={handleCreate}
             />
             {filtered.length > perPage && (
               <div className="subs-pages">
@@ -316,6 +354,32 @@ export const SubscriptionsPage: React.FC = () => {
                 <div className="delete-modal-actions" style={{ display: "flex", gap: "10px", justifyContent: "flex-end" }}>
                   <button className="subs-add-button secondary" onClick={() => setConfirmDeleteId(null)}>Cancelar</button>
                   <button className="subs-add-button danger" onClick={handleConfirmDelete}>Eliminar</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {showBudgetWarning && (
+          <div className="view-modal-overlay" onClick={() => setShowBudgetWarning(false)}>
+            <div className="view-modal delete-modal" onClick={(e) => e.stopPropagation()}>
+              <div className="view-modal-header">
+                <div className="view-modal-title">
+                  <div className="view-modal-icon" style={{ background: "rgba(234, 179, 8, 0.14)", color: "#eab308" }}><DollarSign size={20} /></div>
+                  <div className="view-modal-title-text">
+                    <h2>Sin presupuesto mensual</h2>
+                    <span>Te recomendamos configurar uno</span>
+                  </div>
+                </div>
+                <button className="view-modal-close" onClick={() => setShowBudgetWarning(false)}><X size={18} /></button>
+              </div>
+              <div className="view-modal-body">
+                <p style={{ color: "var(--subs-text-secondary)", fontSize: "0.95rem", margin: "0 0 20px", lineHeight: "1.5" }}>
+                  No tenés un presupuesto mensual configurado. Te recomendamos agregar uno para controlar mejor tus gastos antes de crear una nueva suscripción.
+                </p>
+                <div className="delete-modal-actions" style={{ display: "flex", gap: "10px", justifyContent: "flex-end" }}>
+                  <button className="subs-add-button secondary" onClick={() => setShowBudgetWarning(false)}>Cancelar</button>
+                  <button className="subs-add-button" onClick={handleProceedToCreate}>Crear de todas formas</button>
                 </div>
               </div>
             </div>

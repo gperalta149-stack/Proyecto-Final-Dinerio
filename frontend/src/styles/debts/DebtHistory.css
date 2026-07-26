@@ -219,9 +219,17 @@
 
 .debt-history-right {
   display: flex;
-  align-items: center;
-  gap: 16px;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
   flex-shrink: 0;
+}
+
+.debt-history-amounts {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 1px;
 }
 
 .debt-history-amount {
@@ -231,30 +239,58 @@
   font-variant-numeric: tabular-nums;
 }
 
+.debt-history-amount-ars {
+  font-size: 0.75rem;
+  color: var(--debt-text-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+
 .debt-history-date {
   font-size: 0.75rem;
   color: var(--debt-text-tertiary);
   white-space: nowrap;
 }
 
-.debt-history-toggle {
-  display: block;
-  width: 100%;
+.debt-history-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
   margin-top: 12px;
-  padding: 10px;
-  background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 8px;
-  color: var(--debt-text-secondary);
-  font-size: 0.85rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  font-family: inherit;
 }
 
-.debt-history-toggle:hover {
+.debt-history-page-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+  padding: 0 6px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  color: var(--debt-text-secondary);
+  font-size: 0.8rem;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.debt-history-page-btn:hover:not(:disabled) {
   border-color: var(--debt-accent-1);
   color: var(--debt-text-primary);
+}
+
+.debt-history-page-btn.active {
+  background: var(--debt-accent-1);
+  border-color: var(--debt-accent-1);
+  color: #fff;
+  font-weight: 600;
+}
+
+.debt-history-page-btn:disabled {
+  opacity: 0.3;
+  cursor: default;
 }
 
 @media (max-width: 768px) {
@@ -284,8 +320,12 @@
 
   .debt-history-right {
     width: 100%;
-    justify-content: space-between;
+    align-items: flex-start;
     padding-left: 26px;
+  }
+
+  .debt-history-amounts {
+    align-items: flex-start;
   }
 }
 

@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { reportService } from "../../reports/service/reportService";
 import { debtService } from "../../debts/service/debtService";
+import { budgetService } from "../../budget/service/budgetService";
 import type { MonthlyEvolutionData } from "../../reports/service/reportService";
 import type { Subscription, DashboardStats } from "../types";
 import type { Debt } from "../../../shared/types";
@@ -11,6 +12,7 @@ export function useDashboardData(stats: DashboardStats | null, subscriptions: Su
   const [monthlyEvolution, setMonthlyEvolution] = useState<MonthlyEvolutionData[]>([]);
   const [evolutionLoading, setEvolutionLoading] = useState(true);
   const [paidDebtsTotal, setPaidDebtsTotal] = useState(0);
+  const [budgetAmount, setBudgetAmount] = useState(0);
 
   const today = new Date();
   const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
@@ -21,11 +23,14 @@ export function useDashboardData(stats: DashboardStats | null, subscriptions: Su
       try {
         setEvolutionLoading(true);
         const currentYear = new Date().getFullYear();
-        const [data, debtsData] = await Promise.all([
+        const currentMonth = new Date().getMonth() + 1;
+        const [data, debtsData, budgetData] = await Promise.all([
           reportService.getMonthlyEvolution(currentYear),
           debtService.getAll(),
+          budgetService.getBudgetForMonth(currentYear, currentMonth),
         ]);
         setMonthlyEvolution(data.monthlyEvolution || []);
+        setBudgetAmount(budgetData?.budget_amount || 0);
 
         const paidThisMonth = debtsData.filter((d: Debt) => {
           if (d.status !== 'paid' || !d.paid_at) return false;
@@ -49,11 +54,11 @@ export function useDashboardData(stats: DashboardStats | null, subscriptions: Su
   const totalMonthly =
     subscriptions
       .filter(sub => {
+        if (sub.status !== 'active') return false;
         const paymentDate = new Date(sub.next_billing_date);
         const isThisMonth = paymentDate >= startOfMonth && paymentDate < endOfMonth;
         const isOverdue = paymentDate < startOfMonth;
-        const isFuturePaused = sub.status === "paused" && paymentDate >= endOfMonth;
-        return (isThisMonth || isOverdue) && !isFuturePaused;
+        return isThisMonth || isOverdue;
       })
       .reduce((sum, sub) => {
         return sum + (sub.arsAmount || parseAmount(sub.amount));
@@ -64,7 +69,7 @@ export function useDashboardData(stats: DashboardStats | null, subscriptions: Su
 
   const topCategory = useMemo(() => {
     const cats: Record<string, number> = {};
-    subscriptions.filter(s => s.status === "active").forEach((sub) => {
+    subscriptions.forEach((sub) => {
       const category = sub.category_name || "Otros";
       const amount = sub.arsAmount || parseAmount(sub.amount);
       let monthly = amount;
@@ -101,7 +106,7 @@ export function useDashboardData(stats: DashboardStats | null, subscriptions: Su
     return { text: `Faltan ${days} días`, color: "#3b82f6" };
   }, [nextPayment]);
 
-  const budget = stats?.monthlyBudget || 0;
+  const budget = budgetAmount || stats?.monthlyBudget || 0;
   const budgetPercentage = budget > 0 ? (totalMonthly / budget) * 100 : 0;
 
   const evolutionData = useMemo(() => {

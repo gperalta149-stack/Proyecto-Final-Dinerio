@@ -9,6 +9,7 @@
     "start": "node dist/server.js",
     "dev": "tsx watch src/server.ts",
     "typecheck": "tsc --noEmit",
+    "lint": "eslint src --max-warnings 200",
     "db:seed": "psql -h localhost -U postgres -d SubTrack_db -f db/seedData.sql",
     "seed": "tsx scripts/seed.ts",
     "db:reset": "npm run db:seed"

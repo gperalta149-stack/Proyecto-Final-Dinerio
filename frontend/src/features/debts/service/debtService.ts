@@ -35,8 +35,8 @@ export const debtService = {
     return response.data.debt;
   },
 
-  async markAsPaid(id: string, payment_method?: string): Promise<void> {
-    await api.put(`/debts/${id}/pay`, { payment_method });
+  async markAsPaid(id: string, payment_method?: string, amount_ars?: number): Promise<void> {
+    await api.put(`/debts/${id}/pay`, { payment_method, amount_ars });
   },
 
   async postpone(id: string, days: number = 7): Promise<void> {

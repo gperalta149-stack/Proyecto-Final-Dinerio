@@ -1,14 +1,14 @@
 // frontend/src/features/budget/hooks/useBudget.ts
 import { useState, useEffect, useMemo } from "react";
-import { userService } from "../../auth/service/userService";
 import { subscriptionService } from "../../subscriptions/service/subscriptionService";
 import { debtService } from "../../debts/service/debtService";
+import { budgetService } from "../service/budgetService";
 import { parseAmount } from "../../../shared/utils/formatters";
 import ExchangeRateService from "../../../shared/services/exchangeRateService";
-import type { User, Subscription, Debt } from "../../../shared/types";
+import type { MonthlyBudget, Subscription, Debt } from "../../../shared/types";
 
 interface UseBudgetReturn {
-  user: User | null;
+  monthlyBudget: MonthlyBudget | null;
   budget: number;
   alertThreshold: number;
   spent: number;
@@ -23,13 +23,13 @@ interface UseBudgetReturn {
 }
 
 export const useBudget = (selectedMonth?: number, selectedYear?: number): UseBudgetReturn => {
-  const [user, setUser] = useState<User | null>(null);
+  const [monthlyBudget, setMonthlyBudget] = useState<MonthlyBudget | null>(null);
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
   const [debts, setDebts] = useState<Debt[]>([]);
   const [alertThreshold, setAlertThreshold] = useState(80);
   const [loading, setLoading] = useState(true);
 
-  const budget = user?.monthly_budget || 0;
+  const budget = monthlyBudget?.budget_amount || 0;
 
   const getMonthlyAmount = (sub: any): number => {
     const amount = parseAmount(sub.amount);
@@ -44,10 +44,13 @@ export const useBudget = (selectedMonth?: number, selectedYear?: number): UseBud
   const spent = useMemo(() => {
     const month = selectedMonth ?? (new Date().getMonth() + 1);
     const year = selectedYear ?? new Date().getFullYear();
+    const startOfMonth = new Date(year, month - 1, 1);
     const subsTotal = subscriptions.reduce((total, sub) => {
       if (sub.status !== 'active') return total;
       const billingDate = new Date(sub.next_billing_date);
-      if (billingDate.getMonth() + 1 !== month || billingDate.getFullYear() !== year) return total;
+      const isThisMonth = billingDate.getMonth() + 1 === month && billingDate.getFullYear() === year;
+      const isOverdue = billingDate.getTime() < startOfMonth.getTime();
+      if (!isThisMonth && !isOverdue) return total;
       const monthly = getMonthlyAmount(sub);
       return total + monthly;
     }, 0);
@@ -64,14 +67,8 @@ export const useBudget = (selectedMonth?: number, selectedYear?: number): UseBud
   }, [subscriptions, debts, selectedMonth, selectedYear]);
 
   const activeSubscriptions = useMemo(() => {
-    const month = selectedMonth ?? (new Date().getMonth() + 1);
-    const year = selectedYear ?? new Date().getFullYear();
-    return subscriptions.filter(sub => {
-      if (sub.status !== 'active') return false;
-      const billingDate = new Date(sub.next_billing_date);
-      return billingDate.getMonth() + 1 === month && billingDate.getFullYear() === year;
-    });
-  }, [subscriptions, selectedMonth, selectedYear]);
+    return subscriptions.filter(sub => sub.status === 'active');
+  }, [subscriptions]);
 
   const daysRemaining = useMemo(() => {
     const month = selectedMonth ?? (new Date().getMonth() + 1);
@@ -88,14 +85,16 @@ export const useBudget = (selectedMonth?: number, selectedYear?: number): UseBud
   const percentageUsed = budget > 0 ? (spent / budget) * 100 : 0;
   const available = Math.max(budget - spent, 0);
   const dailyAllowance = daysRemaining > 0 ? available / daysRemaining : 0;
-  const projectedSpending = daysRemaining > 0 
-    ? spent + (spent / (30 - daysRemaining)) * daysRemaining 
+  const projectedSpending = daysRemaining > 0
+    ? spent + (spent / (30 - daysRemaining)) * daysRemaining
     : spent;
 
   const updateBudget = async (newBudget: number, threshold: number) => {
     try {
-      await userService.updateBudget(newBudget);
-      setUser(prev => prev ? { ...prev, monthly_budget: newBudget } : null);
+      const month = selectedMonth ?? (new Date().getMonth() + 1);
+      const year = selectedYear ?? new Date().getFullYear();
+      const result = await budgetService.upsertBudget(year, month, newBudget, threshold);
+      setMonthlyBudget(result);
       setAlertThreshold(threshold);
     } catch (error) {
       console.error('Error updating budget:', error);
@@ -107,16 +106,18 @@ export const useBudget = (selectedMonth?: number, selectedYear?: number): UseBud
     const loadData = async () => {
       try {
         setLoading(true);
-        const [userData, subsData, debtsData] = await Promise.all([
-          userService.getProfile(),
+        const month = selectedMonth ?? (new Date().getMonth() + 1);
+        const year = selectedYear ?? new Date().getFullYear();
+        const [budgetData, subsData, debtsData] = await Promise.all([
+          budgetService.getBudgetForMonth(year, month),
           subscriptionService.getAll('all'),
           debtService.getAll(),
         ]);
-        setUser(userData);
+        setMonthlyBudget(budgetData);
         setSubscriptions(subsData);
         setDebts(debtsData);
-        const savedThreshold = localStorage.getItem("alertThreshold");
-        if (savedThreshold) setAlertThreshold(Number.parseFloat(savedThreshold));
+        const threshold = budgetData?.alert_threshold ?? 80;
+        setAlertThreshold(threshold);
       } catch (error) {
         console.error('Error loading budget data:', error);
       } finally {
@@ -124,10 +125,10 @@ export const useBudget = (selectedMonth?: number, selectedYear?: number): UseBud
       }
     };
     loadData();
-  }, []);
+  }, [selectedMonth, selectedYear]);
 
   return {
-    user,
+    monthlyBudget,
     budget,
     alertThreshold,
     spent,

@@ -429,7 +429,11 @@ export const getDashboardStats = async (req: AuthRequest, res: Response): Promis
     `
 
     const upcomingResult = await pool.query(upcomingQuery, [req.user!.userId])
-    const budgetResult = await pool.query("SELECT monthly_budget FROM users WHERE id = $1", [req.user!.userId])
+    const budgetResult = await pool.query(
+      `SELECT budget_amount FROM monthly_budgets
+       WHERE user_id = $1 AND year = EXTRACT(YEAR FROM CURRENT_DATE) AND month = EXTRACT(MONTH FROM CURRENT_DATE)`,
+      [req.user!.userId]
+    )
 
     const debtResult = await pool.query(
       `SELECT
@@ -445,7 +449,7 @@ export const getDashboardStats = async (req: AuthRequest, res: Response): Promis
         monthlyTotal: Number.parseFloat(statsResult.rows[0].monthly_total || 0),
         yearlyTotal: Number.parseFloat(statsResult.rows[0].yearly_total || 0),
         totalSubscriptions: Number.parseInt(statsResult.rows[0].total_subscriptions || 0),
-        monthlyBudget: Number.parseFloat(budgetResult.rows[0].monthly_budget || 0),
+        monthlyBudget: Number.parseFloat(budgetResult.rows[0]?.budget_amount || 0),
         totalDebt: debtResult.rows[0].total,
         pendingDebtCount: debtResult.rows[0].count,
       },

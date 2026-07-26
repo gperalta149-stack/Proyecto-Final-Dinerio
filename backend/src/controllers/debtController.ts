@@ -114,7 +114,7 @@ export const createManualDebt = async (req: AuthRequest, res: Response): Promise
 // ── Marcar como pagada ───────────────────────────────────────
 export const markDebtAsPaid = async (req: AuthRequest, res: Response): Promise<void> => {
   const { id } = req.params;
-  const { payment_method } = req.body;
+  const { payment_method, amount_ars } = req.body;
 
   if (payment_method && !['debito', 'credito', 'billetera_virtual', 'efectivo', 'transferencia'].includes(payment_method)) {
     res.status(400).json({ error: 'Método de pago inválido' });
@@ -124,10 +124,10 @@ export const markDebtAsPaid = async (req: AuthRequest, res: Response): Promise<v
   try {
     const result = await pool.query(
       `UPDATE debts
-        SET status = 'paid', payment_method = $1, paid_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP
-        WHERE id = $2 AND user_id = $3
+        SET status = 'paid', payment_method = $1, amount_ars = $2, paid_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP
+        WHERE id = $3 AND user_id = $4
         RETURNING id, subscription_id`,
-      [payment_method || null, id, req.user!.userId]
+      [payment_method || null, amount_ars || null, id, req.user!.userId]
     );
 
     if (result.rows.length === 0) {

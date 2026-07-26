@@ -13,6 +13,7 @@ import { PayDebtModal } from '../components/PayDebtModal/PayDebtModal';
 import { categoryService } from '../../categories/service/categoryService';
 import type { Category } from '../../categories/types';
 import type { Debt } from '../types';
+import ExchangeRateService from '../../../shared/services/exchangeRateService';
 import { getDaysUntilNextPayment } from '../../../shared/utils/formatters';
 import '../../../styles/debts/debts.css';
 
@@ -95,7 +96,11 @@ const [paymentSuccess, setPaymentSuccess] = useState(false);
     if (!payingDebt) return;
     try {
       setActionLoading(true);
-      await markAsPaid(payingDebt.id, paymentMethod);
+      const amount = parseFloat(String(payingDebt.amount));
+      const amountArs = payingDebt.currency === 'USD'
+        ? Math.round(ExchangeRateService.convertUSDToARS(amount, 'tarjeta') * 100) / 100
+        : amount;
+      await markAsPaid(payingDebt.id, paymentMethod, amountArs);
       setPayingDebt(null);
       setPaymentSuccess(true);
     } catch (err) {

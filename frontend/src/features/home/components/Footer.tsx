@@ -2,7 +2,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { Send } from "lucide-react";
-import { FaGithub, FaInstagram, FaLinkedin, FaXTwitter } from "react-icons/fa6";
+import { GitHubIcon, InstagramIcon, LinkedInIcon, XIcon } from "../../../shared/components/ui/icons";
 import { FOOTER_COLUMNS } from "../data/homeData";
 import '../../../styles/home/footer.css';
 
@@ -29,16 +29,16 @@ export const Footer: React.FC = () => {
             </p>
             <div className="footer-social">
               <a href="https://x.com/" target="_blank" rel="noopener noreferrer" className="footer-social-link" aria-label="X (Twitter)">
-                <FaXTwitter size={18} />
+                <XIcon className="w-[18px] h-[18px]" />
               </a>
               <a href="https://linkedin.com/" target="_blank" rel="noopener noreferrer" className="footer-social-link" aria-label="LinkedIn">
-                <FaLinkedin size={18} />
+                <LinkedInIcon className="w-[18px] h-[18px]" />
               </a>
               <a href="https://github.com/" target="_blank" rel="noopener noreferrer" className="footer-social-link" aria-label="GitHub">
-                <FaGithub size={18} />
+                <GitHubIcon className="w-[18px] h-[18px]" />
               </a>
               <a href="https://instagram.com/" target="_blank" rel="noopener noreferrer" className="footer-social-link" aria-label="Instagram">
-                <FaInstagram size={18} />
+                <InstagramIcon className="w-[18px] h-[18px]" />
               </a>
             </div>
           </div>
@@ -68,9 +68,9 @@ export const Footer: React.FC = () => {
               Recibe tips para ahorrar
             </p>
             <div className="footer-newsletter">
-              <input 
-                type="email" 
-                placeholder="tu@email.com" 
+              <input
+                type="email"
+                placeholder="tu@email.com"
                 className="footer-newsletter-input"
               />
               <button className="footer-newsletter-button">

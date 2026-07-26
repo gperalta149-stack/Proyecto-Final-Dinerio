@@ -63,6 +63,7 @@ export interface Debt {
   currency: string
   due_date: Date
   status: "pending" | "paid"
+  amount_ars?: number | null
   paid_at?: Date | null
   created_at: Date
   updated_at: Date

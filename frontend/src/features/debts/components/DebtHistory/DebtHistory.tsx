@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Search, CheckCircle2, ChevronLeft, ChevronRight } from 'lucide-react';
 import { formatCurrency, formatShortDate, parseAmount } from '../../../../shared/utils/formatters';
@@ -14,12 +14,14 @@ const MONTHS = [
   'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre',
 ];
 
+const PAGE_SIZE = 10;
+
 export const DebtHistory: React.FC<DebtHistoryProps> = ({ debts }) => {
   const today = new Date();
   const [search, setSearch] = useState('');
   const [selectedMonth, setSelectedMonth] = useState(today.getMonth());
   const [selectedYear, setSelectedYear] = useState(today.getFullYear());
-  const [showAll, setShowAll] = useState(false);
+  const [currentPage, setCurrentPage] = useState(0);
 
   const years = useMemo(() => {
     const set = new Set<number>();
@@ -55,7 +57,13 @@ export const DebtHistory: React.FC<DebtHistoryProps> = ({ debts }) => {
     });
   }, [debts, search, selectedMonth, selectedYear]);
 
-  const displayed = showAll ? filtered : filtered.slice(0, 10);
+  useEffect(() => {
+    setCurrentPage(0);
+  }, [search, selectedMonth, selectedYear]);
+
+  const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
+  const start = currentPage * PAGE_SIZE;
+  const displayed = filtered.slice(start, start + PAGE_SIZE);
 
   if (debts.length === 0) {
     return (
@@ -147,9 +155,16 @@ export const DebtHistory: React.FC<DebtHistoryProps> = ({ debts }) => {
                   </div>
                 </div>
                 <div className="debt-history-right">
-                  <span className="debt-history-amount">
-                    {formatCurrency(parseAmount(debt.amount), debt.currency)}
-                  </span>
+                  <div className="debt-history-amounts">
+                    <span className="debt-history-amount">
+                      {formatCurrency(parseAmount(debt.amount), debt.currency)}
+                    </span>
+                    {debt.currency === 'USD' && debt.amount_ars && (
+                      <span className="debt-history-amount-ars">
+                        ≈ {formatCurrency(debt.amount_ars, 'ARS')}
+                      </span>
+                    )}
+                  </div>
                   <span className="debt-history-date">
                     {debt.paid_at ? `Pagada el ${formatShortDate(debt.paid_at)}` : 'Pagada'}
                   </span>
@@ -157,12 +172,32 @@ export const DebtHistory: React.FC<DebtHistoryProps> = ({ debts }) => {
               </motion.div>
             ))}
           </div>
-          {filtered.length > 10 && (
-            <button className="debt-history-toggle" onClick={() => setShowAll(!showAll)}>
-              {showAll
-                ? `Mostrar menos`
-                : `Mostrar las ${filtered.length} pagos`}
-            </button>
+          {totalPages > 1 && (
+            <div className="debt-history-pagination">
+              <button
+                className="debt-history-page-btn"
+                disabled={currentPage === 0}
+                onClick={() => setCurrentPage(currentPage - 1)}
+              >
+                <ChevronLeft size={14} />
+              </button>
+              {Array.from({ length: totalPages }, (_, i) => (
+                <button
+                  key={i}
+                  className={`debt-history-page-btn ${i === currentPage ? 'active' : ''}`}
+                  onClick={() => setCurrentPage(i)}
+                >
+                  {i + 1}
+                </button>
+              ))}
+              <button
+                className="debt-history-page-btn"
+                disabled={currentPage >= totalPages - 1}
+                onClick={() => setCurrentPage(currentPage + 1)}
+              >
+                <ChevronRight size={14} />
+              </button>
+            </div>
           )}
         </>
       )}

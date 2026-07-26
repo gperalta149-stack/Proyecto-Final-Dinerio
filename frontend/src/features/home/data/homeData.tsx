@@ -9,11 +9,11 @@ import {
   PiggyBank,
 } from "lucide-react";
 import {
-  FaGithub,
-  FaInstagram,
-  FaLinkedin,
-  FaXTwitter,
-} from "react-icons/fa6";
+  GitHubIcon,
+  InstagramIcon,
+  LinkedInIcon,
+  XIcon,
+} from "../../../shared/components/ui/icons";
 
 // ============================================
 // NAVEGACIÓN
@@ -31,22 +31,22 @@ export const SOCIAL_LINKS = [
   {
     label: "X",
     href: "https://x.com/",
-    icon: <FaXTwitter size={20} className="icon-glow" />,
+    icon: <XIcon className="icon-glow w-5 h-5" />,
   },
   {
     label: "LinkedIn",
     href: "https://linkedin.com/",
-    icon: <FaLinkedin size={20} className="icon-glow" />,
+    icon: <LinkedInIcon className="icon-glow w-5 h-5" />,
   },
   {
     label: "GitHub",
     href: "https://github.com/",
-    icon: <FaGithub size={20} className="icon-glow" />,
+    icon: <GitHubIcon className="icon-glow w-5 h-5" />,
   },
   {
     label: "Instagram",
     href: "https://instagram.com/",
-    icon: <FaInstagram size={20} className="icon-glow" />,
+    icon: <InstagramIcon className="icon-glow w-5 h-5" />,
   },
 ];
 

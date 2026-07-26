@@ -87,11 +87,14 @@ export class NotificationGeneratorService {
     try {
       console.log("Verificando alertas de presupuesto...")
 
+      const currentYear = new Date().getFullYear()
+      const currentMonth = new Date().getMonth() + 1
+
       const usersExceedingBudget = await pool.query(
         `SELECT
-          u.id as user_id,
-          u.monthly_budget,
-          u.currency,
+          mb.user_id,
+          mb.budget_amount as monthly_budget,
+          COALESCE(u.currency, 'ARS') as currency,
           COALESCE(SUM(
             CASE
               WHEN s.billing_cycle = 'monthly' THEN s.amount
@@ -101,10 +104,11 @@ export class NotificationGeneratorService {
               ELSE s.amount
             END
           ), 0) as monthly_total
-          FROM users u
+          FROM monthly_budgets mb
+          JOIN users u ON mb.user_id = u.id
           LEFT JOIN subscriptions s ON u.id = s.user_id AND s.status = 'active'
-          WHERE u.monthly_budget > 0
-          GROUP BY u.id, u.monthly_budget, u.currency
+          WHERE mb.year = $1 AND mb.month = $2 AND mb.budget_amount > 0
+          GROUP BY mb.user_id, mb.budget_amount, u.currency
           HAVING COALESCE(SUM(
             CASE
               WHEN s.billing_cycle = 'monthly' THEN s.amount
@@ -113,7 +117,8 @@ export class NotificationGeneratorService {
               WHEN s.billing_cycle = 'weekly' THEN s.amount * 4
               ELSE s.amount
             END
-          ), 0) > u.monthly_budget`
+          ), 0) > mb.budget_amount`,
+        [currentYear, currentMonth]
       )
 
       for (const user of usersExceedingBudget.rows) {

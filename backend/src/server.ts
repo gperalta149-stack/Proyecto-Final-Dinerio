@@ -13,6 +13,7 @@ import reportRoutes from "./routes/reports.js"
 import uploadRoutes from "./routes/upload.js"
 import calendarRoutes from "./routes/calendar.js"
 import debtRoutes from "./routes/debts.js"
+import budgetRoutes from "./routes/budgets.js"
 dotenv.config()
 const app = express()
 const PORT = process.env.PORT || 3000
@@ -39,6 +40,7 @@ app.use("/api/reports", reportRoutes)
 app.use("/api/upload", uploadRoutes)
 app.use('/api/calendar', calendarRoutes);
 app.use('/api/debts', debtRoutes);
+app.use('/api/budgets', budgetRoutes);
 // Manejo de errores
 app.use(notFoundHandler)
 app.use(errorHandler)

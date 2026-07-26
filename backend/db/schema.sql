@@ -77,6 +77,7 @@ CREATE TABLE debts (
   due_date DATE NOT NULL,
   status VARCHAR(20) DEFAULT 'pending' CHECK (status IN ('pending', 'paid')),
   payment_method VARCHAR(30) CHECK (payment_method IN ('debito', 'credito', 'billetera_virtual', 'efectivo', 'transferencia')),
+  amount_ars DECIMAL(12,2),
   paid_at TIMESTAMP,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -92,6 +93,18 @@ CREATE TABLE audit_logs (
   ip_address VARCHAR(45),
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+-- Tabla de Presupuestos Mensuales
+CREATE TABLE monthly_budgets (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  year INTEGER NOT NULL,
+  month INTEGER NOT NULL,
+  budget_amount DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+  alert_threshold DECIMAL(5,2) NOT NULL DEFAULT 80.00,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE(user_id, year, month)
+);
 -- Indexes
 CREATE INDEX idx_users_email ON users(email);
 CREATE INDEX idx_subscriptions_user_id ON subscriptions(user_id);
@@ -104,6 +117,8 @@ CREATE INDEX idx_audit_logs_user_id ON audit_logs(user_id);
 CREATE INDEX idx_debts_user_id ON debts(user_id);
 CREATE INDEX idx_debts_status ON debts(status);
 CREATE INDEX idx_debts_subscription_id ON debts(subscription_id);
+CREATE INDEX idx_monthly_budgets_user_id ON monthly_budgets(user_id);
+CREATE INDEX idx_monthly_budgets_year_month ON monthly_budgets(year, month);
 INSERT INTO categories (name, color, icon)
 VALUES
 ('Streaming', '#E50914', '🎬'),
