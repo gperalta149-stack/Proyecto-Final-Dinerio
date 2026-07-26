@@ -124,7 +124,8 @@ class ExchangeRateService {
 
   static convertUSDToARS(amountUSD: number, type: 'oficial' | 'tarjeta' = 'tarjeta'): number {
     const rate = this.currentRates[type];
-    return Math.round(amountUSD * rate);
+    // Return ARS with two decimals (consistent with subscriptionService rounding)
+    return Math.round(amountUSD * rate * 100) / 100;
   }
 
   static getTarjetaRate(): number {
