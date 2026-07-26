@@ -225,15 +225,15 @@ export const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
   };
 
   return (
-    <div className="subs-modal-overlay" onClick={onClose}>
-      <div className="subs-modal" onClick={(e) => e.stopPropagation()}>
+    <div className="subs-modal-overlay" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
+      <div className="subs-modal" role="dialog" aria-modal="true" aria-labelledby="subs-modal-title" onClick={(e) => e.stopPropagation()}>
         <div className="subs-modal-header">
           <div className="subs-modal-header-info">
             <span className="subs-modal-header-icon">
               {isEditing ? <Pencil size={16} /> : <Plus size={18} />}
             </span>
             <div>
-              <h2 className="subs-modal-title">
+              <h2 id="subs-modal-title" className="subs-modal-title">
                 {isEditing ? "Editar suscripción" : "Nueva suscripción"}
               </h2>
               <p className="subs-modal-subtitle">
@@ -315,25 +315,29 @@ export const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
                 required
                 disabled={loading}
               />
-              <div
+              <button
+                type="button"
                 className="subs-currency-trigger"
                 onClick={(e) => { e.stopPropagation(); if (!loading) setShowCurrencyDropdown(!showCurrencyDropdown); }}
+                aria-haspopup="listbox"
+                aria-expanded={showCurrencyDropdown}
               >
                 <span>{formData.currency || 'ARS'}</span>
                 <svg width="10" height="10" viewBox="0 0 20 20" fill="none" style={{ flexShrink: 0, opacity: 0.5 }}>
                   <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="m6 8 4 4 4-4" />
                 </svg>
-              </div>
+              </button>
               {showCurrencyDropdown && (
                 <div className="subs-currency-dropdown" onClick={(e) => e.stopPropagation()}>
                   {CURRENCIES.map((c) => (
-                    <div
+                    <button
                       key={c.value}
+                      type="button"
                       className={`subs-currency-option${formData.currency === c.value ? ' selected' : ''}`}
                       onClick={() => { setField("currency", c.value); setShowCurrencyDropdown(false); }}
                     >
                       <span>{c.label}</span>
-                    </div>
+                    </button>
                   ))}
                 </div>
               )}
@@ -352,9 +356,12 @@ export const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
                 <span className="subs-category-icon" style={{ color: selectedCategory?.color || '#6b6b7b' }}>
                   {selectedCategory ? getCategoryIcon(selectedCategory.name || '') : getCategoryIcon('otros')}
                 </span>
-                <div
+                <button
+                  type="button"
                   className="subs-category-trigger"
                   onClick={(e) => { e.stopPropagation(); if (!loading) setShowCategoryDropdown(!showCategoryDropdown); }}
+                  aria-haspopup="listbox"
+                  aria-expanded={showCategoryDropdown}
                 >
                   <span style={{ color: selectedCategory?.color || 'var(--subs-text-tertiary)' }}>
                     {selectedCategory?.name || "Sin categoría"}
@@ -362,10 +369,11 @@ export const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
                   <svg width="12" height="12" viewBox="0 0 20 20" fill="none" style={{ marginLeft: 'auto', flexShrink: 0, opacity: 0.5 }}>
                     <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="m6 8 4 4 4-4" />
                   </svg>
-                </div>
+                </button>
                 {showCategoryDropdown && (
                   <div className="subs-category-dropdown" onClick={(e) => e.stopPropagation()}>
-                    <div
+                    <button
+                      type="button"
                       className={`subs-category-option${!formData.category_id ? ' selected' : ''}`}
                       onClick={() => { setField("category_id", ""); setShowCategoryDropdown(false); }}
                     >
@@ -373,12 +381,15 @@ export const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
                         {getCategoryIcon('otros')}
                       </span>
                       <span>Sin categoría</span>
-                    </div>
+                    </button>
                     {externalCategories.map((cat) => (
                       <div
                         key={cat.id}
                         className={`subs-category-option${formData.category_id === cat.id ? ' selected' : ''}`}
+                        role="button"
+                        tabIndex={0}
                         onClick={() => { setField("category_id", cat.id); setShowCategoryDropdown(false); }}
+                        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setField("category_id", cat.id); setShowCategoryDropdown(false); } }}
                       >
                         <span className="subs-category-option-icon" style={{ color: cat.color }}>
                           {getCategoryIcon(cat.name || '')}
@@ -400,23 +411,26 @@ export const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
                       </div>
                     ))}
                     <div className="subs-category-divider" />
-                    <div
+                    <button
+                      type="button"
                       className="subs-category-option subs-category-add"
                       onClick={(e) => { e.stopPropagation(); setShowCreateCategory(true); setShowCategoryDropdown(false); }}
+                      aria-label="Crear nueva categoría"
                     >
                       <span className="subs-category-option-icon" style={{ color: 'var(--subs-accent-1)' }}>
                         <Plus size={16} />
                       </span>
                       <span style={{ color: 'var(--subs-accent-1)', fontWeight: 500 }}>Nueva categoría</span>
-                    </div>
+                    </button>
                   </div>
                 )}
               </div>
             </div>
             <div className="subs-form-group">
-              <label className="subs-form-label">Próximo pago <span className="required">*</span></label>
+              <label className="subs-form-label" htmlFor="subs-next-billing-date">Próximo pago <span className="required">*</span></label>
               <div className="subs-date-wrapper">
                 <input
+                  id="subs-next-billing-date"
                   type="date"
                   name="next_billing_date"
                   value={formData.next_billing_date || ""}
@@ -469,10 +483,10 @@ export const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
             </div>
           </div>
 
-          <div className="subs-form-notes-toggle" onClick={() => setShowNotes(!showNotes)}>
+          <button type="button" className="subs-form-notes-toggle" onClick={() => setShowNotes(!showNotes)} aria-expanded={showNotes}>
             <FileText size={14} />
             <span>Agregar Notas (Opcional)</span>
-          </div>
+          </button>
 
           {showNotes && (
             <div className="subs-form-notes-expanded">

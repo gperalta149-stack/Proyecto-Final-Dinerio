@@ -16,10 +16,12 @@ interface SubscriptionTabsProps {
 }
 
 export const SubscriptionTabs: React.FC<SubscriptionTabsProps> = ({ tabs, activeFilter, onFilterChange }) => (
-  <div className="subs-tabs">
+  <div className="subs-tabs" role="tablist" aria-label="Filtros de suscripciones">
     {tabs.map((tab) => (
       <button
         key={tab.key}
+        role="tab"
+        aria-selected={activeFilter === tab.key}
         className={`subs-tab ${activeFilter === tab.key ? "active" : ""}`}
         onClick={() => onFilterChange(tab.key)}
       >
