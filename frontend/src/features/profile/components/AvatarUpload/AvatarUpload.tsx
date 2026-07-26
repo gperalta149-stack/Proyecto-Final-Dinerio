@@ -121,6 +121,16 @@ export const AvatarUpload: React.FC<AvatarUploadProps> = ({ user, onUpdate }) =>
 
         <div
           className={`avatar-dropzone ${isDragging ? 'dragging' : ''}`}
+          role="button"
+          tabIndex={0}
+          aria-label="Subir imagen de perfil"
+          aria-describedby="avatar-dropzone-hint"
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              fileInputRef.current?.click();
+            }
+          }}
           onDrop={handleDrop}
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
@@ -128,7 +138,7 @@ export const AvatarUpload: React.FC<AvatarUploadProps> = ({ user, onUpdate }) =>
         >
           <Upload size={24} />
           <span>Arrastrá una imagen aquí o seleccioná un archivo</span>
-          <span className="avatar-dropzone-hint">JPG, PNG, WEBP · Máximo 5MB</span>
+          <span id="avatar-dropzone-hint" className="avatar-dropzone-hint">JPG, PNG, WEBP · Máximo 5MB</span>
           <input
             type="file"
             ref={fileInputRef}

@@ -124,8 +124,13 @@ export const DebtModal: React.FC<DebtModalProps> = ({
   }, [amount, formData.currency]);
 
   return (
-    <div className="debt-modal-overlay" onClick={onClose}>
-      <div className="debt-modal" onClick={(e) => e.stopPropagation()}>
+    // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions, jsx-a11y/no-static-element-interactions
+    <div
+      className="debt-modal-overlay"
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+    >
+      {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions, jsx-a11y/no-static-element-interactions */}
+      <div className="debt-modal" role="dialog" aria-modal="true" aria-labelledby="debt-modal-title">
         <div className="debt-modal-header">
           <div className="debt-modal-header-info">
             <div className="debt-modal-header-icon">
@@ -136,7 +141,7 @@ export const DebtModal: React.FC<DebtModalProps> = ({
               <p className="debt-modal-subtitle">Completá los datos de la deuda</p>
             </div>
           </div>
-          <button className="debt-modal-close" onClick={onClose}>
+          <button aria-label="Cerrar" className="debt-modal-close" onClick={onClose}>
             <X size={18} />
           </button>
         </div>
@@ -180,17 +185,21 @@ export const DebtModal: React.FC<DebtModalProps> = ({
                   <button
                     type="button"
                     className="debt-modal-currency-trigger"
+                    aria-haspopup="listbox"
+                    aria-expanded={showCurrencyDropdown}
                     onClick={(e) => { e.stopPropagation(); setShowCurrencyDropdown(!showCurrencyDropdown); }}
                   >
                     {selectedCurrency.label}
                     <ChevronDown size={12} />
                   </button>
                   {showCurrencyDropdown && (
-                    <div className="debt-modal-currency-dropdown" onClick={(e) => e.stopPropagation()}>
+                    <div className="debt-modal-currency-dropdown" role="listbox" onClick={(e) => e.stopPropagation()}>
                       {CURRENCIES.map((c) => (
                         <button
                           key={c.value}
                           type="button"
+                          role="option"
+                          aria-selected={formData.currency === c.value}
                           className={`debt-modal-currency-option${formData.currency === c.value ? " selected" : ""}`}
                           onClick={() => { setField("currency", c.value); setShowCurrencyDropdown(false); }}
                         >
@@ -231,6 +240,8 @@ export const DebtModal: React.FC<DebtModalProps> = ({
                 <button
                   type="button"
                   className="debt-modal-category-trigger"
+                  aria-haspopup="listbox"
+                  aria-expanded={showCategoryDropdown}
                   onClick={(e) => { e.stopPropagation(); setShowCategoryDropdown(!showCategoryDropdown); }}
                 >
                   {selectedCategory ? (
@@ -241,9 +252,11 @@ export const DebtModal: React.FC<DebtModalProps> = ({
                   <ChevronDown size={14} className="debt-modal-chevron" />
                 </button>
                 {showCategoryDropdown && (
-                  <div className="debt-modal-category-dropdown" onClick={(e) => e.stopPropagation()}>
+                  <div className="debt-modal-category-dropdown" role="listbox" onClick={(e) => e.stopPropagation()}>
                     <button
                       type="button"
+                      role="option"
+                      aria-selected={!formData.category_id}
                       className={`debt-modal-category-option${!formData.category_id ? " selected" : ""}`}
                       onClick={() => { setField("category_id", ""); setShowCategoryDropdown(false); }}
                     >
@@ -254,6 +267,8 @@ export const DebtModal: React.FC<DebtModalProps> = ({
                       <button
                         key={cat.id}
                         type="button"
+                        role="option"
+                        aria-selected={formData.category_id === cat.id}
                         className={`debt-modal-category-option${formData.category_id === cat.id ? " selected" : ""}`}
                         onClick={() => { setField("category_id", cat.id); setShowCategoryDropdown(false); }}
                       >
@@ -271,6 +286,8 @@ export const DebtModal: React.FC<DebtModalProps> = ({
               type="button"
               className="debt-modal-notes-toggle"
               onClick={() => setShowNotes(!showNotes)}
+              aria-pressed={showNotes}
+              aria-expanded={showNotes}
             >
               <FileText size={14} />
               {showNotes ? "Ocultar notas" : "Notas (opcional)"}

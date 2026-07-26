@@ -40,6 +40,15 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
     }
   }, [category, isOpen]);
 
+  // Close on Escape for accessibility
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onCancel();
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [onCancel]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name.trim()) {
@@ -53,13 +62,18 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="category-form-overlay" onClick={onCancel}>
-      <div className="category-form-modal" onClick={(e) => e.stopPropagation()}>
+    // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions, jsx-a11y/no-static-element-interactions
+    <div
+      className="category-form-overlay"
+      onClick={(e) => { if (e.target === e.currentTarget) onCancel(); }}
+    >
+      {/* eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions, jsx-a11y/no-static-element-interactions */}
+      <div className="category-form-modal" role="dialog" aria-modal="true" aria-labelledby="category-form-title">
         <div className="category-form-header">
           <h3 className="category-form-title">
             {category ? 'Editar Categoría' : 'Nueva Categoría'}
           </h3>
-          <button className="category-form-close" onClick={onCancel} disabled={loading}>
+          <button aria-label="Cerrar" className="category-form-close" onClick={onCancel} disabled={loading}>
             <X size={20} />
           </button>
         </div>
@@ -91,6 +105,8 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
                   }`}
                   style={{ backgroundColor: color }}
                   onClick={() => setFormData(prev => ({ ...prev, color }))}
+                  aria-pressed={formData.color === color}
+                  aria-label={`Seleccionar color ${color}`}
                   disabled={loading}
                 />
               ))}
