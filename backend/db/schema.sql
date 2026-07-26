@@ -77,7 +77,6 @@ CREATE TABLE debts (
   due_date DATE NOT NULL,
   status VARCHAR(20) DEFAULT 'pending' CHECK (status IN ('pending', 'paid')),
   payment_method VARCHAR(30) CHECK (payment_method IN ('debito', 'credito', 'billetera_virtual', 'efectivo', 'transferencia')),
-  amount_ars DECIMAL(12,2),
   paid_at TIMESTAMP,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -104,6 +103,14 @@ CREATE TABLE monthly_budgets (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   UNIQUE(user_id, year, month)
+);
+-- Tabla de Tokens de Reseteo de Contraseña
+CREATE TABLE password_reset_tokens (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  token VARCHAR(255) NOT NULL,
+  expires_at TIMESTAMP NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 -- Indexes
 CREATE INDEX idx_users_email ON users(email);

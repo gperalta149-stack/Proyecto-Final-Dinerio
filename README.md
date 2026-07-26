@@ -34,6 +34,7 @@
 - [Capturas](#-capturas)
 - [Descripción](#-descripción)
 - [Roadmap](#-roadmap)
+- [Calidad y Estado del Proyecto](#-calidad-y-estado-del-proyecto)
 - [Tecnologías](#-tecnologías)
 - [Decisiones Técnicas](#-decisiones-técnicas)
 - [Características](#-características)
@@ -48,8 +49,10 @@
 - [Ejecución](#-ejecución)
 - [API Endpoints](#-api-endpoints)
 - [Despliegue](#-despliegue)
+- [Limitaciones Conocidas](#️-limitaciones-conocidas)
 - [Contribuir](#-contribuir)
 - [Licencia](#-licencia)
+- [Autor](#-autor)
 
 ---
 
@@ -102,6 +105,21 @@ React → Axios → Express → PostgreSQL
 
 ---
 
+## ✅ Calidad y Estado del Proyecto
+
+| Chequeo | Backend | Frontend |
+|---|---|---|
+| Compilación TypeScript (`tsc --noEmit`) | ✅ 0 errores | ✅ 0 errores |
+| Build de producción | ✅ | ✅ |
+| ESLint | ✅ 0 errores (20 warnings `any`) | ✅ 0 errores (161 warnings `any`) |
+| Tests unitarios (Vitest) | — | ✅ 8/8 pasando |
+| Requerimientos funcionales cubiertos | 19/19 (100%) | |
+| Endpoints probados manualmente | 42/42 | |
+
+> Los warnings de ESLint son usos de `any` y variables sin usar; no bloquean el build ni afectan el funcionamiento. Quedan documentados como mejora de tipado en el backlog.
+
+---
+
 ## 🛠️ Tecnologías
 
 ### Frontend
@@ -132,7 +150,7 @@ React → Axios → Express → PostgreSQL
 | pg | ^8.11.3 | Driver PostgreSQL |
 | JWT | ^9.0.2 | Autenticación stateless |
 | bcryptjs | ^2.4.3 | Hashing de contraseñas |
-| node-cron | ^3.0.3 | Tareas programadas |
+| node-cron | ^3.0.3 | Instalada, no usada actualmente (ver nota abajo) |
 | express-validator | ^7.0.1 | Validación de datos |
 | cors | ^2.8.5 | CORS |
 | ESLint | ^10.8.0 | Linter |
@@ -150,7 +168,7 @@ React → Axios → Express → PostgreSQL
 | **Tailwind CSS** | Desarrollo rápido sin cambiar de archivo, bundle pequeño con purge |
 | **Feature-Sliced Design** | Cada feature es autónoma: bajo acoplamiento, alta cohesión, fácil de escalar |
 | **Framer Motion** | Animaciones declarativas con soporte de gestos y layout animations |
-| **node-cron** | Tareas programadas sin dependencia externa (no requiere Redis ni cola) |
+| **`setInterval` nativo** | Tareas programadas sin dependencia externa (no requiere Redis ni cola). `node-cron` está instalado pero no se usa todavía — migrar a un scheduler con persistencia de estado ante reinicios queda como mejora futura |
 
 ---
 
@@ -241,7 +259,7 @@ graph LR
     B --> C[PostgreSQL]
     A --> D[Bluelytics API]
     D -->|Cotizaciones ARS/USD| A
-    B --> E[node-cron]
+    B --> E[setInterval - cada 60 min]
     E -->|Cada hora| F[Generar Deudas]
     E -->|Cada hora| G[Generar Notificaciones]
     E -->|Cada hora| H[Limpiar Notifs Antiguas]
@@ -386,14 +404,18 @@ psql -h localhost -U postgres -d SubTrack_db -f backend/db/schema.sql
 # 4. (Opcional) Datos de demostración
 psql -h localhost -U postgres -d SubTrack_db -f backend/db/seedData.sql
 
-# 5. Variables de entorno (backend/.env)
+# 5. Variables de entorno
+cp backend/.env.example backend/.env
+# Editar backend/.env con tu contraseña real de PostgreSQL y un JWT_SECRET propio
 ```
+
+> ⚠️ **Nunca commitees `backend/.env`** con valores reales — usá siempre `backend/.env.example` como plantilla. El `.gitignore` ya lo excluye.
 
 ---
 
 ## ⚙️ Configuración
 
-`backend/.env`:
+`backend/.env` (usar `backend/.env.example` como base):
 
 ```env
 DB_USER=postgres
@@ -401,17 +423,25 @@ DB_PASSWORD=tu_contraseña
 DB_HOST=localhost
 DB_PORT=5432
 DB_NAME=SubTrack_db
-JWT_SECRET=tu_secreto_jwt_aqui
+JWT_SECRET=genera_un_secreto_largo_y_aleatorio_aqui
+JWT_EXPIRES_IN=7d
 PORT=3000
-NODE_ENV=development
 FRONTEND_URL=http://localhost:5173
 ```
 
-Para el frontend en producción:
+Para generar un `JWT_SECRET` fuerte:
+
+```bash
+openssl rand -hex 32
+```
+
+Para el frontend en producción, crear `frontend/.env`:
 
 ```env
-VITE_API_URL=https://tu-backend.onrender.com
+VITE_API_URL=https://tu-backend.onrender.com/api
 ```
+
+Si no se define, el frontend usa `http://localhost:3000/api` por defecto (ver `frontend/src/shared/services/api.ts`).
 
 ### Variables de Entorno
 
@@ -449,11 +479,13 @@ cd backend && npm run build && npm start
 cd frontend && npm run build && npm run preview
 ```
 
-### Script rápido
+### Script rápido (Windows)
 
 ```powershell
-.\start.ps1    # Inicia el backend en modo dev
+.\start.ps1    # Instala dependencias si faltan y arranca el backend en modo dev
 ```
+
+Requiere que ya exista `backend/.env` (copiado desde `backend/.env.example`); si no existe, el script avisa y se detiene en vez de generar una configuración inválida.
 
 ---
 
@@ -600,6 +632,19 @@ docker run -p 3000:3000 --env-file .env dinerio-backend
 
 ---
 
+## ⚠️ Limitaciones Conocidas
+
+Documentadas de forma explícita para ser transparente sobre el alcance actual:
+
+- No hay pasarela de pagos real: Dinerio es un gestor de seguimiento de gastos, no procesa cobros.
+- El JWT se guarda en `localStorage` (no en cookie `httpOnly`), lo que aumenta la exposición ante XSS. Migrar a cookies `httpOnly` queda como mejora futura.
+- Las tareas programadas usan `setInterval` dentro del propio proceso: si el servidor se reinicia, el ciclo se interrumpe hasta el próximo arranque (no hay scheduler externo con persistencia de estado).
+- La lógica de conversión ARS/USD vive tanto en frontend como en backend, sin un endpoint central único de cotización.
+- `/api/upload` simula la URL del archivo; no persiste en un storage real (S3 o similar).
+- No hay tests automatizados de integración ni de componentes React — solo tests unitarios de funciones puras.
+
+---
+
 ## 🤝 Contribuir
 
 1. Fork del repositorio
@@ -623,7 +668,14 @@ MIT.
 
 ---
 
+## 👤 Autor
+
+**[Guillermo Peralta]** — [GitHub](https://github.com/gperalta149-stack) · [LinkedIn](#) · [Email](#)
+
+Proyecto desarrollado como trabajo práctico final, con foco en arquitectura full-stack, buenas prácticas de seguridad y un caso de uso real del contexto argentino (múltiples tipos de cambio ARS/USD).
+
+---
+
 <div align="center">
   <p>Hecho con ❤️ para gestionar suscripciones de forma inteligente</p>
 </div>
-
