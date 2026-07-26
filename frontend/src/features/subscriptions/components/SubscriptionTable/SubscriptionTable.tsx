@@ -62,7 +62,7 @@ export const SubscriptionTable: React.FC<SubscriptionTableProps> = ({
         <span className="subs-empty-icon"><Tv size={48} /></span>
         <p className="subs-empty-title">Todavía no agregaste suscripciones</p>
         <p className="subs-empty-sub">Agregá tu primera suscripción para empezar a controlar tus gastos</p>
-        <button onClick={onAdd} className="subs-empty-btn">
+        <button onClick={onAdd} className="subs-empty-btn" aria-label="Agregar suscripción">
           <Plus size={18} />
           Agregar suscripción
         </button>
@@ -72,7 +72,7 @@ export const SubscriptionTable: React.FC<SubscriptionTableProps> = ({
 
   return (
     <div className="subs-table-wrapper">
-      <table className="subs-table">
+      <table className="subs-table" role="table" aria-label="Lista de suscripciones">
         <thead>
           <tr>
             <th>Servicio</th>
@@ -137,16 +137,17 @@ export const SubscriptionTable: React.FC<SubscriptionTableProps> = ({
                 </td>
                 <td>
                   <div className="subs-table-actions">
-                    <button className="subs-action-btn" onClick={() => onView(sub)} title="Ver detalle">
+                    <button className="subs-action-btn" onClick={() => onView(sub)} title="Ver detalle" aria-label={`Ver ${sub.name}`}>
                       <Eye size={15} />
                     </button>
-                    <button className="subs-action-btn" onClick={() => onEdit(sub)} title="Editar">
+                    <button className="subs-action-btn" onClick={() => onEdit(sub)} title="Editar" aria-label={`Editar ${sub.name}`}>
                       <Pencil size={15} />
                     </button>
                     <button
                       className="subs-action-btn"
                       onClick={() => onDelete(sub.id)}
                       title="Eliminar"
+                      aria-label={`Eliminar ${sub.name}`}
                     >
                       <Trash2 size={15} />
                     </button>

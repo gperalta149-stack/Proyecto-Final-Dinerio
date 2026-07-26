@@ -76,17 +76,17 @@ export const ViewSubscriptionModal: React.FC<ViewSubscriptionModalProps> = ({ su
   };
 
   return (
-    <div className="view-modal-overlay" onClick={onClose}>
-      <div className="view-modal" onClick={(e) => e.stopPropagation()}>
+    <div className="view-modal-overlay" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
+      <div className="view-modal" role="dialog" aria-modal="true" aria-labelledby="view-sub-modal-title" onClick={(e) => e.stopPropagation()}>
         <div className="view-modal-header">
           <div className="view-modal-title">
             <div className="view-modal-icon"><CreditCard size={20} /></div>
             <div className="view-modal-title-text">
-              <h2>{sub.name}</h2>
+              <h2 id="view-sub-modal-title">{sub.name}</h2>
               <span>{getBillingCycleLabel(sub.billing_cycle)}</span>
             </div>
           </div>
-          <button className="view-modal-close" onClick={onClose}><X size={18} /></button>
+          <button aria-label="Cerrar" className="view-modal-close" onClick={onClose}><X size={18} /></button>
         </div>
         <div className="view-modal-body">
           <table className="view-modal-table">
