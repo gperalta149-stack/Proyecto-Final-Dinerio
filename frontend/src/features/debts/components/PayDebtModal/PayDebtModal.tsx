@@ -34,8 +34,8 @@ export const PayDebtModal: React.FC<PayDebtModalProps> = ({ debt, onConfirm, onC
   };
 
   return (
-    <div className="debt-modal-overlay" onClick={onClose}>
-      <div className="paydebt-modal" onClick={(e) => e.stopPropagation()}>
+    <div className="debt-modal-overlay" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
+      <div className="paydebt-modal" role="dialog" aria-modal="true">
         <div className="debt-modal-header">
           <div className="debt-modal-header-info">
             <div className="paydebt-header-icon">

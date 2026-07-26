@@ -26,7 +26,6 @@ export const CategoriesPage: React.FC = () => {
     clearMessages,
   } = useCategories();
 
-  const totalSpent = categories.reduce((acc, cat) => acc + (cat.monthly_total || 0), 0);
 
   const handleCreate = () => {
     setEditingCategory(null);
@@ -104,7 +103,6 @@ export const CategoriesPage: React.FC = () => {
         {/* Grid de categorías */}
         <CategoryGrid
           categories={categories}
-          totalSpent={totalSpent}
           onEdit={handleEdit}
           onDelete={deleteCategory}
           onAdd={handleCreate}

@@ -10,7 +10,6 @@ import '../../../../styles/categories/CategoryGrid.css';
 
 interface CategoryGridProps {
   categories: Category[];
-  totalSpent: number;
   onEdit: (category: Category) => void;
   onDelete: (categoryId: string) => void;
   onAdd: () => void;
@@ -28,7 +27,6 @@ const COLOR_MAP: Record<string, KpiCardColor> = {
 
 export const CategoryGrid: React.FC<CategoryGridProps> = ({
   categories,
-  totalSpent,
   onEdit,
   onDelete,
   onAdd,
