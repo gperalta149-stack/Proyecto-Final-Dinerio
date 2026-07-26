@@ -44,8 +44,11 @@ export const ProfilePage: React.FC = () => {
 
   if (loading || !user) {
     return (
-      <div className="profile-modal-overlay" onClick={handleClose}>
-        <div className="profile-modal" onClick={e => e.stopPropagation()}>
+      <div
+        className="profile-modal-overlay"
+        onClick={(e) => { if (e.target === e.currentTarget) handleClose(); }}
+      >
+        <div className="profile-modal" role="dialog" aria-modal="true">
           <button className="profile-modal-close" onClick={handleClose} aria-label="Cerrar" type="button">
             <X size={18} />
           </button>
@@ -58,8 +61,11 @@ export const ProfilePage: React.FC = () => {
   }
 
   return (
-    <div className="profile-modal-overlay" onClick={handleClose}>
-      <div className="profile-modal" onClick={e => e.stopPropagation()}>
+    <div
+      className="profile-modal-overlay"
+      onClick={(e) => { if (e.target === e.currentTarget) handleClose(); }}
+    >
+      <div className="profile-modal" role="dialog" aria-modal="true">
         <button className="profile-modal-close" onClick={handleClose} aria-label="Cerrar" type="button">
           <X size={18} />
         </button>

@@ -103,6 +103,8 @@ export const Header: React.FC<HeaderProps> = ({ onMenuToggle, sidebarCollapsed =
             className="header-rate-group" 
             onClick={handleRefresh} 
             role="button" 
+            tabIndex={0}
+            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleRefresh(); } }}
             title="Actualizar cotización"
           >
             {/* Dólar Oficial - Compra y Venta con tendencia */}

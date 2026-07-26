@@ -272,8 +272,12 @@ export const SubscriptionsPage: React.FC = () => {
         )}
 
         {deleteError && (
-          <div className="view-modal-overlay" onClick={closeError}>
-            <div className="view-modal delete-modal" onClick={(e) => e.stopPropagation()}>
+          // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions, jsx-a11y/no-static-element-interactions
+          <div
+            className="view-modal-overlay"
+            onClick={(e) => { if (e.target === e.currentTarget) closeError(); }}
+          >
+            <div className="view-modal delete-modal" role="dialog" aria-modal="true">
               <div className="view-modal-header">
                 <div className="view-modal-title">
                   <div className="view-modal-icon" style={{ background: "rgba(239, 68, 68, 0.14)", color: "#ef4444" }}><AlertTriangle size={20} /></div>
@@ -297,8 +301,12 @@ export const SubscriptionsPage: React.FC = () => {
         )}
 
         {confirmDeleteId && (
-          <div className="view-modal-overlay" onClick={() => setConfirmDeleteId(null)}>
-            <div className="view-modal delete-modal" onClick={(e) => e.stopPropagation()}>
+          // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions, jsx-a11y/no-static-element-interactions
+          <div
+            className="view-modal-overlay"
+            onClick={(e) => { if (e.target === e.currentTarget) setConfirmDeleteId(null); }}
+          >
+            <div className="view-modal delete-modal" role="dialog" aria-modal="true">
               <div className="view-modal-header">
                 <div className="view-modal-title">
                   <div className="view-modal-icon" style={{ background: "rgba(239, 68, 68, 0.14)", color: "#ef4444" }}><Trash2 size={20} /></div>

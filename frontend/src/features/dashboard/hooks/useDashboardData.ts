@@ -28,11 +28,31 @@ export function useDashboardData(stats: DashboardStats | null, subscriptions: Su
         ]);
         setMonthlyEvolution(data.monthlyEvolution || []);
 
+        // Consider paid debts in the month, but exclude debts that are linked to a subscription
+        // that is already included in the subscriptions total (to avoid double-counting).
         const paidThisMonth = debtsData.filter((d: Debt) => {
           if (d.status !== 'paid' || !d.paid_at) return false;
           const paidDate = new Date(d.paid_at);
-          return paidDate >= startOfMonth && paidDate < endOfMonth;
+          if (!(paidDate >= startOfMonth && paidDate < endOfMonth)) return false;
+
+          // If this debt is linked to a subscription that's already counted for the month,
+          // skip it - the subscription total already includes that payment.
+          if (d.subscription_id) {
+            const linkedSub = subscriptions.find((s) => s.id === d.subscription_id);
+            if (linkedSub) {
+              const paymentDate = new Date(linkedSub.next_billing_date);
+              const isThisMonth = paymentDate >= startOfMonth && paymentDate < endOfMonth;
+              const isOverdue = paymentDate < startOfMonth;
+              const isFuturePaused = linkedSub.status === "paused" && paymentDate >= endOfMonth;
+              if ((isThisMonth || isOverdue) && !isFuturePaused) {
+                return false; // the subscription covers this debt payment
+              }
+            }
+          }
+
+          return true;
         });
+
         const total = paidThisMonth.reduce((sum: number, d: Debt) => {
           return sum + amountToARS(d);
         }, 0);

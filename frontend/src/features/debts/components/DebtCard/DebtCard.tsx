@@ -29,7 +29,6 @@ export const DebtCard: React.FC<DebtCardProps> = ({
   onEdit,
   loading,
 }) => {
-  if (typeof import.meta !== 'undefined' && (import.meta as any).env && (import.meta as any).env.DEV) console.debug('DebtCard montado:', debt.id, debt.name);
   const [showPostponeMenu, setShowPostponeMenu] = useState(false);
 
   const days = getDaysUntilNextPayment(debt.due_date);
@@ -44,11 +43,6 @@ export const DebtCard: React.FC<DebtCardProps> = ({
     return 'pending';
   };
 
-  const getStateIcon = () => {
-    if (!isPending) return CheckCircle2;
-    if (isOverdue) return AlertCircle;
-    return Clock;
-  };
 
   const getBadge = () => {
     if (!isPending) return { text: 'Pagada', tone: 'paid' };
@@ -76,7 +70,7 @@ export const DebtCard: React.FC<DebtCardProps> = ({
   };
 
   const badge = getBadge();
-  const StateIcon = getStateIcon();
+  const StateIcon = !isPending ? CheckCircle2 : isOverdue ? AlertCircle : Clock;
   const progress = getProgressInfo();
   const stateClass = getStateClass();
 

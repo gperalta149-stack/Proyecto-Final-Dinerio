@@ -27,6 +27,9 @@ export const PaymentEvent: React.FC<PaymentEventProps> = ({
       <div
         className={`payment-event compact ${statusClass}`}
         onClick={() => onClick?.(event)}
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick?.(event); } }}
+        role="button"
+        tabIndex={0}
         title={`${event.title} - ${formatCurrency(event.amount, event.currency)}`}
         style={{ borderLeft: `3px solid ${accentColor}` }}
       >
@@ -42,6 +45,9 @@ export const PaymentEvent: React.FC<PaymentEventProps> = ({
     <div 
       className={`payment-event expanded ${statusClass}`}
       onClick={() => onClick?.(event)}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick?.(event); } }}
+      role="button"
+      tabIndex={0}
       style={{ borderLeft: `3px solid ${accentColor}` }}
     >
       <div className="payment-event-header">

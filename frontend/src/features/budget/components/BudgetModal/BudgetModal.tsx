@@ -80,10 +80,23 @@ export const BudgetModal: React.FC<BudgetModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="budget-modal-overlay" onClick={onClose}>
-      <div className="budget-modal" onClick={(e) => e.stopPropagation()}>
+    <div
+      className="budget-modal-overlay"
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+      role="button"
+      tabIndex={0}
+      aria-label="Cerrar modal de presupuesto"
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClose(); } }}
+    >
+      <div
+        className="budget-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="budget-modal-title"
+        tabIndex={-1}
+      >
         <div className="budget-modal-header">
-          <h2 className="budget-modal-title">Configurar Presupuesto</h2>
+          <h2 id="budget-modal-title" className="budget-modal-title">Configurar Presupuesto</h2>
           <button className="budget-modal-close" onClick={onClose}>
             <X size={20} />
           </button>

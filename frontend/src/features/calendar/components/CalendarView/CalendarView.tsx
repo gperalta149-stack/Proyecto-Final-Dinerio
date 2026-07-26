@@ -102,6 +102,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
               aria-selected={isSelected}
               className={`calendar-day ${!isCurrentMonth ? 'other-month' : ''} ${isTodayDay ? 'today' : ''} ${isSelected ? 'selected' : ''} ${statusClass}`}
               onClick={() => handleDayClick(day, isCurrentMonth)}
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleDayClick(day, isCurrentMonth); } }}
             >
               <div className="day-number">
                 {day}

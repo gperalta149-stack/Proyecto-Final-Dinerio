@@ -56,6 +56,22 @@ export const useBudget = (selectedMonth?: number, selectedYear?: number): UseBud
       if (debt.status !== 'paid' || !debt.paid_at) return total;
       const paidDate = new Date(debt.paid_at);
       if (paidDate.getMonth() + 1 !== month || paidDate.getFullYear() !== year) return total;
+
+      // Exclude debts that are linked to subscriptions which are already counted for this month
+      if (debt.subscription_id) {
+        const linked = subscriptions.find(s => s.id === debt.subscription_id);
+        if (linked) {
+          const billingDate = new Date(linked.next_billing_date);
+          const isThisMonth = billingDate.getMonth() + 1 === month && billingDate.getFullYear() === year;
+          const isOverdue = billingDate < new Date(year, month - 1, 1);
+          const isFuturePaused = linked.status === 'paused' && billingDate.getMonth() + 1 > month;
+          if (isThisMonth || isOverdue) {
+            // If subscription would be counted for this month, avoid double-counting the linked debt
+            return total;
+          }
+        }
+      }
+
       const amount = amountToARS(debt);
       return total + amount;
     }, 0);
