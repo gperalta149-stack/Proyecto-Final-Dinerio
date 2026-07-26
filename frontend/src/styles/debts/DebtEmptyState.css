@@ -19,7 +19,7 @@
 }
 
 .debt-empty-icon svg {
-  color: var(--debt-text-tertiary);
+  color: var(--debt-accent-1);
 }
 
 .debt-empty-title {

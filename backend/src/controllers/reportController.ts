@@ -109,8 +109,6 @@ export const getFinancialReport = async (req: AuthRequest, res: Response) => {
       rangeEndTotal = rangeEndYear * 12 + rangeEndMonth
       rangeStartTotal = rangeEndTotal - currentRange + 1
     }
-    const rangeStartYear = Math.floor(rangeStartTotal / 12) || 1
-    const rangeStartMonth = rangeStartTotal % 12 || 12
 
     // --- Get all categories ---
     const allCategories = await pool.query(
@@ -196,42 +194,6 @@ export const getFinancialReport = async (req: AuthRequest, res: Response) => {
       if (isUSD) catAcc[catId].usd += total
       else catAcc[catId].ars += total
       if (count > 0) catAcc[catId].subCount++
-    }
-
-    // --- Add paid debts within range ---
-    const debtParams: any[] = [req.user!.userId]
-    let debtDateFilter = ""
-    if (isDateMode) {
-      debtDateFilter = `AND EXTRACT(MONTH FROM d.paid_at) = $2 AND EXTRACT(YEAR FROM d.paid_at) = $3`
-      debtParams.push(rangeEndMonth, rangeEndYear)
-    } else {
-      debtDateFilter = `AND d.paid_at >= $2::date AND d.paid_at < ($3::date + interval '1 month')`
-      debtParams.push(
-        `${rangeStartYear}-${String(rangeStartMonth).padStart(2, "0")}-01`,
-        `${rangeEndYear}-${String(rangeEndMonth).padStart(2, "0")}-01`,
-      )
-    }
-
-    const debtResult = await pool.query(
-      `SELECT
-        d.category_id,
-        COALESCE(SUM(CASE WHEN d.currency = 'USD' THEN d.amount ELSE 0 END), 0) as debt_total_usd,
-        COALESCE(SUM(CASE WHEN d.currency = 'ARS' THEN d.amount ELSE 0 END), 0) as debt_total_ars
-      FROM debts d
-      WHERE d.user_id = $1
-        AND d.status = 'paid'
-        ${debtDateFilter}
-      GROUP BY d.category_id`,
-      debtParams
-    )
-
-    for (const debt of debtResult.rows) {
-      if (!debt.category_id) continue
-      const acc = catAcc[debt.category_id]
-      if (acc) {
-        acc.usd += Number(debt.debt_total_usd)
-        acc.ars += Number(debt.debt_total_ars)
-      }
     }
 
     // --- Build final by_category array ---
@@ -418,14 +380,15 @@ export const getMonthlyEvolution = async (req: AuthRequest, res: Response) => {
       }
     }
 
-    // Sumar deudas al total y a lo pagado por mes
+    // Sumar deudas pagadas al total por mes
     try {
       const debtsResult = await pool.query(
-        `SELECT amount, currency, status,
-                EXTRACT(MONTH FROM COALESCE(paid_at, due_date)) as m,
-                EXTRACT(YEAR FROM COALESCE(paid_at, due_date)) as y
+        `SELECT amount, currency,
+                EXTRACT(MONTH FROM paid_at) as m,
+                EXTRACT(YEAR FROM paid_at) as y
           FROM debts
-          WHERE user_id = $1 AND EXTRACT(YEAR FROM COALESCE(paid_at, due_date)) = $2`,
+          WHERE user_id = $1 AND status = 'paid'
+            AND EXTRACT(YEAR FROM paid_at) = $2`,
         [req.user!.userId, targetYear]
       );
       for (const row of debtsResult.rows) {
@@ -434,17 +397,15 @@ export const getMonthlyEvolution = async (req: AuthRequest, res: Response) => {
           const amt = Number(row.amount);
           if (row.currency === 'USD') {
             monthlyTotalsUSD[m] += amt;
-            monthlyTotals[m] += paymentAmount(amt, 'USD');
-            if (row.status === 'paid') monthlyPaidUSD[m] += amt;
+            monthlyPaidUSD[m] += amt;
           } else {
             monthlyTotalsARS[m] += amt;
-            monthlyTotals[m] += amt;
-            if (row.status === 'paid') monthlyPaidARS[m] += amt;
+            monthlyPaidARS[m] += amt;
           }
         }
       }
     } catch (err) {
-      console.warn('Error al obtener deudas:', err);
+      console.warn('Error al obtener deudas pagadas:', err);
     }
 
     const monthlyData = Array.from({ length: 12 }, (_, i) => ({

@@ -77,7 +77,7 @@ export const login = async (req: AuthRequest, res: Response): Promise<void> => {
 
     if (result.rows.length === 0) {
       console.log("User not found")
-      res.status(401).json({ error: "Invalid credentials" })
+      res.status(401).json({ error: "Contraseña o Email incorrectos, ingréselo nuevamente" })
       return
     }
 
@@ -106,7 +106,7 @@ export const login = async (req: AuthRequest, res: Response): Promise<void> => {
 
     if (!isValidPassword) {
       console.log("Invalid password")
-      res.status(401).json({ error: "Invalid credentials" })
+      res.status(401).json({ error: "Contraseña o Email incorrectos, ingréselo nuevamente" })
       return
     }
 
@@ -216,6 +216,24 @@ export const requestPasswordReset = async (req: AuthRequest, res: Response): Pro
     res.json({ message: "If the email exists, a reset link will be sent" })
   } catch (error) {
     console.error("Password reset request error:", error)
+    res.status(500).json({ error: "Server error" })
+  }
+}
+
+export const checkAvailability = async (req: AuthRequest, res: Response): Promise<void> => {
+  const { email } = req.query
+
+  try {
+    let taken = false
+
+    if (email) {
+      const result = await pool.query("SELECT id FROM users WHERE email = $1", [email])
+      taken = result.rows.length > 0
+    }
+
+    res.json({ available: !taken, taken })
+  } catch (error) {
+    console.error("Check availability error:", error)
     res.status(500).json({ error: "Server error" })
   }
 }

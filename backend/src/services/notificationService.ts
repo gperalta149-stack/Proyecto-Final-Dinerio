@@ -3,69 +3,83 @@ import { pool } from "../config/database.js"
 export class NotificationGeneratorService {
   static async generatePaymentReminders(): Promise<void> {
     try {
-      console.log("Generando recordatorios de pago...")
+      console.log("Generando recordatorios de pago...");
 
-      const upcomingSubscriptions = await pool.query(
-        `SELECT
-          s.id, s.user_id, s.name, s.amount, s.currency, s.next_billing_date,
-          u.notifications_enabled
-          FROM subscriptions s
-          JOIN users u ON s.user_id = u.id
-          WHERE s.status = 'active'
-            AND s.next_billing_date BETWEEN CURRENT_DATE AND CURRENT_DATE + INTERVAL '3 days'
-            AND u.notifications_enabled = true
-          ORDER BY s.next_billing_date ASC`
-      )
+      const activeSubscriptions = await pool.query(
+        `SELECT s.id, s.user_id, s.name, s.amount, s.currency, s.next_billing_date,
+                u.notifications_enabled
+         FROM subscriptions s
+         JOIN users u ON s.user_id = u.id
+         WHERE s.status = 'active'
+           AND s.next_billing_date <= CURRENT_DATE + INTERVAL '3 days'
+           AND u.notifications_enabled = true
+         ORDER BY s.next_billing_date ASC`
+      );
 
-      console.log(`Suscripciones próximas encontradas: ${upcomingSubscriptions.rows.length}`)
+      console.log(`Suscripciones a procesar: ${activeSubscriptions.rows.length}`);
 
-      for (const subscription of upcomingSubscriptions.rows) {
-        const existingNotification = await pool.query(
-          `SELECT id FROM notifications
-            WHERE user_id = $1 AND subscription_id = $2
-            AND DATE(created_at) = CURRENT_DATE
-            AND type = 'payment_reminder'`,
-          [subscription.user_id, subscription.id]
-        )
+      for (const sub of activeSubscriptions.rows) {
+        const daysUntilDue = Math.ceil(
+          (new Date(sub.next_billing_date).getTime() - new Date().setHours(0, 0, 0, 0)) / (1000 * 60 * 60 * 24)
+        );
 
-        if (existingNotification.rows.length === 0) {
-          const daysUntilDue = Math.ceil(
-            (new Date(subscription.next_billing_date).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)
-          )
+        if (daysUntilDue >= 0) {
+          const existing = await pool.query(
+            `SELECT id FROM notifications
+             WHERE user_id = $1 AND subscription_id = $2
+               AND type = 'payment_due'
+               AND DATE(created_at) = CURRENT_DATE`,
+            [sub.user_id, sub.id]
+          );
+          if (existing.rows.length > 0) continue;
 
-          let title = ""
-          let message = ""
+          let title: string;
+          let message: string;
 
           if (daysUntilDue === 0) {
-            title = "Pago vence hoy"
-            message = `Tu suscripción "${subscription.name}" vence hoy. Monto: ${subscription.currency} ${subscription.amount}`
+            title = "Pago vence hoy";
+            message = `Tu suscripción "${sub.name}" vence hoy. Monto: ${sub.currency} ${sub.amount}`;
           } else if (daysUntilDue === 1) {
-            title = "Pago vence mañana"
-            message = `Tu suscripción "${subscription.name}" vence mañana. Monto: ${subscription.currency} ${subscription.amount}`
+            title = "Pago vence mañana";
+            message = `Tu suscripción "${sub.name}" vence mañana. Monto: ${sub.currency} ${sub.amount}`;
           } else {
-            title = "Pago próximo"
-            message = `Tu suscripción "${subscription.name}" vence en ${daysUntilDue} días. Monto: ${subscription.currency} ${subscription.amount}`
+            title = "Pago próximo";
+            message = `Tu suscripción "${sub.name}" vence en ${daysUntilDue} días. Monto: ${sub.currency} ${sub.amount}`;
           }
 
           await pool.query(
             `INSERT INTO notifications (user_id, subscription_id, type, title, message)
-              VALUES ($1, $2, $3, $4, $5)`,
-            [
-              subscription.user_id,
-              subscription.id,
-              'payment_due',
-              title,
-              message
-            ]
-          )
+             VALUES ($1, $2, $3, $4, $5)`,
+            [sub.user_id, sub.id, 'payment_due', title, message]
+          );
+          console.log(`Notificación creada: ${title} - ${sub.name}`);
+        } else {
+          const daysOverdue = Math.abs(daysUntilDue);
 
-          console.log(`Notificación creada: ${title} - ${subscription.name}`)
+          const existing = await pool.query(
+            `SELECT id FROM notifications
+             WHERE user_id = $1 AND subscription_id = $2
+               AND type = 'payment_overdue'
+               AND DATE(created_at) = CURRENT_DATE`,
+            [sub.user_id, sub.id]
+          );
+          if (existing.rows.length > 0) continue;
+
+          const title = "Pago vencido";
+          const message = `Tu suscripción "${sub.name}" venció hace ${daysOverdue} día${daysOverdue !== 1 ? 's' : ''}. Monto: ${sub.currency} ${sub.amount}`;
+
+          await pool.query(
+            `INSERT INTO notifications (user_id, subscription_id, type, title, message)
+             VALUES ($1, $2, $3, $4, $5)`,
+            [sub.user_id, sub.id, 'payment_overdue', title, message]
+          );
+          console.log(`Notificación creada: ${title} - ${sub.name} (${daysOverdue} día${daysOverdue !== 1 ? 's' : ''})`);
         }
       }
 
-      console.log("Generación de recordatorios completada")
+      console.log("Generación de recordatorios completada");
     } catch (error) {
-      console.error("Error generando recordatorios:", error)
+      console.error("Error generando recordatorios:", error);
     }
   }
 

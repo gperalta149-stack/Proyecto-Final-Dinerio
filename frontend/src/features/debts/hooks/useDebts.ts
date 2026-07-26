@@ -46,8 +46,8 @@ export const useDebts = () => {
     return created;
   };
 
-  const markAsPaid = async (id: string) => {
-    await debtService.markAsPaid(id);
+  const markAsPaid = async (id: string, payment_method?: string) => {
+    await debtService.markAsPaid(id, payment_method);
     await fetchDebts();
   };
 

@@ -29,7 +29,7 @@ export const Header: React.FC = () => {
       <div className="home-header-container">
         {/* Logo */}
         <Link to="/" className="home-header-logo" onClick={() => setMobileOpen(false)}>
-          <span className="home-header-logo-icon">D</span>
+          <img src="/icons/logo.svg" width="28" height="28" alt="Dinerio" className="home-header-logo-icon" />
           <span className="home-header-logo-text">Dinerio</span>
         </Link>
 

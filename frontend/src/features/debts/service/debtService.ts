@@ -10,10 +10,12 @@ export const debtService = {
 
   async getSummary(): Promise<DebtsSummary> {
     const response = await api.get("/debts/summary");
-    // Asegurar que paidCount existe
     const data = response.data;
     return {
       totalOwed: data.totalOwed || 0,
+      totalOwedUSD: data.totalOwedUSD || 0,
+      totalOwedConverted: data.totalOwedConverted || data.totalOwed || 0,
+      exchangeRate: data.exchangeRate || 1,
       pendingCount: data.pendingCount || 0,
       oldestDays: data.oldestDays || 0,
       oldestName: data.oldestName,
@@ -33,8 +35,8 @@ export const debtService = {
     return response.data.debt;
   },
 
-  async markAsPaid(id: string): Promise<void> {
-    await api.put(`/debts/${id}/pay`);
+  async markAsPaid(id: string, payment_method?: string): Promise<void> {
+    await api.put(`/debts/${id}/pay`, { payment_method });
   },
 
   async postpone(id: string, days: number = 7): Promise<void> {

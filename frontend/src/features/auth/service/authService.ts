@@ -7,6 +7,11 @@ export interface LoginResponse {
   message: string;
 }
 
+export interface AvailabilityResult {
+  available: boolean;
+  taken: boolean;
+}
+
 export const authService = {
   async login(email: string, password: string): Promise<LoginResponse> {
     const response = await api.post('/auth/login', { email, password });
@@ -19,6 +24,10 @@ export const authService = {
       first_name: firstName,
       last_name: lastName
     });
+    return response.data;
+  },
+  async checkAvailability(email: string): Promise<AvailabilityResult> {
+    const response = await api.get('/auth/check-availability', { params: { email } });
     return response.data;
   },
   async getCurrentUser(): Promise<{ user: User }> {

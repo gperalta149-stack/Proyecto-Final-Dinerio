@@ -1,413 +1,596 @@
-📊 Dinerio - Gestión Inteligente de Suscripciones
+<div align="center">
+  <h1>
+    <img src="frontend/public/icons/logo.svg" width="40" height="40" alt="Dinerio logo" style="vertical-align: middle; margin-right: 10px;" />
+    Dinerio
+  </h1>
+  <p><strong>Gestión Inteligente de Suscripciones</strong></p>
+  <p>
+    <img src="https://img.shields.io/badge/React-18.3.1-61DAFB?logo=react" alt="React" />
+    <img src="https://img.shields.io/badge/TypeScript_Strict-5.6-3178C6?logo=typescript" alt="TypeScript Strict" />
+    <img src="https://img.shields.io/badge/Express-4.18-000000?logo=express" alt="Express" />
+    <img src="https://img.shields.io/badge/PostgreSQL-16-4169E1?logo=postgresql" alt="PostgreSQL" />
+    <img src="https://img.shields.io/badge/REST_API-✓-success" alt="REST API" />
+    <img src="https://img.shields.io/badge/Vite-7.2-646CFF?logo=vite" alt="Vite" />
+    <img src="https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?logo=tailwindcss" alt="Tailwind CSS" />
+    <img src="https://img.shields.io/badge/license-MIT-green" alt="License" />
+    <br/>
+    <img src="https://img.shields.io/badge/version-1.0.0-blue" alt="Version" />
+  </p>
+</div>
 
-Dinerio es una aplicación web moderna y completa para la gestión de suscripciones recurrentes. Diseñada para ayudar a usuarios a controlar sus gastos mensuales, visualizar estadísticas financieras detalladas con gráficos interactivos, establecer presupuestos personalizados y recibir alertas inteligentes de próximos pagos.
-🚀 Características Principales
-📈 Dashboard Inteligente
+---
 
-Resumen Financiero: Visualización clara de gastos mensuales y anuales
-Gráficos Interactivos:
+## 🚀 Demo
 
-Gráfico de barras para gastos por categoría
-Gráfico circular para distribución porcentual
-Gráfico de líneas para proyección de gastos
+> 🚧 Próximamente — enlace a la demo en vivo.
+>
+> Mientras tanto, puedes ejecutar el proyecto localmente siguiendo los pasos de [Instalación](#-instalación).
 
+---
 
-Métricas Clave: Suscripciones activas, próximos pagos, presupuesto restante
-Alertas Visuales: Notificaciones de presupuesto excedido
+## 📋 Tabla de Contenidos
 
-💰 Gestión Completa de Suscripciones
+- [Demo](#-demo)
+- [Capturas](#-capturas)
+- [Descripción](#-descripción)
+- [Roadmap](#-roadmap)
+- [Tecnologías](#-tecnologías)
+- [Decisiones Técnicas](#-decisiones-técnicas)
+- [Características](#-características)
+- [Estructura del Proyecto](#-estructura-del-proyecto)
+- [Arquitectura](#-arquitectura)
+- [Flujo de Autenticación](#-flujo-de-autenticación)
+- [Base de Datos](#-base-de-datos)
+- [Performance](#-performance)
+- [Seguridad](#-seguridad)
+- [Instalación](#-instalación)
+- [Configuración](#-configuración)
+- [Ejecución](#-ejecución)
+- [API Endpoints](#-api-endpoints)
+- [Despliegue](#-despliegue)
+- [Contribuir](#-contribuir)
+- [Licencia](#-licencia)
 
-Agregar Suscripciones: Formulario intuitivo con todos los campos necesarios
-Categorización: Organización por categorías (Streaming, Software, Fitness, etc.)
-Ciclos de Facturación: Soporte para mensual, trimestral, anual y semanal
-Estados: Activo, cancelado, pausado
-Edición en Tiempo Real: Modificar suscripciones sin recargar la página
+---
 
-🎯 Sistema de Presupuestos
+## 🖼️ Capturas
 
-Presupuesto Mensual: Establecer límites de gasto personalizados
-Umbrales de Alerta: Configurar notificaciones al alcanzar porcentajes específicos
-Seguimiento en Tiempo Real: Monitoreo continuo del gasto vs presupuesto
-Alertas Proactivas: Notificaciones antes de exceder el presupuesto
+> 🚧 Próximamente se agregarán capturas y demostraciones animadas de la aplicación.
 
-🔔 Notificaciones Inteligentes
+---
 
-Recordatorios de Pago: Alertas antes del vencimiento
-Alertas de Presupuesto: Notificaciones cuando se acerca al límite
-Centro de Notificaciones: Historial completo de todas las alertas
-Marcado como Leído: Gestión fácil de notificaciones
+## 📖 Descripción
 
-📱 Experiencia de Usuario
+**Dinerio** es una aplicación web que centraliza todas tus suscripciones recurrentes en un solo lugar. Calcula automáticamente el gasto mensual real con conversión ARS/USD incluyendo impuestos argentinos (IVA 21% + PAIS 30% + IIBB 2%), genera alertas de vencimiento, tracking de deudas y control presupuestario.
 
-Diseño Responsive: Funciona perfecto en desktop, tablet y móvil
-Interfaz Moderna: Tema oscuro profesional con gradientes elegantes
-Navegación Intuitiva: Sidebar con acceso rápido a todas las secciones
-Carga Rápida: Optimizado para máximo rendimiento
+### Problema que resuelve
 
-🛠️ Tecnologías Utilizadas
-Frontend
+Las suscripciones están fragmentadas en múltiples servicios con distintas fechas, monedas y ciclos. Dinerio las unifica y da visibilidad total del gasto mensual.
 
-React 18 - Biblioteca de interfaz de usuario
-TypeScript - Tipado estático para mayor confiabilidad
-Vite - Build tool y dev server ultrarrápido
-Tailwind CSS - Framework de estilos utility-first
-Recharts - Biblioteca de gráficos interactivos
-React Router - Enrutamiento para SPA
-Axios - Cliente HTTP para APIs
+### Stack
 
-Backend
+```
+React → Axios → Express → PostgreSQL
+```
 
-Node.js - Entorno de ejecución JavaScript
-Express.js - Framework web para APIs
-TypeScript - Desarrollo backend tipado
-PostgreSQL - Base de datos relacional
-JWT - Autenticación con tokens
-bcrypt - Encriptación de contraseñas
-CORS - Configuración de políticas de origen cruzado
+### Características principales
 
-Base de Datos
+✔ Gestión de suscripciones &nbsp; ✔ Dashboard interactivo &nbsp; ✔ Reportes financieros
+✔ Presupuesto mensual &nbsp; ✔ Notificaciones automáticas &nbsp; ✔ Calendario de pagos
+✔ Autenticación JWT &nbsp; ✔ Conversión ARS/USD en vivo
 
-PostgreSQL 14+ - Sistema de base de datos relacional
-Estructura Normalizada: Diseño optimizado para consultas eficientes
-Índices Estratégicos: Optimización de rendimiento
-Relaciones Foreign Key: Integridad referencial garantizada
+---
 
-📦 Instalación y Configuración
-Prerrequisitos
+## 🚧 Roadmap
 
-Node.js 18 o superior
-PostgreSQL 14 o superior
-npm o yarn
+| Estado | Funcionalidad |
+|--------|---------------|
+| ✔ | CRUD completo de suscripciones |
+| ✔ | Dashboard con KPIs y gráficos |
+| ✔ | Conversión ARS/USD con impuestos |
+| ✔ | Reportes financieros y exportación CSV |
+| ✔ | Presupuesto mensual con alertas |
+| ✔ | Calendario de pagos |
+| ✔ | Notificaciones automáticas |
+| ✔ | Deudas y recordatorios |
+| ✔ | Auditoría de cambios |
+| 🔲 | PWA (offline support) |
+| 🔲 | Recordatorios por Email |
+| 🔲 | Integración con Google Calendar |
+| 🔲 | Exportar PDF |
+| 🔲 | Modo multiusuario |
 
-Pasos de Instalación
+---
 
-Clonar el Repositorio
+## 🛠️ Tecnologías
 
-Descargar el proyecto desde GitHub
+### Frontend
 
+| Tecnología | Versión | Propósito |
+|------------|---------|-----------|
+| React | ^18.3.1 | UI library |
+| TypeScript | ^5.6.3 | Tipado estático |
+| Vite | ^7.2.2 | Build tool |
+| React Router DOM | ^6.21.1 | SPA routing |
+| Axios | ^1.6.5 | HTTP client |
+| Framer Motion | ^12.42.2 | Animaciones |
+| Lucide React | ^1.23.0 | Iconos |
+| Tailwind CSS | ^4.1.17 | Estilos utilitarios |
+| PostCSS | ^8.5.6 | Procesamiento CSS |
+| Autoprefixer | ^10.4.22 | Prefijos CSS |
 
-Configurar Base de Datos
+### Backend
 
-Crear base de datos con nombre subtrack_db
-Ejecutar el archivo backend/db/schema.sql en PostgreSQL
+| Tecnología | Versión | Propósito |
+|------------|---------|-----------|
+| Node.js | 20+ | Runtime |
+| Express | ^4.18.2 | Framework web |
+| TypeScript | ^5.3.3 | Tipado estático |
+| PostgreSQL | 16 | Base de datos relacional |
+| pg | ^8.11.3 | Driver PostgreSQL |
+| JWT | ^9.0.2 | Autenticación stateless |
+| bcryptjs | ^2.4.3 | Hashing de contraseñas |
+| node-cron | ^3.0.3 | Tareas programadas |
+| express-validator | ^7.0.1 | Validación de datos |
+| cors | ^2.8.5 | CORS |
 
+---
 
-Configurar Backend
+## 🤔 Decisiones Técnicas
 
-Navegar a la carpeta backend
-Instalar dependencias con npm
-Crear archivo .env con la siguiente configuración:
+| Decisión | Motivo |
+|----------|--------|
+| **React + Vite** | HMR ultrarrápido, build optimizado, ecosistema maduro |
+| **TypeScript** | Evita errores en tiempo de compilación, mejora DX con autocompletado |
+| **PostgreSQL** | Integridad referencial, consultas complejas, soporte JSONB para auditoría |
+| **JWT stateless** | Sin sesiones en servidor, fácil de escalar horizontalmente |
+| **Tailwind CSS** | Desarrollo rápido sin cambiar de archivo, bundle pequeño con purge |
+| **Feature-Sliced Design** | Cada feature es autónoma: bajo acoplamiento, alta cohesión, fácil de escalar |
+| **Framer Motion** | Animaciones declarativas con soporte de gestos y layout animations |
+| **node-cron** | Tareas programadas sin dependencia externa (no requiere Redis ni cola) |
 
+---
 
+## ✨ Características
 
-envDB_HOST=localhost
-DB_PORT=5432
-DB_NAME=subtrack_db
-DB_USER=tu_usuario
-DB_PASSWORD=tu_contraseña
-JWT_SECRET=tu_jwt_secreto_muy_seguro
-PORT=3000
-(fijatse en .env)
+### Gestión de Suscripciones
+CRUD completo con ciclos semanal, mensual, trimestral y anual. Filtros por estado/categoría, búsqueda y ordenamiento.
 
-Configurar Frontend
+### Dashboard
+KPIs de gasto mensual, evolución con gráfico de líneas, distribución por categorías (dona interactiva), pagos próximos con alertas de urgencia.
 
-Navegar a la carpeta frontend
-Instalar dependencias con npm
+### Presupuesto
+Configuración de límite mensual con umbral de alerta (1-100%). Barra de progreso, proyección de gasto y gasto diario disponible.
 
+### Deudas
+Generación automática desde suscripciones vencidas. Creación manual, pago, posposición (+7 días) y resumen con total adeudado.
 
-Ejecutar la Aplicación
+### Calendario
+Vista mensual con eventos de pago, navegación por teclado, leyenda de colores y selector de mes.
 
-Iniciar el backend: navegar a backend y ejecutar npm run dev
-Iniciar el frontend: navegar a frontend y ejecutar npm run dev
+### Reportes
+Reporte financiero por mes/año/rango, KPIs, evolución, desglose por categorías, comparación entre períodos y exportación CSV.
 
+### Conversión ARS/USD
+Cotizaciones en vivo desde Bluelytics API (fallback DolarAPI). Cálculo de dólar tarjeta (oficial × 1.53). Actualización cada 15 min.
 
-Acceder a la Aplicación
+### Notificaciones
+Recordatorio de pago (3 días antes), alerta de presupuesto y confirmación de creación. Centro con filtros y limpieza automática (>7 días).
 
-Frontend: http://localhost:5173
-Backend API: http://localhost:3000
+### Autenticación y Seguridad
+JWT con expiración de 7 días, bcrypt, rutas protegidas, interceptor Axios con auto-logout en 401, auditoría de cambios.
 
+---
 
+## 📁 Estructura del Proyecto
 
-🗃️ Estructura del Proyecto
-Dinerio/
-├── backend/
+```
+dinerio/
+├── backend/                          # API REST (Express + TypeScript)
 │   ├── src/
-│   │   ├── config/          # Configuración de DB y JWT
-│   │   ├── controllers/     # Lógica de negocio
-│   │   ├── middleware/      # Auth, CORS, error handling
-│   │   ├── routes/          # Definición de endpoints API
-│   │   ├── services/        # Servicios de negocio
-│   │   └── types/           # Tipos TypeScript
-│   ├── db/
-│   │   ├── schema.sql       # Estructura de base de datos
-│   │   └── seedData.sql     # Datos de prueba
+│   │   ├── config/                   # DB pool, JWT
+│   │   ├── controllers/              # Lógica de endpoints
+│   │   ├── jobs/                     # Tareas programadas (cada hora)
+│   │   ├── middleware/               # Auth, CORS, error handler, audit
+│   │   ├── models/                   # Consultas SQL
+│   │   ├── routes/                   # Definición de rutas
+│   │   ├── services/                 # Debt generator, notifications
+│   │   └── server.ts                 # Punto de entrada
+│   ├── db/                           # schema.sql, seedData.sql
+│   ├── Dockerfile
 │   └── package.json
-├── frontend/
+│
+├── frontend/                         # SPA (React + TypeScript + Vite)
 │   ├── src/
-│   │   ├── components/      # Componentes React reutilizables
-│   │   │   ├── auth/        # Formularios de login/registro
-│   │   │   ├── dashboard/   # Componentes del dashboard
-│   │   │   ├── subscriptions/ # Gestión de suscripciones
-│   │   │   └── ui/          # Componentes base (Button, Input, etc.)
-│   │   ├── contexts/        # React Context (Auth)
-│   │   ├── hooks/           # Custom hooks
-│   │   ├── pages/           # Páginas principales
-│   │   ├── services/        # Clientes API
-│   │   ├── types/           # Tipos TypeScript
-│   │   └── utils/           # Utilidades y formateadores
+│   │   ├── app/                      # Routing, providers, protected routes
+│   │   ├── features/                 # Módulos funcionales (10 features)
+│   │   │   ├── auth/                 # Login, registro
+│   │   │   ├── budget/               # Presupuesto
+│   │   │   ├── calendar/             # Calendario de pagos
+│   │   │   ├── categories/           # CRUD categorías
+│   │   │   ├── dashboard/            # Dashboard principal
+│   │   │   ├── debts/                # Deudas
+│   │   │   ├── home/                 # Landing page
+│   │   │   ├── notifications/        # Centro de notificaciones
+│   │   │   ├── profile/              # Perfil de usuario
+│   │   │   ├── reports/              # Reportes financieros
+│   │   │   └── subscriptions/        # Gestión de suscripciones
+│   │   ├── shared/                   # UI components, hooks, utils, types
+│   │   ├── styles/                   # CSS por feature
+│   │   └── widgets/                  # Header, Sidebar, Layout
+│   ├── public/
+│   │   └── icons/                    # Logo, favicon, SVGs
 │   └── package.json
+│
+├── start.ps1
 └── README.md
-🎯 Uso de la Aplicación
-Primeros Pasos
+```
+
+Cada **feature** es un módulo autónomo: `components/`, `hooks/`, `pages/`, `service/`, `types.ts`, `index.ts`. Esto permite **alta cohesión** y **bajo acoplamiento** —agregar o modificar una feature no afecta al resto.
+
+---
+
+## 🏗️ Arquitectura
+
+```mermaid
+graph LR
+    A[React SPA] -->|Axios + JWT| B[Express API]
+    B --> C[PostgreSQL]
+    A --> D[Bluelytics API]
+    D -->|Cotizaciones ARS/USD| A
+    B --> E[node-cron]
+    E -->|Cada hora| F[Generar Deudas]
+    E -->|Cada hora| G[Generar Notificaciones]
+    E -->|Cada hora| H[Limpiar Notifs Antiguas]
+```
+
+### Capas del Backend
+
+```
+routes/  →  controllers/  →  services/  →  models/  →  PostgreSQL
+   ↓            ↓               ↓            ↓
+Validación   Lógica HTTP   Lógica negocio    SQL
+```
+
+### FSD (Feature-Sliced Design)
+
+```
+src/
+├── app/           → Configuración global (providers, router)
+├── features/      → Módulos funcionales independientes
+├── shared/        → Código reutilizable entre features
+├── styles/        → Sistema de diseño CSS
+└── widgets/       → Componentes de layout
+```
+
+¿Por qué FSD? Porque cada feature contiene todo lo que necesita (componentes, hooks, servicios) y se comunica con otras solo a través de `shared/`. Esto permite escalar el proyecto sin romper funcionalidad existente.
+
+---
+
+## 🔐 Flujo de Autenticación
+
+```mermaid
+sequenceDiagram
+    Usuario->>React: Login (email + password)
+    React->>Express: POST /api/auth/login
+    Express->>PostgreSQL: SELECT user WHERE email
+    PostgreSQL-->>Express: user + bcrypt hash
+    Express->>Express: bcrypt.compare(password, hash)
+    alt Válido
+        Express-->>React: { token: JWT, user }
+        React->>React: localStorage.setItem("token", jwt)
+        React->>React: AuthContext.updateUser(user)
+        React-->>Usuario: Redirige a /dashboard
+    else Inválido
+        Express-->>React: 401 Unauthorized
+        React-->>Usuario: "Credenciales inválidas"
+    end
+```
+
+### Protección de Rutas
+
+```
+Solicitud → Axios Interceptor → ¿Token? → Sí → Adjunta Bearer → Express → auth middleware → Controller
+                                       → No → Redirige a /login
+               
+¿401? → Axios interceptor → Elimina token → Redirige a /login
+```
+
+---
+
+## 🗄️ Base de Datos
+
+```mermaid
+erDiagram
+    users ||--o{ subscriptions : tiene
+    users ||--o{ categories : define
+    users ||--o{ debts : debe
+    users ||--o{ notifications : recibe
+    users ||--o{ audit_logs : registra
+    users ||--o{ password_reset_tokens : solicita
+    categories ||--o{ subscriptions : clasifica
+    subscriptions ||--o{ debts : genera
+    subscriptions ||--o{ notifications : notifica
+```
+
+| Tabla | Descripción | Columnas clave |
+|-------|-------------|----------------|
+| `users` | Usuarios | email, password (bcrypt), monthly_budget |
+| `categories` | Categorías | name, color, icon, user_id (null = default) |
+| `subscriptions` | Suscripciones | name, amount, currency, billing_cycle, next_billing_date, status |
+| `debts` | Deudas | amount, due_date, status (pending/paid) |
+| `notifications` | Notificaciones | type, title, message, is_read |
+| `audit_logs` | Auditoría | action, entity_type, details (JSONB) |
+| `password_reset_tokens` | Reset tokens | token, expires_at |
+
+---
+
+## ⚡ Performance
+
+| Técnica | Implementación |
+|---------|---------------|
+| Lazy Loading | `React.lazy()` en rutas del frontend |
+| Code Splitting | Vite divide bundles automáticamente |
+| Memoización | `useMemo` / `useCallback` en componentes pesados |
+| Debounce | Búsqueda de suscripciones con debounce |
+| Axios Interceptors | Token caching, 401 auto-logout |
+| Render optimizado | Framer Motion `layoutId` para animaciones eficientes |
+| Carga diferida | Datos de evolución mensual se cargan después del render inicial |
 
-Registro de Usuario
+---
 
-Acceder a http://localhost:5173/register
-Completar formulario con nombre, apellido, email y contraseña
-El sistema redirige automáticamente al login
+## 🛡️ Seguridad
 
+| Medida | Detalle |
+|--------|---------|
+| **JWT Authentication** | Tokens con expiración de 7 días, verificados en cada request |
+| **bcrypt** | Contraseñas hasheadas con salt rounds |
+| **Validación backend** | `express-validator` en todos los endpoints |
+| **Middleware de autenticación** | Protege todas las rutas privadas |
+| **CORS** | Solo permite orígenes configurados (`FRONTEND_URL`) |
+| **Auditoría** | Registro de CREATE, UPDATE, DELETE con IP y detalles |
+| **SQL Injection** | Todas las consultas usan parámetros con `pg` (prepared statements) |
+| **XSS** | React escapa automáticamente el output |
 
-Inicio de Sesión
+---
 
-Usar las credenciales creadas
-Acceso al dashboard principal
+## 📋 Requisitos Previos
 
+- **Node.js** v20+
+- **PostgreSQL** 16+
+- **npm**
 
-Configurar Presupuesto
+---
 
-Hacer clic en "Establecer Presupuesto" en el dashboard
-Definir monto mensual y umbral de alerta (recomendado 80%)
-Guardar configuración
+## 🔧 Instalación
 
+```bash
+# 1. Clonar
+git clone https://github.com/tu-usuario/dinerio.git
+cd dinerio
 
-Agregar Primera Suscripción
+# 2. Instalar dependencias
+cd backend && npm install
+cd ../frontend && npm install
+cd ..
 
-Clic en "+ Nueva Suscripción"
-Completar: nombre, monto, ciclo de facturación, categoría, próxima fecha de pago
-La suscripción aparece inmediatamente en el dashboard
+# 3. Base de datos
+psql -h localhost -U postgres -c "CREATE DATABASE SubTrack_db;"
+psql -h localhost -U postgres -d SubTrack_db -f backend/db/schema.sql
 
+# 4. (Opcional) Datos de demostración
+psql -h localhost -U postgres -d SubTrack_db -f backend/db/seedData.sql
 
+# 5. Variables de entorno (backend/.env)
+```
 
-Dashboard Principal
-El dashboard muestra:
-Tarjetas de Resumen:
+---
 
-Suscripciones Activas
-Gasto Mensual Total
-Gasto Anual Proyectado
-Próximos Pagos (7 días)
+## ⚙️ Configuración
 
-Gráficos Interactivos:
+`backend/.env`:
 
-Barras: Gastos mensuales por categoría
-Circular: Distribución porcentual de gastos
-Líneas: Proyección de gastos futuros
-
-Lista de Suscripciones Recientes: Últimas suscripciones agregadas
-Gestión de Suscripciones
+```env
+DB_USER=postgres
+DB_PASSWORD=tu_contraseña
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=SubTrack_db
+JWT_SECRET=tu_secreto_jwt_aqui
+PORT=3000
+NODE_ENV=development
+FRONTEND_URL=http://localhost:5173
+```
+
+Para el frontend en producción:
+
+```env
+VITE_API_URL=https://tu-backend.onrender.com
+```
 
-Ver Todas: Lista completa con opciones de filtrado
-Agregar Nueva: Modal con formulario completo
-Editar: Clic en suscripción para modificar
-Cancelar: Cambiar estado a "cancelado"
-Filtrar: Por categoría, estado o ciclo de facturación
+### Variables de Entorno
+
+| Variable | Requerida | Default | Descripción |
+|----------|-----------|---------|-------------|
+| `DB_HOST` | Sí | `localhost` | Host PostgreSQL |
+| `DB_PORT` | Sí | `5432` | Puerto PostgreSQL |
+| `DB_NAME` | Sí | `SubTrack_db` | Nombre BD |
+| `DB_USER` | Sí | `postgres` | Usuario BD |
+| `DB_PASSWORD` | Sí | `""` | Contraseña BD |
+| `JWT_SECRET` | Sí | — | Secreto JWT |
+| `JWT_EXPIRES_IN` | No | `7d` | Expiración token |
+| `PORT` | No | `3000` | Puerto Express |
+| `NODE_ENV` | No | `development` | Entorno |
+| `FRONTEND_URL` | No | `http://localhost:5173` | Origen CORS |
+
+---
 
-Sistema de Notificaciones
+## 🚀 Ejecución
+
+### Desarrollo
+
+```bash
+# Backend (hot-reload)
+cd backend && npm run dev      # http://localhost:3000
 
-Acceso: Icono de campana en el header
-Tipos:
+# Frontend (HMR)
+cd frontend && npm run dev     # http://localhost:5173
+```
+
+### Producción
+
+```bash
+cd backend && npm run build && npm start
+cd frontend && npm run build && npm run preview
+```
 
-Recordatorios de pago (3 días antes)
-Alertas de presupuesto (al alcanzar 80% y 100%)
-Confirmaciones de acciones
+### Script rápido
 
+```powershell
+.\start.ps1    # Inicia el backend en modo dev
+```
 
-Gestión: Marcar como leídas individualmente o todas juntas
+---
 
-🔌 API Endpoints
-Autenticación
+## 🌐 API Endpoints
 
-POST /api/auth/register - Registrar nuevo usuario
-POST /api/auth/login - Iniciar sesión
-GET /api/users/profile - Obtener perfil de usuario
+### Salud
 
-Suscripciones
+| Método | Endpoint | Auth | Descripción |
+|--------|----------|------|-------------|
+| GET | `/health` | — | Health check |
 
-GET /api/subscriptions - Listar suscripciones del usuario
-POST /api/subscriptions - Crear nueva suscripción
-PUT /api/subscriptions/:id - Actualizar suscripción
-DELETE /api/subscriptions/:id - Eliminar suscripción
+### Autenticación (`/api/auth`)
 
-Presupuesto
+| Método | Endpoint | Auth | Descripción |
+|--------|----------|------|-------------|
+| POST | `/api/auth/register` | — | Registro |
+| POST | `/api/auth/login` | — | Login |
+| POST | `/api/auth/password-reset` | — | Reset contraseña |
+| GET | `/api/auth/profile` | Sí | Perfil |
+| PUT | `/api/auth/budget` | Sí | Actualizar presupuesto |
 
-POST /api/users/budget - Establecer/actualizar presupuesto
-GET /api/users/dashboard - Obtener datos del dashboard
+### Suscripciones (`/api/subscriptions`)
 
-Notificaciones
+| Método | Endpoint | Auth | Descripción |
+|--------|----------|------|-------------|
+| GET | `/api/subscriptions` | Sí | Listar (filtro status) |
+| GET | `/api/subscriptions/stats/summary` | Sí | Estadísticas |
+| GET | `/api/subscriptions/dashboard/stats` | Sí | Stats dashboard |
+| GET | `/api/subscriptions/:id` | Sí | Obtener una |
+| POST | `/api/subscriptions` | Sí | Crear |
+| PUT | `/api/subscriptions/:id` | Sí | Actualizar |
+| DELETE | `/api/subscriptions/:id` | Sí | Eliminar |
 
-GET /api/notifications - Obtener notificaciones del usuario
-PUT /api/notifications/:id/read - Marcar como leída
-PUT /api/notifications/read-all - Marcar todas como leídas
+### Categorías (`/api/categories`)
 
-Categorías
+| Método | Endpoint | Auth | Descripción |
+|--------|----------|------|-------------|
+| GET | `/api/categories` | Sí | Listar |
+| POST | `/api/categories` | Sí | Crear |
+| PUT | `/api/categories/:id` | Sí | Actualizar |
+| DELETE | `/api/categories/:id` | Sí | Eliminar |
 
-GET /api/categories - Obtener categorías disponibles
+### Notificaciones (`/api/notifications`)
 
-🗄️ Modelo de Base de Datos
-Tablas Principales
-users
-sqlid UUID PRIMARY KEY
-email VARCHAR(255) UNIQUE NOT NULL
-password_hash VARCHAR(255) NOT NULL
-first_name VARCHAR(100) NOT NULL
-last_name VARCHAR(100) NOT NULL
-monthly_budget DECIMAL(10,2) DEFAULT 0
-currency VARCHAR(3) DEFAULT 'USD'
-notifications_enabled BOOLEAN DEFAULT true
-created_at TIMESTAMP DEFAULT NOW()
-updated_at TIMESTAMP DEFAULT NOW()
-subscriptions
-sqlid UUID PRIMARY KEY
-user_id UUID REFERENCES users(id)
-name VARCHAR(200) NOT NULL
-amount DECIMAL(10,2) NOT NULL
-currency VARCHAR(3) DEFAULT 'USD'
-billing_cycle VARCHAR(20) NOT NULL
-next_billing_date DATE NOT NULL
-category_id UUID REFERENCES categories(id)
-status VARCHAR(20) DEFAULT 'active'
-description TEXT
-created_at TIMESTAMP DEFAULT NOW()
-updated_at TIMESTAMP DEFAULT NOW()
-categories
-sqlid UUID PRIMARY KEY
-name VARCHAR(100) NOT NULL
-color VARCHAR(7) NOT NULL
-icon VARCHAR(50)
-user_id UUID REFERENCES users(id)
-created_at TIMESTAMP DEFAULT NOW()
-notifications
-sqlid UUID PRIMARY KEY
-user_id UUID REFERENCES users(id)
-subscription_id UUID REFERENCES subscriptions(id)
-type VARCHAR(50) NOT NULL
-title VARCHAR(200) NOT NULL
-message TEXT NOT NULL
-is_read BOOLEAN DEFAULT false
-created_at TIMESTAMP DEFAULT NOW()
-🚀 Despliegue en Producción
-Backend (Render/Railway)
-
-Conectar repositorio GitHub
-Configurar variables de entorno
-Especificar comando de build: npm run build
-Comando de inicio: npm start
-
-Frontend
-
-Conectar repositorio GitHub
-Configurar build command: npm run build
-Output directory: dist
-Variables de entorno: VITE_API_URL=https://tu-backend.render.com
-
-Base de Datos (PostgreSQL)
-
-Crear proyecto
-Ejecutar schema.sql
-Obtener connection string
-Configurar en variables de entorno del backend
-
-🔧 Troubleshooting
-Problemas Comunes
-Error de Conexión a Base de Datos
-
-Verificar que PostgreSQL esté corriendo
-Verificar credenciales en archivo .env
-Confirmar que la base de datos subtrack_db exista
-
-Error CORS
-
-Verificar que las URLs estén en la configuración CORS del backend
-Asegurar que frontend y backend usen los puertos correctos
-
-Token JWT Inválido
-
-Cerrar sesión y volver a iniciar
-Verificar que JWT_SECRET esté configurado en .env
-
-Gráficos no se Renderizan
-
-Verificar que haya datos de suscripciones
-Revisar consola del navegador para errores
-
-🤝 Contribución
-Las contribuciones son bienvenidas. Por favor:
-
-Fork el proyecto
-Crear una rama para tu feature
-Commit tus cambios
-Push a la rama
-Abrir un Pull Request
-
-Guías de Estilo
-
-Usar TypeScript estricto
-Seguir convenciones de commits convencionales
-Mantener cobertura de tests
-Documentar nuevas funcionalidades
-
-📄 Licencia
-Este proyecto está bajo la Licencia MIT - ver el archivo LICENSE para detalles.
-🆘 Soporte
-Si encuentras algún problema:
-
-Revisar la sección de Troubleshooting
-Buscar en issues existentes en GitHub
-Crear un nuevo issue con:
-
-Descripción detallada del problema
-Pasos para reproducir
-Logs de error relevantes
-Entorno (SO, navegador, versión)
-
-
-
-🎯 Roadmap Futuro
-v1.1 (Inmediato)
-
-Exportación de reportes en PDF/CSV
-Recordatorios por email
-Modo claro/oscuro
-
-v1.2 (Corto Plazo)
-
-Soporte para múltiples monedas
-Conversión automática de divisas
-Categorías personalizadas por usuario
-
-v2.0 (Mediano Plazo)
-
-Aplicación móvil (React Native)
-Integración con APIs bancarias
-Análisis predictivo de gastos
-Planificación financiera avanzada
-
-Características en Consideración
-
-Compartir suscripciones entre usuarios familiares
-Plantillas de suscripciones comunes
-Integración con calendarios (Google Calendar, Outlook)
-Alertas por SMS
-Análisis de tendencias de gastos
-
-👥 Créditos
-Desarrollado con ❤️ usando:
-
-React
-TypeScript
-Node.js
-PostgreSQL
-Tailwind CSS
-
-
-⭐ Si te gusta este proyecto, no olvides darle una estrella en GitHub
+| Método | Endpoint | Auth | Descripción |
+|--------|----------|------|-------------|
+| GET | `/api/notifications` | Sí | Listar |
+| GET | `/api/notifications/recent` | Sí | Recientes |
+| GET | `/api/notifications/unread/count` | Sí | No leídas |
+| POST | `/api/notifications` | Sí | Crear |
+| PUT | `/api/notifications/:id/read` | Sí | Marcar leída |
+| PUT | `/api/notifications/read-all` | Sí | Marcar todas |
+| DELETE | `/api/notifications/:id` | Sí | Eliminar |
+| POST | `/api/notifications/test-generate` | Sí | Generar test |
+
+### Calendario (`/api/calendar`)
+
+| Método | Endpoint | Auth | Descripción |
+|--------|----------|------|-------------|
+| GET | `/api/calendar/events` | Sí | Eventos (mes/año) |
+| GET | `/api/calendar/upcoming` | Sí | Próximos pagos |
+
+### Deudas (`/api/debts`)
+
+| Método | Endpoint | Auth | Descripción |
+|--------|----------|------|-------------|
+| GET | `/api/debts` | Sí | Listar |
+| GET | `/api/debts/summary` | Sí | Resumen |
+| POST | `/api/debts` | Sí | Crear manual |
+| PUT | `/api/debts/:id/pay` | Sí | Pagar |
+| PUT | `/api/debts/:id/postpone` | Sí | Posponer |
+| DELETE | `/api/debts/:id` | Sí | Eliminar |
+
+### Reportes (`/api/reports`)
+
+| Método | Endpoint | Auth | Descripción |
+|--------|----------|------|-------------|
+| GET | `/api/reports/export/csv` | Sí | Exportar CSV |
+| GET | `/api/reports/financial` | Sí | Reporte financiero |
+| GET | `/api/reports/monthly-evolution` | Sí | Evolución mensual |
+
+### Auditoría (`/api/audit`)
+
+| Método | Endpoint | Auth | Descripción |
+|--------|----------|------|-------------|
+| GET | `/api/audit` | Sí | Listar logs |
+| GET | `/api/audit/entity/:entityType/:entityId` | Sí | Por entidad |
+
+### Archivos (`/api/upload`)
+
+| Método | Endpoint | Auth | Descripción |
+|--------|----------|------|-------------|
+| POST | `/api/upload` | Sí | Subir archivo (placeholder) |
+
+---
+
+## 📦 Despliegue
+
+### Opción 1: Cloud (recomendado)
+
+| Componente | Servicio |
+|------------|----------|
+| Backend | Render o Railway |
+| Frontend | Vercel, Netlify o Cloudflare Pages |
+| Base de datos | AWS RDS, Render PostgreSQL o Supabase |
+
+### Opción 2: Docker
+
+```bash
+cd backend
+docker build -t dinerio-backend .
+docker run -p 3000:3000 --env-file .env dinerio-backend
+```
+
+> Solo hay Dockerfile para el backend. El frontend requiere build estático.
+
+---
+
+## 🤝 Contribuir
+
+1. Fork del repositorio
+2. Rama: `git checkout -b feature/nueva-funcionalidad`
+3. Commit: `git commit -m 'feat: agrega nueva funcionalidad'`
+4. Push: `git push origin feature/nueva-funcionalidad`
+5. Pull Request
+
+### Convenciones
+
+- TypeScript estricto, evitar `any`
+- UI/textos en español, código/variables en inglés
+- CSS en archivos separados por feature (`src/styles/`)
+- Commits semánticos: `feat:`, `fix:`, `refactor:`, `chore:`
+
+---
+
+## 📄 Licencia
+
+MIT.
+
+---
+
+<div align="center">
+  <p>Hecho con ❤️ para gestionar suscripciones de forma inteligente</p>
+</div>
+

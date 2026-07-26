@@ -143,6 +143,9 @@ export interface Debt {
 
 export interface DebtsSummary {
   totalOwed: number;
+  totalOwedUSD: number;
+  totalOwedConverted: number;
+  exchangeRate: number;
   pendingCount: number;
   oldestDays: number;
   oldestName: string | null;

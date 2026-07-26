@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import type { Debt } from "../../types";
 import { formatCurrency, formatShortDate, getDaysUntilNextPayment, parseAmount } from "../../../../shared/utils/formatters";
+import ExchangeRateService from "../../../../shared/services/exchangeRateService";
 import '../../../../styles/debts/DebtTable.css';
 
 interface DebtTableProps {
@@ -65,6 +66,7 @@ export const DebtTable: React.FC<DebtTableProps> = ({
             <th>Vencimiento</th>
             <th>Monto</th>
             <th>Estado</th>
+            <th>Pagar</th>
             <th className="text-right">Acciones</th>
           </tr>
         </thead>
@@ -96,13 +98,33 @@ export const DebtTable: React.FC<DebtTableProps> = ({
                   )}
                 </td>
                 <td className="debt-table-amount">
-                  {formatCurrency(parseAmount(debt.amount), debt.currency)}
+                  {debt.currency === 'USD' ? (
+                    <div className="debt-amount-dual">
+                      <span>{formatCurrency(parseAmount(debt.amount), 'USD')}</span>
+                      <span className="debt-amount-ars">{formatCurrency(ExchangeRateService.convertUSDToARS(parseAmount(debt.amount)), 'ARS')}</span>
+                    </div>
+                  ) : (
+                    formatCurrency(parseAmount(debt.amount), debt.currency)
+                  )}
                 </td>
                 <td>
                   <span className={`debt-status-badge ${status.class}`}>
                     <span className="debt-status-dot" style={{ background: status.color, boxShadow: `0 0 6px ${status.color}` }} />
                     {status.text}
                   </span>
+                </td>
+                <td>
+                  {isPending ? (
+                    <button
+                      className="debt-pay-btn"
+                      onClick={() => onMarkAsPaid(debt.id)}
+                      disabled={loading}
+                    >
+                      Pagar
+                    </button>
+                  ) : (
+                    <span className="debt-paid-check">✔</span>
+                  )}
                 </td>
                 <td>
                   <div className="debt-table-actions">

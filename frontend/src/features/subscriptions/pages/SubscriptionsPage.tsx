@@ -27,6 +27,7 @@ export const SubscriptionsPage: React.FC = () => {
   const [viewingSubscription, setViewingSubscription] = useState<Subscription | undefined>(undefined);
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [subscriptionPage, setSubscriptionPage] = useState(0);
   const perPage = 5;
 
@@ -53,9 +54,21 @@ export const SubscriptionsPage: React.FC = () => {
   const handleView = (sub: Subscription) => { setViewingSubscription(sub); };
   const { showToast } = useToast();
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = (id: string) => {
+    const sub = subscriptions.find(s => s.id === id);
+    if (!sub) return;
+    if (sub.status === 'active') {
+      setDeleteError("No se puede eliminar una suscripción activa con pagos pendientes. Cambiá el estado a pagada o esperá a que el ciclo finalice.");
+    } else {
+      setConfirmDeleteId(id);
+    }
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!confirmDeleteId) return;
     try {
-      await subscriptionService.delete(id);
+      await subscriptionService.delete(confirmDeleteId);
+      setConfirmDeleteId(null);
       await loadAll();
     } catch (err: any) {
       const msg = err?.response?.data?.error || "";
@@ -64,6 +77,7 @@ export const SubscriptionsPage: React.FC = () => {
       } else {
         showToast("Error al eliminar la suscripción", "error");
       }
+      setConfirmDeleteId(null);
     }
   };
 
@@ -231,6 +245,7 @@ export const SubscriptionsPage: React.FC = () => {
               onEdit={handleEdit}
               onDelete={handleDelete}
               onView={handleView}
+              onAdd={() => setShowModal(true)}
             />
             {filtered.length > perPage && (
               <div className="subs-pages">
@@ -275,6 +290,32 @@ export const SubscriptionsPage: React.FC = () => {
                 </p>
                 <div className="delete-modal-actions">
                   <button className="subs-add-button" onClick={closeError}>Cerrar</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {confirmDeleteId && (
+          <div className="view-modal-overlay" onClick={() => setConfirmDeleteId(null)}>
+            <div className="view-modal delete-modal" onClick={(e) => e.stopPropagation()}>
+              <div className="view-modal-header">
+                <div className="view-modal-title">
+                  <div className="view-modal-icon" style={{ background: "rgba(239, 68, 68, 0.14)", color: "#ef4444" }}><Trash2 size={20} /></div>
+                  <div className="view-modal-title-text">
+                    <h2>Eliminar suscripción</h2>
+                    <span>Esta acción no se puede deshacer</span>
+                  </div>
+                </div>
+                <button className="view-modal-close" onClick={() => setConfirmDeleteId(null)}><X size={18} /></button>
+              </div>
+              <div className="view-modal-body">
+                <p style={{ color: "var(--subs-text-secondary)", fontSize: "0.95rem", margin: "0 0 20px", lineHeight: "1.5" }}>
+                  ¿Estás seguro de eliminar la suscripción?
+                </p>
+                <div className="delete-modal-actions" style={{ display: "flex", gap: "10px", justifyContent: "flex-end" }}>
+                  <button className="subs-add-button secondary" onClick={() => setConfirmDeleteId(null)}>Cancelar</button>
+                  <button className="subs-add-button danger" onClick={handleConfirmDelete}>Eliminar</button>
                 </div>
               </div>
             </div>

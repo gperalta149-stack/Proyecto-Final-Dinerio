@@ -40,6 +40,19 @@
   font-size: 18px;
 }
 
+.debt-total-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.debt-total-usd {
+  font-size: 12px;
+  opacity: 0.7;
+  font-weight: 500;
+  margin-top: 2px;
+}
+
 .debt-kpis-container .kpi-subtitle {
   font-size: 12px;
 }
