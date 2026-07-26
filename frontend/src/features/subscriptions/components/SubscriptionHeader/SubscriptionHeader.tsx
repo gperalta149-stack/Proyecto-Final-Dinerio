@@ -8,7 +8,7 @@ interface SubscriptionHeaderProps {
 
 export const SubscriptionHeader: React.FC<SubscriptionHeaderProps> = ({ onAdd }) => (
   <div className="subs-header">
-    <button onClick={onAdd} className="subs-add-button">
+    <button aria-label="Agregar suscripción" onClick={onAdd} className="subs-add-button">
       <Plus size={18} /> Nueva suscripción
     </button>
   </div>
