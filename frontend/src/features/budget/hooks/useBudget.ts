@@ -5,7 +5,7 @@ import { subscriptionService } from "../../subscriptions/service/subscriptionSer
 import { debtService } from "../../debts/service/debtService";
 import { parseAmount } from "../../../shared/utils/formatters";
 import ExchangeRateService from "../../../shared/services/exchangeRateService";
-import { amountToARS } from '../../../shared/utils/amounts';
+import { amountToARS, matchSubscriptionForDebt } from '../../../shared/utils/amounts';
 import type { User, Subscription, Debt } from "../../../shared/types";
 
 interface UseBudgetReturn {
@@ -69,6 +69,24 @@ export const useBudget = (selectedMonth?: number, selectedYear?: number): UseBud
             // If subscription would be counted for this month, avoid double-counting the linked debt
             return total;
           }
+        }
+      }
+
+      // Heuristic match when subscription_id is missing
+      if (!debt.subscription_id) {
+        try {
+          const matched = matchSubscriptionForDebt(debt, subscriptions);
+          if (matched) {
+            const billingDate = new Date(matched.next_billing_date);
+            const isThisMonth = billingDate.getMonth() + 1 === month && billingDate.getFullYear() === year;
+            const isOverdue = billingDate < new Date(year, month - 1, 1);
+            const isFuturePaused = matched.status === 'paused' && billingDate.getMonth() + 1 > month;
+            if (isThisMonth || isOverdue) {
+              return total;
+            }
+          }
+        } catch (e) {
+          // ignore heuristic errors
         }
       }
 

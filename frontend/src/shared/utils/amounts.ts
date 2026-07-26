@@ -29,3 +29,59 @@ export function amountToARS(item: any): number {
   // Fallback to amount + currency pair
   return toARS(item.amount, item.currency || item.originalCurrency);
 }
+
+/**
+ * Try to heuristically find a subscription that corresponds to a debt when
+ * the debt doesn't include subscription_id. Returns the matched subscription or undefined.
+ *
+ * Heuristics used:
+ * - Normalize and compare names (substring match) and
+ * - Compare amounts after conversion to ARS (absolute diff <= tolerance)
+ * - Prefer matches where the subscription next_billing_date is in the same month as the debt paid_at
+ */
+export function matchSubscriptionForDebt(debt: any, subscriptions: any[], options?: { toleranceARS?: number, daysWindow?: number }): any | undefined {
+  if (!debt || !subscriptions || subscriptions.length === 0) return undefined;
+  const tolerance = options?.toleranceARS ?? 1.0; // 1 ARS tolerance by default
+  const daysWindow = options?.daysWindow ?? 7; // +/- days window for date proximity
+
+  const debtAmount = amountToARS(debt);
+  const debtName = (debt.name || debt.description || "").toString().toLowerCase().replace(/[^a-z0-9]/g, '');
+  const paidAt = debt.paid_at ? new Date(debt.paid_at) : null;
+
+  // First pass: direct name + amount + date proximity
+  for (const sub of subscriptions) {
+    try {
+      const subAmount = amountToARS(sub);
+      const subName = (sub.name || sub.description || "").toString().toLowerCase().replace(/[^a-z0-9]/g, '');
+      const nameMatches = subName && debtName && (subName.includes(debtName) || debtName.includes(subName));
+      const amountDiff = Math.abs(subAmount - debtAmount);
+
+      let dateClose = true;
+      if (paidAt && sub.next_billing_date) {
+        const nextBill = new Date(sub.next_billing_date);
+        const diffDays = Math.abs(Math.floor((paidAt.getTime() - nextBill.getTime()) / (1000 * 60 * 60 * 24)));
+        dateClose = diffDays <= daysWindow;
+      }
+
+      if (amountDiff <= tolerance && (nameMatches || !debtName || !subName) && dateClose) {
+        return sub;
+      }
+    } catch (e) {
+      // ignore parsing errors per-item
+      continue;
+    }
+  }
+
+  // Second pass: amount-only match (fallback)
+  for (const sub of subscriptions) {
+    try {
+      const subAmount = amountToARS(sub);
+      const amountDiff = Math.abs(subAmount - debtAmount);
+      if (amountDiff <= tolerance) return sub;
+    } catch (e) {
+      continue;
+    }
+  }
+
+  return undefined;
+}

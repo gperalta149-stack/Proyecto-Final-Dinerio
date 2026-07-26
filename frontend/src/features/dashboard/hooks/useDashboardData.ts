@@ -6,7 +6,7 @@ import type { Subscription, DashboardStats } from "../types";
 import type { Debt } from "../../../shared/types";
 import { formatCurrency, parseAmount } from "../../../shared/utils/formatters";
 import ExchangeRateService from "../../../shared/services/exchangeRateService";
-import { amountToARS } from '../../../shared/utils/amounts';
+import { amountToARS, matchSubscriptionForDebt } from '../../../shared/utils/amounts';
 
 export function useDashboardData(stats: DashboardStats | null, subscriptions: Subscription[]) {
   const [monthlyEvolution, setMonthlyEvolution] = useState<MonthlyEvolutionData[]>([]);
@@ -38,16 +38,36 @@ export function useDashboardData(stats: DashboardStats | null, subscriptions: Su
           // If this debt is linked to a subscription that's already counted for the month,
           // skip it - the subscription total already includes that payment.
           if (d.subscription_id) {
-            const linkedSub = subscriptions.find((s) => s.id === d.subscription_id);
-            if (linkedSub) {
-              const paymentDate = new Date(linkedSub.next_billing_date);
+          const linkedSub = subscriptions.find((s) => s.id === d.subscription_id);
+          if (linkedSub) {
+            const paymentDate = new Date(linkedSub.next_billing_date);
+            const isThisMonth = paymentDate >= startOfMonth && paymentDate < endOfMonth;
+            const isOverdue = paymentDate < startOfMonth;
+            const isFuturePaused = linkedSub.status === "paused" && paymentDate >= endOfMonth;
+            if ((isThisMonth || isOverdue) && !isFuturePaused) {
+              return false; // the subscription covers this debt payment
+            }
+          }
+          }
+
+          // Heuristic: try to match debt to a subscription even if subscription_id is missing
+          // (match by name/amount/date proximity). If a matching subscription is found and
+          // would be counted this month, skip the debt to avoid double-counting.
+          if (!d.subscription_id) {
+          try {
+            const matched = matchSubscriptionForDebt(d, subscriptions);
+            if (matched) {
+              const paymentDate = new Date(matched.next_billing_date);
               const isThisMonth = paymentDate >= startOfMonth && paymentDate < endOfMonth;
               const isOverdue = paymentDate < startOfMonth;
-              const isFuturePaused = linkedSub.status === "paused" && paymentDate >= endOfMonth;
+              const isFuturePaused = matched.status === "paused" && paymentDate >= endOfMonth;
               if ((isThisMonth || isOverdue) && !isFuturePaused) {
-                return false; // the subscription covers this debt payment
+                return false;
               }
             }
+          } catch (e) {
+            // ignore heuristic errors and fall back to counting the debt
+          }
           }
 
           return true;
