@@ -150,8 +150,9 @@ export const DebtModal: React.FC<DebtModalProps> = ({
           {formError && <div className="debt-modal-error">{formError}</div>}
 
           <div className="debt-modal-field">
-            <label className="debt-modal-label">Nombre *</label>
+            <label htmlFor="debt-name" className="debt-modal-label">Nombre *</label>
             <input
+              id="debt-name"
               type="text"
               name="name"
               value={formData.name}
@@ -168,6 +169,7 @@ export const DebtModal: React.FC<DebtModalProps> = ({
                 <div className="debt-modal-amount-wrapper">
                   <span className="debt-modal-amount-symbol">{selectedCurrency.symbol}</span>
                   <input
+                    id="debt-amount"
                     type="text"
                     inputMode="decimal"
                     name="amount"
@@ -223,6 +225,7 @@ export const DebtModal: React.FC<DebtModalProps> = ({
             <div className="debt-modal-date-wrapper">
               <Calendar size={16} className="debt-modal-date-icon" />
               <input
+                id="debt-due-date"
                 type="date"
                 name="due_date"
                 className="debt-modal-input debt-modal-date-input"
@@ -294,6 +297,7 @@ export const DebtModal: React.FC<DebtModalProps> = ({
             </button>
             {showNotes && (
               <textarea
+                id="debt-notes"
                 name="notes"
                 value={formData.notes}
                 onChange={handleChange}

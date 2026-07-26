@@ -81,8 +81,9 @@ export const CategoryForm: React.FC<CategoryFormProps> = ({
         <form onSubmit={handleSubmit} className="category-form-body">
           {error && <div className="category-form-error">{error}</div>}
           <div className="category-form-group">
-            <label className="category-form-label">Nombre de la categoría *</label>
+            <label htmlFor="category-name" className="category-form-label">Nombre de la categoría *</label>
             <input
+              id="category-name"
               type="text"
               value={formData.name}
               onChange={(e) => { setFormData(prev => ({ ...prev, name: e.target.value })); setError(""); }}

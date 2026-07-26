@@ -88,6 +88,7 @@ export const CategoryGrid: React.FC<CategoryGridProps> = ({
                   className="category-action edit"
                   onClick={() => onEdit(category)}
                   title="Editar"
+                  aria-label={`Editar ${category.name}`}
                 >
                   <Edit3 size={14} />
                 </button>
@@ -95,6 +96,7 @@ export const CategoryGrid: React.FC<CategoryGridProps> = ({
                   className={`category-action delete ${(category.subscription_count || 0) > 0 ? 'disabled' : ''}`}
                   onClick={() => onDelete(category.id)}
                   title={(category.subscription_count || 0) > 0 ? "Tiene suscripciones asignadas" : "Eliminar categoría"}
+                  aria-label={(category.subscription_count || 0) > 0 ? "No se puede eliminar, tiene suscripciones" : `Eliminar ${category.name}`}
                   disabled={(category.subscription_count || 0) > 0}
                 >
                   <Trash2 size={14} />

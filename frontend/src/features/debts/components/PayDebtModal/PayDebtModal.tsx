@@ -42,11 +42,11 @@ export const PayDebtModal: React.FC<PayDebtModalProps> = ({ debt, onConfirm, onC
               <CheckCircle2 size={20} />
             </div>
             <div>
-              <h2 className="debt-modal-title">¿Con qué medio pagaste?</h2>
+              <h2 id="paydebt-modal-title" className="debt-modal-title">¿Con qué medio pagaste?</h2>
               <p className="debt-modal-subtitle">Seleccioná el método de pago</p>
             </div>
           </div>
-          <button className="debt-modal-close" onClick={onClose}>
+          <button aria-label="Cerrar" className="debt-modal-close" onClick={onClose}>
             <X size={18} />
           </button>
         </div>
@@ -66,6 +66,8 @@ export const PayDebtModal: React.FC<PayDebtModalProps> = ({ debt, onConfirm, onC
                   key={method.value}
                   className={`paydebt-option ${isSelected ? "selected" : ""}`}
                   onClick={() => setSelected(method.value)}
+                  aria-pressed={isSelected}
+                  aria-label={`Seleccionar ${method.label}`}
                 >
                   <Icon size={18} className={`paydebt-option-icon ${method.value === "credito" ? "icon-rotate" : ""}`} />
                   <div className="paydebt-option-info">
