@@ -5,7 +5,6 @@ import type React from "react"
 import { useState, useEffect, useRef } from "react"
 import { Link, useLocation, useNavigate } from "react-router-dom"
 import {
-  LayoutDashboard,
   CreditCard,
   CalendarDays,
   FileBarChart2,
@@ -19,6 +18,7 @@ import {
 } from "lucide-react"
 import { useAuth } from "../../shared/contexts/AuthContext"
 import { debtService } from "../../features/debts/service/debtService"
+import { useBudget } from "../../features/budget/hooks/useBudget"
 import '../../styles/widgets/Sidebar.css'
 
 const NAV_ITEMS = [
@@ -44,6 +44,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed = false, onToggle, m
   const [showUserMenu, setShowUserMenu] = useState(false)
   const [pendingDebts, setPendingDebts] = useState(0)
   const menuRef = useRef<HTMLDivElement>(null)
+
+  // Mismo hook que usa la página "Presupuesto" (mes actual): garantiza que
+  // el ícono del sidebar refleje exactamente el mismo % que ves ahí,
+  // incluyendo suscripciones Y deudas pagadas del mes.
+  const { percentageUsed: budgetPercentage, alertThreshold } = useBudget()
 
   useEffect(() => {
     debtService.getSummary()
@@ -92,11 +97,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed = false, onToggle, m
             (item.path === "/dashboard" && location.pathname === "/")
           const Icon = item.icon
           const badge = item.badgeKey === "debts" ? pendingDebts : 0
+          const showBudgetWarning = item.badgeKey !== "debts" && item.path === "/budget" && budgetPercentage >= alertThreshold
+          const budgetWarningClass = budgetPercentage >= 100 ? "sidebar-badge-danger" : "sidebar-badge-warning"
           return (
             <Link
               key={item.path}
               to={item.path}
-              className={`sidebar-item ${isActive ? "sidebar-item-active" : ""}`}
+              className={`sidebar-item ${isActive ? "sidebar-item-active" : ""} ${showBudgetWarning ? "sidebar-item-budget-overrun" : ""}`}
               title={collapsed ? item.label : undefined}
               onClick={onMobileClose}
             >
@@ -108,6 +115,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed = false, onToggle, m
                 <span className={`sidebar-badge ${collapsed ? "sidebar-badge-collapsed" : ""}`}>
                   {badge}
                 </span>
+              )}
+              {showBudgetWarning && (
+                <span className={`sidebar-budget-dot ${budgetWarningClass} ${collapsed ? "sidebar-budget-dot-collapsed" : ""}`} title={`${budgetPercentage.toFixed(0)}% del presupuesto`} />
               )}
             </Link>
           )

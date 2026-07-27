@@ -22,10 +22,10 @@ const CATEGORY_COLORS: Record<string, string> = {
 const categoryColor = (name?: string) => CATEGORY_COLORS[name?.toLowerCase() || ""] || "#64748b";
 
 type Row =
-  | { kind: "text"; label: string; value: string; icon: any }
-  | { kind: "amount"; label: string; value: string; icon: any }
-  | { kind: "status"; label: string; value: string; icon: any }
-  | { kind: "category"; label: string; value: string; icon: any };
+  | { kind: "text"; label: string; value: string; icon: React.ElementType }
+  | { kind: "amount"; label: string; value: string; icon: React.ElementType }
+  | { kind: "status"; label: string; value: string; icon: React.ElementType }
+  | { kind: "category"; label: string; value: string; icon: React.ElementType };
 
 export const ViewSubscriptionModal: React.FC<ViewSubscriptionModalProps> = ({ subscription, onClose }) => {
   const sub = subscription;

@@ -90,7 +90,7 @@ export const CalendarView: React.FC<CalendarViewProps> = ({
             new Date(currentDate.getFullYear(), currentDate.getMonth(), day)
           );
           const isSelected = isCurrentMonth && day === selectedDay;
-          const dayEvents = getEventsForDay(day, currentDate, eventsByDay);
+          const dayEvents = getEventsForDay(day, currentDate, eventsByDay, isCurrentMonth);
           const statusClass = dayEvents.length > 0 ? getDayStatusClass(dayEvents, todayStr) : '';
 
           return (

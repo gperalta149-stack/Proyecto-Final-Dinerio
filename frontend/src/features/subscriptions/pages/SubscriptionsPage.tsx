@@ -28,7 +28,6 @@ export const SubscriptionsPage: React.FC = () => {
   const [showModal, setShowModal] = useState(false);
   const [editingSubscription, setEditingSubscription] = useState<Subscription | undefined>(undefined);
   const [viewingSubscription, setViewingSubscription] = useState<Subscription | undefined>(undefined);
-  const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [subscriptionPage, setSubscriptionPage] = useState(0);
@@ -108,8 +107,9 @@ export const SubscriptionsPage: React.FC = () => {
       await subscriptionService.delete(confirmDeleteId);
       setConfirmDeleteId(null);
       await loadAll();
-    } catch (err: any) {
-      const msg = err?.response?.data?.error || "";
+    } catch (err: unknown) {
+      const axiosErr = err as { response?: { data?: { error?: string } } };
+      const msg = axiosErr.response?.data?.error || "";
       if (msg.includes("deuda") || msg.includes("pagos pendientes")) {
         setDeleteError(msg);
       } else {

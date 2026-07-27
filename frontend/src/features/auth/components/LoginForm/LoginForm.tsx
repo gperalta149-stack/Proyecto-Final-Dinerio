@@ -36,8 +36,9 @@ export const LoginForm: React.FC<LoginFormProps> = ({
       } else {
         setError(result.error || "Error al iniciar sesión");
       }
-    } catch (err: any) {
-      setError(err.response?.data?.message || "Error al iniciar sesión");
+    } catch (err: unknown) {
+      const axiosErr = err as { response?: { data?: { message?: string } } };
+      setError(axiosErr.response?.data?.message || "Error al iniciar sesión");
     } finally {
       setLoading(false);
     }

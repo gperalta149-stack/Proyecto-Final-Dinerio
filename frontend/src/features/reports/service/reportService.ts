@@ -16,7 +16,7 @@ export interface MonthlyEvolutionData {
 
 export const reportService = {
   async exportCSV(month?: number, year?: number): Promise<Blob> {
-    const params: Record<string, any> = {};
+    const params: Record<string, string | number> = {};
     if (month) params.month = month;
     if (year) params.year = year;
     const response = await api.get("/reports/export/csv", {
@@ -27,7 +27,7 @@ export const reportService = {
   },
 
   async getFinancialReport(month?: number, year?: number, range?: number | null, rangeMode?: string): Promise<FinancialReport> {
-    const params: Record<string, any> = {};
+    const params: Record<string, string | number> = {};
     if (month) params.month = month;
     if (year) params.year = year;
     if (range) params.range = range;
@@ -38,7 +38,7 @@ export const reportService = {
   },
 
   async getMonthlyEvolution(year?: number): Promise<{ monthlyEvolution: MonthlyEvolutionData[] }> {
-    const params: Record<string, any> = {};
+    const params: Record<string, number> = {};
     if (year) params.year = year;
 
     const response = await api.get("/reports/monthly-evolution", { params });

@@ -37,7 +37,7 @@ export const ProfileInfo: React.FC<ProfileInfoProps> = ({ user, onUpdate }) => {
     try {
       await onUpdate(formData);
       setMessage({ text: 'Información actualizada exitosamente', type: 'success' });
-    } catch (error) {
+    } catch {
       setMessage({ text: 'Error al actualizar la información', type: 'error' });
     } finally {
       setLoading(false);

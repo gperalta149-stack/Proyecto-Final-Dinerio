@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { Upload, Hand, CalendarClock, Lightbulb, ArrowRight, CheckCircle, Pencil, Plus, Trash2, TrendingDown, Zap, Award, AlertTriangle, BarChart3, Target, BookOpen, Bell, PieChart, Activity } from "lucide-react";
+import { Hand, CalendarClock, Lightbulb, ArrowRight, CheckCircle, Pencil, Plus, Trash2, TrendingDown, Zap, Award, AlertTriangle, BarChart3, Target, BookOpen, Bell, PieChart, Activity } from "lucide-react";
 import { useDashboard, useDashboardData } from "../hooks";
 import { useAuth } from "../../../shared/contexts/AuthContext";
-import { BudgetAlert } from "../components/BudgetAlert";
+
 import { DashboardKpis } from "../components/DashboardKpis";
 import { auditService, type AuditLog } from "../../audit/service/auditService";
 import { parseAmount, formatCurrency } from "../../../shared/utils/formatters";
+import type { Subscription } from "../../../shared/types";
 import '../../../styles/dashboard/dashboard.css';
 import '../../../styles/shared/cards.css';
 
@@ -19,10 +20,9 @@ const getDaysUntil = (date: string) => {
 };
 
 const getDaysText = (days: number) => {
-  if (days < 0) return `Vencida hace ${Math.abs(days)} día${Math.abs(days) !== 1 ? "s" : ""}`;
-  if (days === 0) return "Vence hoy";
-  if (days <= 3) return `Vence en ${days} día${days !== 1 ? "s" : ""}`;
-  return `Faltan ${days} días`;
+  if (days < 0) return `${Math.abs(days)}d vencido`;
+  if (days === 0) return "Hoy";
+  return `${days}d`;
 };
 
 const getUrgencyColor = (days: number) => {
@@ -45,26 +45,26 @@ interface TipData {
 }
 
 const getSmartTip = (
-  upcoming: any[],
+  upcoming: Subscription[],
   budgetPercentage: number,
   totalMonthly: number,
   budget: number,
   activeSubscriptions: number,
   categoryData: { name: string; amount: number }[],
-  subscriptions: any[],
+  subscriptions: Subscription[],
 ): TipData | null => {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const weekEnd = new Date(today);
   weekEnd.setDate(weekEnd.getDate() + 7);
 
-  const dueToday = upcoming.find((s: any) => {
+  const dueToday = upcoming.find((s: Subscription) => {
     const d = new Date(s.next_billing_date);
     d.setHours(0, 0, 0, 0);
     return d.getTime() === today.getTime();
   });
 
-  const dueTomorrow = upcoming.find((s: any) => {
+  const dueTomorrow = upcoming.find((s: Subscription) => {
     const d = new Date(s.next_billing_date);
     d.setHours(0, 0, 0, 0);
     const tomorrow = new Date(today);
@@ -72,13 +72,13 @@ const getSmartTip = (
     return d.getTime() === tomorrow.getTime();
   });
 
-  const dueThisWeek = upcoming.filter((s: any) => {
+  const dueThisWeek = upcoming.filter((s: Subscription) => {
     const d = new Date(s.next_billing_date);
     d.setHours(0, 0, 0, 0);
     return d >= today && d <= weekEnd;
   });
 
-  const overdue = upcoming.filter((s: any) => {
+  const overdue = upcoming.filter((s: Subscription) => {
     const d = new Date(s.next_billing_date);
     d.setHours(0, 0, 0, 0);
     return d < today;
@@ -86,8 +86,8 @@ const getSmartTip = (
 
   const topCat = categoryData[0];
   const mostExpensive = (subscriptions || [])
-    .filter((s: any) => s.status === "active")
-    .sort((a: any, b: any) => (parseAmount(b.amount) || 0) - (parseAmount(a.amount) || 0))[0];
+    .filter((s: Subscription) => s.status === "active")
+    .sort((a: Subscription, b: Subscription) => (parseAmount(b.amount) || 0) - (parseAmount(a.amount) || 0))[0];
 
   const tips: TipData[] = [];
 
@@ -240,7 +240,7 @@ interface ActivityItem {
 
 const logToActivity = (log: AuditLog): ActivityItem => {
   const details = log.details || {};
-  const name = (details as any).name || "";
+  const name = typeof details === 'object' && details !== null ? (details as Record<string, unknown>).name as string || "" : "";
   switch (log.action) {
     case "CREATE":
       return { icon: "plus", text: `Nueva suscripción "${name}"`, time: getTimeAgo(log.created_at) };
@@ -308,10 +308,10 @@ export const DashboardPage: React.FC = () => {
   const topCategory = categoryData[0];
   const topCategoryPct = totalCategory > 0 && topCategory ? (topCategory.amount / totalCategory) * 100 : 0;
   const topSubscriptions = (subscriptions || [])
-    .filter((s: any) => s.status === "active")
-    .sort((a: any, b: any) => (parseAmount(b.amount) || 0) - (parseAmount(a.amount) || 0))
+    .filter((s: Subscription) => s.status === "active")
+    .sort((a: Subscription, b: Subscription) => (parseAmount(b.amount) || 0) - (parseAmount(a.amount) || 0))
     .slice(0, 3);
-  const upcoming = (data.upcoming || []).filter((s: any) => s.status === "active").slice(0, 3);
+  const upcoming = (data.upcoming || []).filter((s: Subscription) => s.status === "active").slice(0, 3);
 
   const tip = React.useMemo(
     () => getSmartTip(data.upcoming, data.budgetPercentage, data.totalMonthly, data.budget, data.activeSubscriptions, categoryData, subscriptions),
@@ -335,10 +335,6 @@ export const DashboardPage: React.FC = () => {
 
         </div>
 
-        {data.budgetPercentage > 80 && (
-          <BudgetAlert totalSpent={data.totalMonthly} budget={data.budget} />
-        )}
-
         <div className="dashboard-kpis-container">
           <DashboardKpis
             totalMonthly={data.totalMonthly}
@@ -358,7 +354,7 @@ export const DashboardPage: React.FC = () => {
               <CalendarClock size={14} /> {upcoming.length} próximos pagos
             </div>
             <div className="upcoming-detailed-list">
-              {upcoming.map((sub: any) => {
+              {upcoming.map((sub: Subscription) => {
                 const days = getDaysUntil(sub.next_billing_date);
                 return (
                   <div key={sub.id} className="upcoming-detailed-item">
@@ -407,7 +403,7 @@ export const DashboardPage: React.FC = () => {
                 </div>
               </div>
               <div className="donut-subs-list">
-                {topSubscriptions.map((sub: any) => (
+                {topSubscriptions.map((sub: Subscription) => (
                   <div key={sub.id} className="donut-subs-item">
                     <div className="donut-subs-avatar" style={{ background: getAvatarColor(sub.name || "") }}>
                       {(sub.name || "?")[0].toUpperCase()}

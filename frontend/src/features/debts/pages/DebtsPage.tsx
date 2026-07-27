@@ -17,14 +17,6 @@ import ExchangeRateService from '../../../shared/services/exchangeRateService';
 import { getDaysUntilNextPayment } from '../../../shared/utils/formatters';
 import '../../../styles/debts/debts.css';
 
-const PAYMENT_LABELS: Record<string, string> = {
-  debito: "débito",
-  credito: "crédito",
-  billetera_virtual: "billetera virtual",
-  efectivo: "efectivo",
-  transferencia: "transferencia",
-};
-
 export const DebtsPage: React.FC = () => {
   const { pendingDebts, paidDebts, summary, loading, createDebt, markAsPaid, postpone, removeDebt } = useDebts();
   const { showToast } = useToast();

@@ -15,8 +15,12 @@ export interface FinancialReport {
     monthly_total: number;
     monthly_budget: number;
     total_subscriptions: number;
+    yearly_total?: number;
+    budget_usage?: number;
+    currency?: string;
   };
-  categories: CategoryData[];
+  by_category?: CategoryData[];
+  categories?: CategoryData[];
   subscriptions: Subscription[];
 }
 

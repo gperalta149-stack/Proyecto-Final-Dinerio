@@ -20,7 +20,6 @@ interface MonthlyData {
 interface AnnualDistributionProps {
   categories: CategoryData[];
   monthlyEvolution: MonthlyData[];
-  monthlyTotal: number;
   currency?: string;
 }
 
@@ -31,7 +30,6 @@ const PAGE_SIZE = 3;
 export const AnnualDistribution: React.FC<AnnualDistributionProps> = ({
   categories,
   monthlyEvolution,
-  monthlyTotal,
   currency = "ARS",
 }) => {
   const [page, setPage] = useState(0);

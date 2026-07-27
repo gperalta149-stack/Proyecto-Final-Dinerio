@@ -1,7 +1,7 @@
 // frontend/src/features/notifications/components/NotificationBell/NotificationBell.tsx
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Bell, Check, ExternalLink, X } from 'lucide-react';
+import { Bell, Check, ExternalLink } from 'lucide-react';
 import { notificationService } from '../../service/notificationService';
 import { getRelativeTime } from '../../utils/notificationUtils';
 import { NOTIFICATION_ICONS, NOTIFICATION_COLORS } from '../../constants/notificationConstants';

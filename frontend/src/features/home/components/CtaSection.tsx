@@ -1,8 +1,7 @@
 // frontend/src/features/home/components/CtaSection.tsx
 import React from "react";
-import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowRight, ShieldCheck, Sparkles, Clock, ChevronRight } from "lucide-react";
+import { ShieldCheck, Sparkles, Clock } from "lucide-react";
 import '../../../styles/home/cta.css';
 
 export const CtaSection: React.FC = () => {

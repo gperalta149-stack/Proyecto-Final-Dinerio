@@ -45,7 +45,7 @@ const calculateSubscriptionWithConversion = async (subscription: Subscription): 
 export const subscriptionService = {
   async getAll(status?: string): Promise<Subscription[]> {
     try {
-      const params: Record<string, any> = {};
+      const params: Record<string, string> = {};
       if (status) {
         params.status = status;
       }
@@ -106,24 +106,25 @@ export const subscriptionService = {
         result.subscription = await calculateSubscriptionWithConversion(result.subscription);
       }
       return result;
-    } catch (error: any) {
-      console.error("[SERVICE CREATE] Error:", error.response?.data || error.message);
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: unknown }; message?: string };
+      console.error("[SERVICE CREATE] Error:", err.response?.data || err.message);
       throw error;
     }
   },
 
   async update(id: string, subscription: Partial<Subscription>): Promise<SubscriptionOrResponse> {
     try {
-      const subscriptionData: any = {};
+      const subscriptionData: Record<string, string | number | undefined | null> = {};
 
       if (subscription.name !== undefined) subscriptionData.name = subscription.name.trim();
       if (subscription.amount !== undefined) subscriptionData.amount = Number(subscription.amount);
       if (subscription.currency !== undefined) subscriptionData.currency = subscription.currency;
       if (subscription.billing_cycle !== undefined) subscriptionData.billing_cycle = subscription.billing_cycle;
       if (subscription.next_billing_date !== undefined) subscriptionData.next_billing_date = subscription.next_billing_date;
-      if (subscription.category_id !== undefined) subscriptionData.category_id = subscription.category_id;
-      if (subscription.description !== undefined) subscriptionData.description = subscription.description;
-      if (subscription.notes !== undefined) subscriptionData.notes = subscription.notes;
+      if (subscription.category_id !== undefined) subscriptionData.category_id = subscription.category_id ?? null;
+      if (subscription.description !== undefined) subscriptionData.description = subscription.description ?? null;
+      if (subscription.notes !== undefined) subscriptionData.notes = subscription.notes ?? null;
       if (subscription.status !== undefined) subscriptionData.status = subscription.status;
 
       console.log("📤 [SERVICE UPDATE] Sending to API:", { url: `/subscriptions/${id}`, data: subscriptionData });
@@ -144,8 +145,9 @@ export const subscriptionService = {
         };
       }
 
-    } catch (error: any) {
-      console.error("[SERVICE UPDATE] Error:", error.response?.data || error.message);
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: unknown }; message?: string };
+      console.error("[SERVICE UPDATE] Error:", err.response?.data || err.message);
       throw error;
     }
   },
@@ -191,7 +193,7 @@ export const subscriptionService = {
       );
 
       return uniqueCategories;
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error fetching categories:", error);
       return [];
     }

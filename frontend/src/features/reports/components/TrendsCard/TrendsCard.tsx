@@ -16,8 +16,6 @@ export const TrendsCard: React.FC<TrendsCardProps> = ({ monthlyEvolution }) => {
     if (!monthlyEvolution || monthlyEvolution.length < 4) return null;
 
     const sorted = [...monthlyEvolution].sort((a, b) => a.month - b.month);
-    const len = sorted.length;
-
     const currentQuarter = sorted.slice(-3);
     const previousQuarter = sorted.slice(-6, -3);
 

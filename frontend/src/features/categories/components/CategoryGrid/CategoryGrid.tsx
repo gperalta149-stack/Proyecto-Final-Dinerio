@@ -28,7 +28,6 @@ const COLOR_MAP: Record<string, KpiCardColor> = {
 
 export const CategoryGrid: React.FC<CategoryGridProps> = ({
   categories,
-  totalSpent,
   onEdit,
   onDelete,
   onAdd,

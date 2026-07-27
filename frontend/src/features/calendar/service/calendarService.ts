@@ -1,10 +1,11 @@
 // frontend/src/features/calendar/service/calendarService.ts
 import api from '../../../shared/services/api';
 import { normalizeCalendarEvent } from '../mappers/calendarMapper';
-import type { CalendarEvent } from '../types';
-import type { UpcomingPayment } from '../types';
+import type { CalendarEvent, UpcomingPayment } from '../types';
+import type { Debt } from '../../../shared/types';
+import type { Subscription } from '../../../shared/types';
 
-const normalizeDebtEvent = (debt: any): CalendarEvent => ({
+const normalizeDebtEvent = (debt: Debt): CalendarEvent => ({
   id: `debt-${debt.id}`,
   title: debt.name,
   amount: Number(debt.amount) || 0,
@@ -54,26 +55,26 @@ export const getUpcomingPayments = async (days: number = 30): Promise<UpcomingPa
     const futureDate = new Date(today.getTime() + days * 24 * 60 * 60 * 1000);
 
     const upcomingPayments = subscriptions
-      .filter((sub: any) => {
+      .filter((sub: Subscription) => {
         if (!['active', 'pending'].includes(sub.status)) return false;
 
         try {
           const billingDate = new Date(sub.next_billing_date);
           return billingDate >= today && billingDate <= futureDate;
-        } catch (error) {
+        } catch {
           console.warn('Fecha inválida:', sub.next_billing_date);
           return false;
         }
       })
-      .map((sub: any): UpcomingPayment => ({
+      .map((sub: Subscription): UpcomingPayment => ({
         id: sub.id,
         name: sub.name,
-        amount: sub.amount,
+        amount: typeof sub.amount === 'number' ? sub.amount : parseFloat(sub.amount),
         currency: sub.currency,
         next_billing_date: sub.next_billing_date,
         billing_cycle: sub.billing_cycle,
-        categoryName: sub.category_name || sub.category?.name || 'Otros',
-        categoryColor: sub.category_color || sub.category?.color || '#6B7280',
+        categoryName: sub.category_name || 'Otros',
+        categoryColor: sub.category_color || '#6B7280',
         status: sub.status
       }));
 

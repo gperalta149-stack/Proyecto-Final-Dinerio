@@ -15,7 +15,7 @@ describe("formatCurrency", () => {
   });
 
   it("returns formatted 0 for null", () => {
-    const result = formatCurrency(null as any, "ARS");
+    const result = formatCurrency(null as unknown as number, "ARS");
     expect(result).toContain("0");
   });
 });
@@ -26,7 +26,7 @@ describe("parseAmount", () => {
   });
 
   it("returns 0 for null", () => {
-    expect(parseAmount(null as any)).toBe(0);
+    expect(parseAmount(null as unknown as string)).toBe(0);
   });
 });
 

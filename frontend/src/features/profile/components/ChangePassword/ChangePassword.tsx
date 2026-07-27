@@ -1,6 +1,6 @@
 // frontend/src/features/profile/components/ChangePassword/ChangePassword.tsx
 import React, { useState } from 'react';
-import { Lock, Eye, EyeOff, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Eye, EyeOff, CheckCircle2, AlertCircle } from 'lucide-react';
 import { userService } from '../../../auth/service/userService';
 import '../../../../styles/profile/ChangePassword.css';
 
@@ -36,8 +36,9 @@ export const ChangePassword: React.FC = () => {
       });
       setMessage({ text: 'Contraseña actualizada exitosamente', type: 'success' });
       setFormData({ currentPassword: '', newPassword: '', confirmPassword: '' });
-    } catch (error: any) {
-      const msg = error.response?.data?.error || 'Error al cambiar la contraseña';
+    } catch (error: unknown) {
+      const axiosErr = error as { response?: { data?: { error?: string } } };
+      const msg = axiosErr.response?.data?.error || 'Error al cambiar la contraseña';
       setMessage({ text: msg, type: 'error' });
     } finally {
       setLoading(false);

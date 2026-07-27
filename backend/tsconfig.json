@@ -19,8 +19,8 @@
     "noUnusedParameters": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
-    "baseUrl": "./src",
     "ignoreDeprecations": "6.0",
+    "baseUrl": "./src",
     "paths": {
       "@/*": ["*"],
       "@types/*": ["types/*"]

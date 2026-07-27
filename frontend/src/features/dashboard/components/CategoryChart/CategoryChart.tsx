@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import { motion } from "framer-motion";
-import { ChartPie, BarChart3 } from "lucide-react";
+import { ChartPie } from "lucide-react";
 import type { Subscription } from "../../../../shared/types";
 import { formatCurrency, parseAmount } from "../../../../shared/utils/formatters";
 import '../../../../styles/dashboard/CategoryChart.css';

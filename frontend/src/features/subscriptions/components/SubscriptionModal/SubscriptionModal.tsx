@@ -174,7 +174,7 @@ export const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
       setShowCreateCategory(false);
       setShowCategoryDropdown(false);
       showToast("Categoría creada", "success");
-    } catch (error) {
+    } catch {
       showToast("Error al crear la categoría", "error");
     } finally {
       setCreatingCategory(false);
@@ -191,8 +191,9 @@ export const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
         setField("category_id", "");
       }
       showToast("Categoría eliminada", "success");
-    } catch (error: any) {
-      const msg = error.response?.data?.error || "Error al eliminar la categoría";
+    } catch (error: unknown) {
+      const axiosErr = error as { response?: { data?: { error?: string } } };
+      const msg = axiosErr.response?.data?.error || "Error al eliminar la categoría";
       showToast(msg, "error");
     }
   };

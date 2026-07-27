@@ -27,11 +27,10 @@ export const MonthlyEvolution: React.FC<MonthlyEvolutionProps> = ({
   showAll = false,
   large = false,
   range: externalRange,
-  onRangeChange,
 }) => {
-  const [internalRange, setInternalRange] = useState<number | null>(showAll ? null : 6);
+  const [internalRange] = useState<number | null>(showAll ? null : 6);
   const range = externalRange !== undefined ? externalRange : internalRange;
-  const setRange = onRangeChange || setInternalRange;
+
 
   const filtered = useMemo(() => {
     if (range === null) {

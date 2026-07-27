@@ -10,7 +10,7 @@ export interface User {
   name?: string;
   avatar_url?: string;
   role?: 'admin' | 'user';
-  monthly_budget?: number;
+  monthlyBudget?: number;
   monthly_income?: number;
   currency?: string;
   language?: string;
@@ -101,6 +101,7 @@ export interface DashboardStats {
   yearlyTotal: number;
   totalSubscriptions: number;
   monthlyBudget: number;
+  alertThreshold?: number;
   totalDebt?: number;
   pendingDebtCount?: number;
 }
@@ -184,7 +185,7 @@ export interface FinancialReport {
     monthly_total_ars: number;
     monthly_total_usd: number;
   }[];
-  subscriptions?: any[];
+  subscriptions?: Subscription[];
 }
 
 // ===== CALENDAR =====
@@ -207,7 +208,7 @@ export interface AuditLog {
   action: string;
   entity_type: string;
   entity_id?: string;
-  details?: Record<string, any>;
+  details?: Record<string, unknown>;
   ip_address?: string;
   created_at: string;
   user_email?: string;

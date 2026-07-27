@@ -5,7 +5,7 @@ import { budgetService } from "../../budget/service/budgetService";
 import type { MonthlyEvolutionData } from "../../reports/service/reportService";
 import type { Subscription, DashboardStats } from "../types";
 import type { Debt } from "../../../shared/types";
-import { formatCurrency, parseAmount } from "../../../shared/utils/formatters";
+import { parseAmount } from "../../../shared/utils/formatters";
 import ExchangeRateService from "../../../shared/services/exchangeRateService";
 
 export function useDashboardData(stats: DashboardStats | null, subscriptions: Subscription[]) {
@@ -111,7 +111,7 @@ export function useDashboardData(stats: DashboardStats | null, subscriptions: Su
 
   const evolutionData = useMemo(() => {
     if (!monthlyEvolution || monthlyEvolution.length === 0) return [];
-    return monthlyEvolution.map((item: any) => ({
+    return monthlyEvolution.map((item: MonthlyEvolutionData) => ({
       month: item.monthName || new Date(item.year, item.month - 1).toLocaleDateString("es-ES", { month: "short" }),
       monthIndex: item.month,
       year: item.year,

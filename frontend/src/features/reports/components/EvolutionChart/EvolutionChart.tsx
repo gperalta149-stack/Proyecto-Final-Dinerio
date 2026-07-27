@@ -1,6 +1,5 @@
 // frontend/src/features/reports/components/EvolutionChart/EvolutionChart.tsx
-import React, { useMemo } from "react";
-import { motion } from "framer-motion";
+import React from "react";
 import { TrendingUp } from "lucide-react";
 import { formatCurrency } from "../../../../shared/utils/formatters";
 import '../../../../styles/reports/EvolutionChart.css';

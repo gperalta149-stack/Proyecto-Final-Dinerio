@@ -1,4 +1,5 @@
 import jwt from "jsonwebtoken"
+import type { JWTPayload } from "../types/index.js"
 
 const JWT_SECRET = process.env.JWT_SECRET
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || "7d"
@@ -15,6 +16,6 @@ export const generateToken = (userId: string, email: string, name?: string): str
   )
 }
 
-export const verifyToken = (token: string): any => {
-  return jwt.verify(token, JWT_SECRET)
+export const verifyToken = (token: string): JWTPayload => {
+  return jwt.verify(token, JWT_SECRET) as JWTPayload
 }

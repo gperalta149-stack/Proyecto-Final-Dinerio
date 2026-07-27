@@ -11,10 +11,19 @@ const CURRENCIES = [
   { value: "USD", label: "USD", symbol: "US$" },
 ];
 
+export interface DebtFormData {
+  name: string;
+  amount: number;
+  currency?: string;
+  due_date: string;
+  category_id?: string;
+  notes?: string;
+}
+
 interface DebtModalProps {
   debt: Debt | null;
   categories: Category[];
-  onSave: (data: any) => Promise<void>;
+  onSave: (data: DebtFormData) => Promise<void>;
   onClose: () => void;
 }
 
@@ -105,8 +114,9 @@ export const DebtModal: React.FC<DebtModalProps> = ({
         category_id: formData.category_id || undefined,
         notes: formData.notes || undefined,
       });
-    } catch (err: any) {
-      setFormError(err.response?.data?.error || "Error al registrar la deuda");
+    } catch (err: unknown) {
+      const axiosErr = err as { response?: { data?: { error?: string } } };
+      setFormError(axiosErr.response?.data?.error || "Error al registrar la deuda");
     } finally {
       setLoading(false);
     }

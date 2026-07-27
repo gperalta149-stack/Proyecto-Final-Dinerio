@@ -1,6 +1,6 @@
 // frontend/src/features/budget/components/BudgetRecommendations/BudgetRecommendations.tsx
 import React from "react";
-import { TrendingUp, Target, AlertTriangle, CheckCircle2, Info } from "lucide-react";
+import { Target, AlertTriangle, CheckCircle2, Info } from "lucide-react";
 import { formatCurrency } from "../../../../shared/utils/formatters";
 import type { BudgetRecommendation } from "../../types";
 import '../../../../styles/budget/BudgetRecommendations.css';

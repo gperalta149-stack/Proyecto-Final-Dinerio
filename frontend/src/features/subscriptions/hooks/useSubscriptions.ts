@@ -1,9 +1,10 @@
 // frontend/src/features/subscriptions/hooks/useSubscriptions.ts
 import { useState, useEffect } from "react";
 import type { Subscription, UseSubscriptionsReturn } from "../types";
+import type { SubscriptionOrResponse } from "../../../shared/types";
 import { subscriptionService } from "../service/subscriptionService";
 
-const extractSubscription = (data: any): Subscription => {
+const extractSubscription = (data: SubscriptionOrResponse): Subscription => {
   if ('subscription' in data) {
     return data.subscription;
   }
@@ -42,7 +43,7 @@ export const useSubscriptions = (): UseSubscriptionsReturn => {
       const updated = extractSubscription(response);
       setSubscriptions(prev => prev.map(sub => sub.id === id ? { ...sub, ...updated } : sub));
       return updated;
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("[HOOK UPDATE] Error:", err);
       throw err;
     }
@@ -54,8 +55,9 @@ export const useSubscriptions = (): UseSubscriptionsReturn => {
       const newSub = extractSubscription(response);
       setSubscriptions(prev => [...prev, newSub]);
       return newSub;
-    } catch (err: any) {
-      const errorMessage = err.response?.data?.error || err.response?.data?.message || "Error al crear la suscripción";
+    } catch (err: unknown) {
+      const axiosErr = err as { response?: { data?: { error?: string; message?: string } } };
+      const errorMessage = axiosErr.response?.data?.error || axiosErr.response?.data?.message || "Error al crear la suscripción";
       throw new Error(errorMessage);
     }
   };
@@ -67,9 +69,10 @@ export const useSubscriptions = (): UseSubscriptionsReturn => {
       }
       await subscriptionService.delete(id);
       setSubscriptions(prev => prev.filter(sub => sub.id !== id));
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("[HOOK DELETE] Error:", err);
-      const errorMessage = err.response?.data?.error || "Error al eliminar la suscripción";
+      const axiosErr = err as { response?: { data?: { error?: string } } };
+      const errorMessage = axiosErr.response?.data?.error || "Error al eliminar la suscripción";
       throw new Error(errorMessage);
     }
   };

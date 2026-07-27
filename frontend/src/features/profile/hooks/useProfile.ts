@@ -1,6 +1,6 @@
 // frontend/src/features/profile/hooks/useProfile.ts
 import { useState, useEffect, useCallback } from 'react';
-import { userService } from '../../auth/service/userService';
+import { userService, type UserSettings } from '../../auth/service/userService';
 import type { User } from '../types';
 
 interface UseProfileReturn {
@@ -9,7 +9,7 @@ interface UseProfileReturn {
   error: string | null;
   updateProfile: (data: Partial<User>) => Promise<void>;
   updateBudget: (budget: number) => Promise<void>;
-  updateSettings: (settings: any) => Promise<void>;
+  updateSettings: (settings: UserSettings) => Promise<void>;
   refresh: () => Promise<void>;
 }
 
@@ -24,8 +24,8 @@ export const useProfile = (): UseProfileReturn => {
       setError(null);
       const data = await userService.getProfile();
       setUser(data);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error al cargar perfil');
+    } catch {
+      setError('Error al cargar perfil');
     } finally {
       setLoading(false);
     }
@@ -39,7 +39,7 @@ export const useProfile = (): UseProfileReturn => {
     try {
       await userService.updateProfile(data);
       await loadUserData();
-    } catch (err) {
+    } catch {
       throw new Error('Error al actualizar perfil');
     }
   }, [loadUserData]);
@@ -48,16 +48,16 @@ export const useProfile = (): UseProfileReturn => {
     try {
       await userService.updateBudget(budget);
       await loadUserData();
-    } catch (err) {
+    } catch {
       throw new Error('Error al actualizar presupuesto');
     }
   }, [loadUserData]);
 
-  const updateSettings = useCallback(async (settings: any) => {
+  const updateSettings = useCallback(async (settings: UserSettings) => {
     try {
       await userService.updateSettings(settings);
       await loadUserData();
-    } catch (err) {
+    } catch {
       throw new Error('Error al actualizar configuración');
     }
   }, [loadUserData]);

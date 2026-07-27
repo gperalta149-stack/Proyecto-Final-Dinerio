@@ -52,7 +52,7 @@ class ExchangeRateService {
           oficialCompra = Math.round(data.oficial.value_buy);
           oficialVenta = Math.round(data.oficial.value_sell);
         }
-      } catch (error) {
+      } catch {
         console.warn('Bluelytics falló, intentando DolarAPI...');
       }
 
@@ -107,7 +107,7 @@ class ExchangeRateService {
     if (shouldUpdate) {
       try {
         await this.updateRates();
-      } catch (error) {
+      } catch {
         console.warn('No se pudo actualizar, usando cache');
       }
     } else {

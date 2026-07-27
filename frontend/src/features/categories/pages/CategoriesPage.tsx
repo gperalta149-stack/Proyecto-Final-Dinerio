@@ -6,7 +6,7 @@ import { CategoryGrid } from '../components/CategoryGrid/CategoryGrid';
 import { CategoryForm } from '../components/CategoryForm/CategoryForm';
 import { CategoryStats } from '../components/CategoryStats/CategoryStats';
 import { CategoryTips } from '../components/CategoryTips/CategoryTips';
-import { formatCurrency } from '../../../shared/utils/formatters';
+
 import type { Category } from '../types';
 import '../../../styles/categories/categories.css';
 

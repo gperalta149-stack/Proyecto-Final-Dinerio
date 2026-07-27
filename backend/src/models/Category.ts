@@ -90,7 +90,7 @@ export class CategoryModel {
     static async update(id: string, categoryData: UpdateCategoryData): Promise<ICategory | null> {
         try {
             const updates: string[] = [];
-            const params: any[] = [];
+            const params: (string | number | boolean | null)[] = [];
             let paramCount = 1;
 
             if (categoryData.name !== undefined) {

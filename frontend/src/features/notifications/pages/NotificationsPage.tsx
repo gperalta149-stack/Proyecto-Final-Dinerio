@@ -1,7 +1,7 @@
 // frontend/src/features/notifications/pages/NotificationsPage.tsx
 import React, { useState, useEffect, useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle2, RefreshCw, Bell } from 'lucide-react';
+import { AnimatePresence } from 'framer-motion';
+import { CheckCircle2, RefreshCw } from 'lucide-react';
 import { notificationService } from '../service/notificationService';
 import { NotificationCard } from '../components/NotificationCard/NotificationCard';
 import { NotificationFilters } from '../components/NotificationFilters/NotificationFilters';

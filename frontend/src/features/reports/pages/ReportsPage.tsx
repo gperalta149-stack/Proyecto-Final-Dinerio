@@ -8,7 +8,7 @@ import { InsightsPanel } from "../components/InsightsPanel/InsightsPanel";
 import { KpiCard } from "../../../shared/components/ui/KpiCard";
 import { formatCurrency } from "../../../shared/utils/formatters";
 import { useReports } from "../hooks";
-import type { CategoryData } from "../types";
+import type { CategoryData, MonthlyEvolutionData } from "../types";
 import ExchangeRateService from "../../../shared/services/exchangeRateService";
 import '../../../styles/reports/reports.css';
 
@@ -29,8 +29,8 @@ export const ReportsPage: React.FC = () => {
 
   const { monthlyTotal, byCategory, subscriptions } = useMemo(() => {
     if (!report) return { monthlyTotal: 0, byCategory: [] as CategoryData[], subscriptions: [] };
-    const rawCategories: any[] = (report as any).by_category || report.categories || [];
-    const converted = rawCategories.map((c: any) => {
+    const rawCategories: CategoryData[] = (report.by_category || []) as unknown as CategoryData[];
+    const converted = rawCategories.map((c: CategoryData) => {
       const ars = Number(c.monthly_total_ars || 0);
       const usd = Number(c.monthly_total_usd || 0);
       return {
@@ -42,55 +42,56 @@ export const ReportsPage: React.FC = () => {
         monthly_total: ars + usd * ExchangeRateService.getTarjetaRate(),
       };
     });
-    const total = converted.reduce((sum: number, c: any) => sum + (c.monthly_total || 0), 0);
+    const total = converted.reduce((sum: number, c: CategoryData) => sum + (c.monthly_total || 0), 0);
     return {
       monthlyTotal: total,
       byCategory: converted,
-      subscriptions: (report as any).subscriptions || [],
+      subscriptions: report.subscriptions || [],
     };
   }, [report]);
 
   const filteredEvolution = useMemo(() => {
-    if (!monthlyEvolution || monthlyEvolution.length === 0) return [];
+    if (!monthlyEvolution || monthlyEvolution.length === 0) return [] as MonthlyEvolutionData[];
     if (rangeMode === "date") {
-      return monthlyEvolution.filter((d: any) => d.month === selectedMonth && d.year === selectedYear);
+      return monthlyEvolution.filter((d: MonthlyEvolutionData) => d.month === selectedMonth && d.year === selectedYear);
     }
     if (range === null) return [...monthlyEvolution];
     const now = new Date();
     const actualKey = now.getFullYear() * 12 + (now.getMonth() + 1);
     const cutoffKey = Math.min(selectedYear * 12 + selectedMonth, actualKey);
-    return monthlyEvolution.filter((d: any) => {
+    return monthlyEvolution.filter((d: MonthlyEvolutionData) => {
       const key = d.year * 12 + d.month;
       return key <= cutoffKey && key > cutoffKey - range;
     });
   }, [monthlyEvolution, range, rangeMode, selectedMonth, selectedYear]);
 
   const currencyTotals = useMemo(() => {
-    return (filteredEvolution as any[]).reduce(
-      (acc: { ars: number; usd: number; paidArs: number; paidUsd: number }, m: any) => ({
-        ars: acc.ars + (Number(m.monthly_total_ars) || 0),
-        usd: acc.usd + (Number(m.monthly_total_usd) || 0),
-        paidArs: acc.paidArs + (Number(m.monthly_paid_ars) || 0),
-        paidUsd: acc.paidUsd + (Number(m.monthly_paid_usd) || 0),
-      }),
-      { ars: 0, usd: 0, paidArs: 0, paidUsd: 0 }
-    );
-  }, [filteredEvolution]);
+    const currentMonthData = filteredEvolution.find(
+      (m: MonthlyEvolutionData) => m.month === selectedMonth && m.year === selectedYear
+    ) || filteredEvolution[filteredEvolution.length - 1];
+    if (!currentMonthData) return { ars: 0, usd: 0, paidArs: 0, paidUsd: 0 };
+    return {
+      ars: Number(currentMonthData.monthly_total_ars) || 0,
+      usd: Number(currentMonthData.monthly_total_usd) || 0,
+      paidArs: Number(currentMonthData.monthly_paid_ars) || 0,
+      paidUsd: Number(currentMonthData.monthly_paid_usd) || 0,
+    };
+  }, [filteredEvolution, selectedMonth, selectedYear]);
 
-  const monthTotalARS = (m: any) =>
+  const monthTotalARS = (m: MonthlyEvolutionData) =>
     (Number(m.monthly_total_ars) || 0) + (Number(m.monthly_total_usd) || 0) * ExchangeRateService.getTarjetaRate();
 
   const stats = useMemo(() => {
     if (!filteredEvolution || filteredEvolution.length === 0) return null;
-    const sorted = [...filteredEvolution].sort((a: any, b: any) => {
+    const sorted = [...filteredEvolution].sort((a: MonthlyEvolutionData, b: MonthlyEvolutionData) => {
       const aKey = a.year * 12 + a.month;
       const bKey = b.year * 12 + b.month;
       return aKey - bKey;
     });
-    const totalFiltered = sorted.reduce((s: number, m: any) => s + monthTotalARS(m), 0);
+    const totalFiltered = sorted.reduce((s: number, m: MonthlyEvolutionData) => s + monthTotalARS(m), 0);
     const avgFiltered = totalFiltered / sorted.length;
-    const withTotal = sorted.map((m: any) => ({ ...m, _total: monthTotalARS(m) }));
-    const mostExpensive = [...withTotal].sort((a: any, b: any) => b._total - a._total)[0];
+    const withTotal = sorted.map((m: MonthlyEvolutionData) => ({ ...m, _total: monthTotalARS(m) }));
+    const mostExpensive = [...withTotal].sort((a: MonthlyEvolutionData & { _total: number }, b: MonthlyEvolutionData & { _total: number }) => b._total - a._total)[0];
     const highestPayment = mostExpensive?._total || 0;
     let monthlyVariation = 0;
     if (sorted.length >= 2) {
@@ -102,7 +103,7 @@ export const ReportsPage: React.FC = () => {
   }, [filteredEvolution]);
 
   const monthlyChartData = useMemo(() => {
-    return filteredEvolution.map((item: any) => ({
+    return filteredEvolution.map((item: MonthlyEvolutionData) => ({
       month: item.monthName || new Date(item.year, item.month - 1).toLocaleDateString("es-ES", { month: "short" }),
       monthIndex: item.month,
       year: item.year,
@@ -112,6 +113,7 @@ export const ReportsPage: React.FC = () => {
 
   const hasData = filteredEvolution.length > 0;
   const hasCategories = byCategory.length > 0;
+  const monthsWithData = filteredEvolution.filter((m: MonthlyEvolutionData) => monthTotalARS(m) > 0).length;
 
   if (loading) {
     return (
@@ -202,14 +204,14 @@ export const ReportsPage: React.FC = () => {
         </div>
 
         {/* ROW 1 — 6 KPIs (same container style as Dashboard) */}
-        {stats && (
+        {(stats || monthlyTotal > 0) && (
           <div className="analysis-kpis-container">
             <div className="dashboard-kpis">
-              <KpiCard title={rangeMode === 'range' ? (range === 12 ? 'Total Anual' : `Total ${range} Meses`) : 'Total Anual'} value={rangeMode === 'range' ? formatCurrency(stats.totalYearly, "ARS") : '—'} icon={<DollarSign size={16} />} color="spent" />
-              <KpiCard title="Promedio mensual" value={rangeMode === 'range' ? formatCurrency(stats.avgMonthly, "ARS") : '—'} icon={<BarChart3 size={16} />} color="subscriptions" />
-              <KpiCard title="Mayor pago" value={rangeMode === 'range' ? formatCurrency(stats.highestPayment, "ARS") : '—'} icon={<Trophy size={16} />} color="warning" />
-              <KpiCard title="Mes más caro" value={rangeMode === 'range' ? (stats.mostExpensive?.monthName || "—") : '—'} subtitle={rangeMode === 'range' ? formatCurrency(stats.mostExpensive?._total || 0, "ARS") : undefined} icon={<ArrowUp size={16} />} color="danger" />
-              <KpiCard title="Variación mensual" value={rangeMode === 'range' ? `${stats.monthlyVariation >= 0 ? "+" : ""}${stats.monthlyVariation.toFixed(1)}%` : '—'} icon={<TrendingDown size={16} />} color={rangeMode === 'range' ? (stats.monthlyVariation > 0 ? "danger" : "success") : "spent"} />
+              <KpiCard title="Total" value={rangeMode === 'date' ? formatCurrency(monthlyTotal, "ARS") : formatCurrency(monthlyTotal, "ARS")} icon={<DollarSign size={16} />} color="spent" />
+              <KpiCard title="Promedio mensual" value={monthsWithData >= 3 ? formatCurrency(monthlyTotal / (range || 12), "ARS") : '—'} icon={<BarChart3 size={16} />} color="subscriptions" />
+              <KpiCard title="Mayor pago" value={monthsWithData >= 3 && stats ? formatCurrency(stats.highestPayment, "ARS") : '—'} icon={<Trophy size={16} />} color="warning" />
+              <KpiCard title="Mes más caro" value={monthsWithData >= 3 && stats ? (stats.mostExpensive?.monthName || "—") : '—'} subtitle={monthsWithData >= 3 && stats ? formatCurrency(stats.mostExpensive?._total || 0, "ARS") : undefined} icon={<ArrowUp size={16} />} color="danger" />
+              <KpiCard title="Variación mensual" value={monthsWithData >= 3 && stats ? `${stats.monthlyVariation >= 0 ? "+" : ""}${stats.monthlyVariation.toFixed(1)}%` : '—'} icon={<TrendingDown size={16} />} color={stats ? (stats.monthlyVariation > 0 ? "danger" : "success") : "spent"} />
               <div className="kpi-card monedas-card">
                 <div className="kpi-icon-wrapper" style={{ background: 'rgba(99, 102, 241, 0.1)' }}>
                   <span style={{ color: '#818cf8' }}><DollarSign size={16} /></span>
@@ -242,7 +244,7 @@ export const ReportsPage: React.FC = () => {
         <div className="analysis-grid-2">
           <div className="analysis-card app-card">
             <div className="card-title-header"><PieChart size={14} /> Gasto por categoría</div>
-            {hasCategories ? <AnnualDistribution categories={byCategory} monthlyEvolution={filteredEvolution} monthlyTotal={monthlyTotal} currency="ARS" /> : <div className="card-empty"><PieChart size={48} /><span>Sin datos de categorías</span></div>}
+            {hasCategories ? <AnnualDistribution categories={byCategory} monthlyEvolution={filteredEvolution} currency="ARS" /> : <div className="card-empty"><PieChart size={48} /><span>Sin datos de categorías</span></div>}
           </div>
           <div className="analysis-card app-card">
             {hasData ? <MonthlyEvolution data={monthlyChartData} currency="ARS" range={null} /> : <div className="card-empty"><TrendingUp size={48} /><span>Sin datos de evolución</span></div>}

@@ -1,9 +1,34 @@
-import { Request, Response } from 'express';
+import { Response } from 'express';
+import type { AuthRequest } from '../types/index.js';
 import { SubscriptionModel } from '../models/Subscription.js';
 
-export const getCalendarEvents = async (req: Request, res: Response) => {
+interface CalendarSubscriptionRow {
+  id: string;
+  name: string;
+  amount: number;
+  currency: string;
+  nextBillingDate: string;
+  billingCycle: string;
+  status: string;
+  categoryId: string | null;
+  category_name: string | null;
+  category_color: string | null;
+}
+
+interface UpcomingPaymentRow {
+  id: string;
+  name: string;
+  amount: number;
+  currency: string;
+  next_billing_date: string;
+  billing_cycle: string;
+  category_name: string | null;
+  category_color: string | null;
+}
+
+export const getCalendarEvents = async (req: AuthRequest, res: Response) => {
   try {
-    const userId = (req as any).user.id;
+    const userId = req.user!.userId;
     const { month, year } = req.query;
     let query = `
       SELECT
@@ -21,8 +46,8 @@ export const getCalendarEvents = async (req: Request, res: Response) => {
       LEFT JOIN categories c ON s.category_id = c.id
       WHERE s.user_id = $1 AND s.status IN ('active', 'cancelled')
     `;
-    const params: any[] = [userId];
-    // Se va a filtrar por mes y año si se proporcionan
+    const params: (string | number)[] = [userId];
+
     if (month && year) {
       const startDate = new Date(parseInt(year as string), parseInt(month as string) - 1, 1);
       const endDate = new Date(parseInt(year as string), parseInt(month as string), 0);
@@ -34,7 +59,7 @@ export const getCalendarEvents = async (req: Request, res: Response) => {
     query += ` ORDER BY s.next_billing_date ASC`;
     const result = await SubscriptionModel.findByQuery(query, params);
 
-    const events = result.map((sub: any) => ({
+    const events = (result as CalendarSubscriptionRow[]).map((sub) => ({
       id: sub.id,
       title: sub.name,
       amount: sub.amount,
@@ -45,7 +70,7 @@ export const getCalendarEvents = async (req: Request, res: Response) => {
       category_id: sub.categoryId,
       category_name: sub.category_name,
       category_color: sub.category_color,
-      type: 'payment'
+      type: 'payment' as const
     }));
     res.json(events);
   } catch (error) {
@@ -54,15 +79,15 @@ export const getCalendarEvents = async (req: Request, res: Response) => {
   }
 };
 
-export const getUpcomingPayments = async (req: Request, res: Response) => {
+export const getUpcomingPayments = async (req: AuthRequest, res: Response) => {
   try {
-    const userId = (req as any).user.id;
+    const userId = req.user!.userId;
     const { days = 30 } = req.query;
     const subscriptions = await SubscriptionModel.getUpcomingSubscriptions(
       userId,
       parseInt(days as string)
     );
-    const payments = subscriptions.map((sub: any) => ({
+    const payments = (subscriptions as UpcomingPaymentRow[]).map((sub) => ({
       id: sub.id,
       name: sub.name,
       amount: sub.amount,

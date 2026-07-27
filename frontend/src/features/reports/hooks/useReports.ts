@@ -1,7 +1,8 @@
 // frontend/src/features/reports/hooks/useReports.ts
 import { useState, useEffect } from "react";
 import { reportService } from "../service/reportService";
-import type { FinancialReport, MonthlyEvolutionData } from "../types";
+import type { MonthlyEvolutionData } from "../types";
+import type { FinancialReport } from "../../../shared/types";
 
 interface UseReportsReturn {
   report: FinancialReport | null;
@@ -45,7 +46,7 @@ export const useReports = (month?: number, year?: number, range?: number | null,
       // Merge evolution data from all fetched years
       const allEvolution = evolutionResults.flatMap(er => er.monthlyEvolution || []);
 
-      setReport(financialReport as any);
+      setReport(financialReport);
       setMonthlyEvolution(allEvolution);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error al cargar los reportes");
@@ -87,7 +88,7 @@ export const useReports = (month?: number, year?: number, range?: number | null,
       try {
         const data = await reportService.getMonthlyEvolution(y);
         setMonthlyEvolution(data.monthlyEvolution || []);
-      } catch (err) {
+      } catch {
         setError("Error al cargar la evolución mensual");
       }
     },

@@ -31,7 +31,7 @@ export const useBudget = (selectedMonth?: number, selectedYear?: number): UseBud
 
   const budget = monthlyBudget?.budget_amount || 0;
 
-  const getMonthlyAmount = (sub: any): number => {
+  const getMonthlyAmount = (sub: Subscription): number => {
     const amount = parseAmount(sub.amount);
     const cycle = sub.billing_cycle || 'monthly';
     let monthly = amount;

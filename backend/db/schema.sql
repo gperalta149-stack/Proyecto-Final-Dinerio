@@ -33,7 +33,8 @@ CREATE TABLE categories (
   icon VARCHAR(50),
   monthly_limit DECIMAL(10,2),
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT unique_user_category UNIQUE (user_id, name)
 );
 -- Tabla de Suscripciones
 CREATE TABLE subscriptions (

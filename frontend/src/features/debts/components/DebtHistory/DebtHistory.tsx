@@ -23,16 +23,6 @@ export const DebtHistory: React.FC<DebtHistoryProps> = ({ debts }) => {
   const [selectedYear, setSelectedYear] = useState(today.getFullYear());
   const [currentPage, setCurrentPage] = useState(0);
 
-  const years = useMemo(() => {
-    const set = new Set<number>();
-    const now = new Date();
-    for (let y = now.getFullYear(); y >= 2020; y--) set.add(y);
-    debts.forEach(d => {
-      if (d.paid_at) set.add(new Date(d.paid_at).getFullYear());
-    });
-    return Array.from(set).sort((a, b) => b - a);
-  }, [debts]);
-
   const filtered = useMemo(() => {
     let result = debts;
 

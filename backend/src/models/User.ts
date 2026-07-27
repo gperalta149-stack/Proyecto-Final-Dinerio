@@ -104,7 +104,7 @@ export class UserModel {
     static async update(id: string, userData: UpdateUserData): Promise<IUser | null> {
         try {
             const updates: string[] = [];
-            const params: any[] = [];
+            const params: (string | number | boolean | null)[] = [];
             let paramCount = 1;
 
             if (userData.first_name !== undefined) {

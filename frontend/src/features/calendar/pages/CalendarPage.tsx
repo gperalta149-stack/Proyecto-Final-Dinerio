@@ -7,7 +7,7 @@ import { TodayPayments } from '../components/TodayPayments/TodayPayments';
 import { UpcomingPayments } from '../components/UpcomingPayments/UpcomingPayments';
 import { PaymentsList } from '../components/PaymentsList/PaymentsList';
 import { useCalendar } from '../hooks/useCalendar';
-import { MONTHS } from '../constants/calendar';
+
 import '../../../styles/calendar/calendar.css';
 
 export const CalendarPage: React.FC = () => {

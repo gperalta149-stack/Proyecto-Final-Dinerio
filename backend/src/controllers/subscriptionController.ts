@@ -19,7 +19,7 @@ export const getSubscriptions = async (req: AuthRequest, res: Response): Promise
       LEFT JOIN categories c ON s.category_id = c.id
       WHERE s.user_id = $1
     `
-    const params: any[] = [req.user!.userId]
+    const params: (string | number | boolean | null)[] = [req.user!.userId]
 
     if (status && status !== "all") {
       query += " AND s.status = $2"
@@ -430,7 +430,7 @@ export const getDashboardStats = async (req: AuthRequest, res: Response): Promis
 
     const upcomingResult = await pool.query(upcomingQuery, [req.user!.userId])
     const budgetResult = await pool.query(
-      `SELECT budget_amount FROM monthly_budgets
+      `SELECT budget_amount, alert_threshold FROM monthly_budgets
        WHERE user_id = $1 AND year = EXTRACT(YEAR FROM CURRENT_DATE) AND month = EXTRACT(MONTH FROM CURRENT_DATE)`,
       [req.user!.userId]
     )
@@ -450,6 +450,7 @@ export const getDashboardStats = async (req: AuthRequest, res: Response): Promis
         yearlyTotal: Number.parseFloat(statsResult.rows[0].yearly_total || 0),
         totalSubscriptions: Number.parseInt(statsResult.rows[0].total_subscriptions || 0),
         monthlyBudget: Number.parseFloat(budgetResult.rows[0]?.budget_amount || 0),
+        alertThreshold: Number.parseFloat(budgetResult.rows[0]?.alert_threshold ?? 80),
         totalDebt: debtResult.rows[0].total,
         pendingDebtCount: debtResult.rows[0].count,
       },

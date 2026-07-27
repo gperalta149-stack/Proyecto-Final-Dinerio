@@ -19,7 +19,7 @@ export const categoryService = {
       }
 
       return categories;
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error fetching categories:", error);
       throw error;
     }
@@ -29,7 +29,7 @@ export const categoryService = {
     try {
       const response = await api.post("/categories", categoryData);
       return response.data.category;
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error creating category:", error);
       throw error;
     }
@@ -39,7 +39,7 @@ export const categoryService = {
     try {
       const response = await api.put(`/categories/${id}`, categoryData);
       return response.data.category;
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error(`Error updating category ${id}:`, error);
       throw error;
     }
@@ -48,7 +48,7 @@ export const categoryService = {
   async delete(id: string): Promise<void> {
     try {
       await api.delete(`/categories/${id}`);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error(`Error deleting category ${id}:`, error);
       throw error;
     }

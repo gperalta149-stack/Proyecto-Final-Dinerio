@@ -41,8 +41,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       localStorage.setItem("token", token)
       setUser(user)
       return { success: true }
-    } catch (error: any) {
-      const errorMessage = error.response?.data?.error || error.response?.data?.message || "Error al iniciar sesión"
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { error?: string; message?: string } } };
+      const errorMessage = err.response?.data?.error || err.response?.data?.message || "Error al iniciar sesión"
       return { success: false, error: errorMessage }
     }
   }
@@ -58,8 +59,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       localStorage.setItem("token", token)
       setUser(user)
       return { success: true }
-    } catch (error: any) {
-      const errorMessage = error.response?.data?.error || error.response?.data?.message || "Error al registrarse"
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { error?: string; message?: string } } };
+      const errorMessage = err.response?.data?.error || err.response?.data?.message || "Error al registrarse"
       return { success: false, error: errorMessage }
     }
   }
@@ -76,8 +78,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const { user: updatedUser } = await authService.updateBudget(monthlyBudget)
       setUser(updatedUser)
       return { success: true }
-    } catch (error: any) {
-      const errorMessage = error.response?.data?.error || "Error al actualizar presupuesto"
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { error?: string } } };
+      const errorMessage = err.response?.data?.error || "Error al actualizar presupuesto"
       return { success: false, error: errorMessage }
     }
   }

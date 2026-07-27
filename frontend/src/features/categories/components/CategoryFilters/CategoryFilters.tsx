@@ -38,7 +38,7 @@ export const CategoryFilters: React.FC<CategoryFiltersProps> = ({
 
         <select
           value={sortBy}
-          onChange={(e) => onSortChange(e.target.value as any)}
+          onChange={(e) => onSortChange(e.target.value as 'name' | 'subscriptions' | 'recent')}
           className="sort-select"
         >
           <option value="name">Ordenar por nombre</option>

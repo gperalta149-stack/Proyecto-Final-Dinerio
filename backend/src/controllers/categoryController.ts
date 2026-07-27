@@ -2,6 +2,15 @@ import { Response } from "express"
 import { pool } from "../config/database.js"
 import type { AuthRequest } from "../types/index.js"
 
+function isUniqueViolation(error: unknown): error is { code: string } {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "code" in error &&
+    (error as { code: unknown }).code === "23505"
+  )
+}
+
 
 export const getCategories = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
@@ -53,6 +62,10 @@ export const createCategory = async (req: AuthRequest, res: Response): Promise<v
       category: result.rows[0],
     })
   } catch (error) {
+    if (isUniqueViolation(error)) {
+      res.status(409).json({ error: "Ya tenés una categoría con ese nombre" })
+      return
+    }
     console.error("Create category error:", error)
     res.status(500).json({ error: "Error al crear categoría" })
   }
@@ -85,6 +98,10 @@ export const updateCategory = async (req: AuthRequest, res: Response): Promise<v
       category: result.rows[0],
     })
   } catch (error) {
+    if (isUniqueViolation(error)) {
+      res.status(409).json({ error: "Ya tenés una categoría con ese nombre" })
+      return
+    }
     console.error("Update category error:", error)
     res.status(500).json({ error: "Error al actualizar categoría" })
   }

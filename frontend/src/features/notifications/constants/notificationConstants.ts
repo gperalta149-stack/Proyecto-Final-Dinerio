@@ -9,14 +9,10 @@ import {
   FileText,
   Clock,
   Info,
-  Wallet,
-  Calendar,
-  Bell,
-  Zap
 } from 'lucide-react';
 import type { NotificationType, NotificationPriority } from '../types';
 
-export const NOTIFICATION_ICONS: Record<NotificationType, any> = {
+export const NOTIFICATION_ICONS: Record<NotificationType, React.ElementType> = {
   payment_due: CreditCard,
   payment_overdue: AlertTriangle,
   payment_paid: CheckCircle2,

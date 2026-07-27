@@ -1,5 +1,5 @@
-import React, { useMemo } from "react";
-import { TrendingUp, TrendingDown, Minus } from "lucide-react";
+import React from "react";
+import { TrendingUp, TrendingDown } from "lucide-react";
 import { formatCurrency } from "../../../../shared/utils/formatters";
 import '../../../../styles/reports/TopCategory.css';
 

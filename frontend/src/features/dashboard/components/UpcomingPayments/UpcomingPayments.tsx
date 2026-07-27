@@ -36,11 +36,9 @@ export const UpcomingPayments: React.FC<UpcomingPaymentsProps> = ({
   };
 
   const getDaysText = (days: number) => {
-    if (days < 0) return `Vencida hace ${Math.abs(days)} día${Math.abs(days) !== 1 ? "s" : ""}`;
-    if (days === 0) return "Vence hoy";
-    if (days <= 3) return `Vence en ${days} día${days !== 1 ? "s" : ""}`;
-    if (days <= 7) return `Vence en ${days} días`;
-    return `Faltan ${days} días`;
+    if (days < 0) return `${Math.abs(days)}d vencido`;
+    if (days === 0) return "Hoy";
+    return `${days}d`;
   };
 
   const getIconColor = (name: string) => {

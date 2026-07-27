@@ -137,8 +137,9 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
       } else {
         setErrors({ submit: result.error || "Error al registrarse" });
       }
-    } catch (err: any) {
-      const errorMessage = err.response?.data?.error || "Error al registrarse";
+    } catch (err: unknown) {
+      const axiosErr = err as { response?: { data?: { error?: string } } };
+      const errorMessage = axiosErr.response?.data?.error || "Error al registrarse";
       
       if (errorMessage.includes("Email already registered") || 
           errorMessage.includes("ya existe") ||

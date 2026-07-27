@@ -1,13 +1,14 @@
-import Card from "../../../../shared/components/ui/Card"
 import { formatCurrency } from "../../../../shared/utils/formatters"
+import '../../../../styles/dashboard/BudgetAlert.css'
+import type { DashboardStats } from "../../../../shared/types"
 
 interface BudgetAlertProps {
   totalSpent?: number | string
   budget?: number | string
-  stats?: any
+  stats?: DashboardStats
 }
 
-const safeParseNumber = (value: any): number => {
+const safeParseNumber = (value: unknown): number => {
   if (typeof value === 'number') return value
   if (typeof value === 'string') {
     const parsed = parseFloat(value)
@@ -21,11 +22,8 @@ export default function BudgetAlert({ totalSpent, budget, stats }: BudgetAlertPr
   let monthlyBudget = safeParseNumber(budget)
 
   if (stats) {
-    const statsSpent = stats.monthlyTotal || stats.totalSpent || stats.spent
-    const statsBudget = stats.monthlyBudget || stats.budget
-
-    if (statsSpent !== undefined) spent = safeParseNumber(statsSpent)
-    if (statsBudget !== undefined) monthlyBudget = safeParseNumber(statsBudget)
+    if (stats.monthlyTotal !== undefined) spent = safeParseNumber(stats.monthlyTotal)
+    if (stats.monthlyBudget !== undefined) monthlyBudget = safeParseNumber(stats.monthlyBudget)
   }
   if (monthlyBudget <= 0) {
     return null
@@ -36,13 +34,12 @@ export default function BudgetAlert({ totalSpent, budget, stats }: BudgetAlertPr
   if (!isWarning) {
     return null
   }
+  const mod = isDanger ? "danger" : "warning"
   return (
-    <Card className={`border-2 ${isDanger ? "border-red-500 bg-red-500/5" : "border-orange-500 bg-orange-500/5"}`}>
-      <div className="flex items-start gap-4">
-        <div
-          className={`p-3 rounded-lg ${isDanger ? "bg-red-500/20 text-red-400" : "bg-orange-500/20 text-orange-400"}`}
-        >
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <div className={`budget-alert border-${mod}`}>
+      <div className="budget-alert-inner">
+        <div className={`budget-alert-icon ${mod}`}>
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -51,28 +48,31 @@ export default function BudgetAlert({ totalSpent, budget, stats }: BudgetAlertPr
             />
           </svg>
         </div>
-        <div className="flex-1">
-          <h3 className={`text-lg font-semibold mb-2 ${isDanger ? "text-red-400" : "text-orange-400"}`}>
+        <div className="budget-alert-body">
+          <h3 className={`budget-alert-title ${mod}`}>
             {isDanger ? "¡Presupuesto Excedido!" : "Alerta de Presupuesto"}
           </h3>
-          <p className="text-gray-300 mb-3">
+          <p className="budget-alert-text">
             {isDanger
               ? `Has excedido tu presupuesto mensual en ${formatCurrency(spent - monthlyBudget)}.`
               : `Estás cerca de alcanzar tu presupuesto mensual (${percentage.toFixed(0)}%).`}
           </p>
-          <div className="w-full bg-gray-700 rounded-full h-3 overflow-hidden">
+          <div className="budget-alert-bar">
             <div
-              className={`h-full transition-all duration-500 ${isDanger ? "bg-red-500" : "bg-orange-500"}`}
-              style={{ width: `${Math.min(percentage, 100)}%` }}
+              className="budget-alert-fill"
+              style={{
+                width: `${Math.min(percentage, 100)}%`,
+                background: isDanger ? "#ef4444" : "#f59e0b",
+              }}
             />
           </div>
-          <div className="flex justify-between mt-2 text-sm">
-            <span className="text-gray-400">{formatCurrency(spent)} gastado</span>
-            <span className="text-gray-400">{formatCurrency(monthlyBudget)} presupuesto</span>
+          <div className="budget-alert-footer">
+            <span>{formatCurrency(spent)} gastado</span>
+            <span>{formatCurrency(monthlyBudget)} presupuesto</span>
           </div>
         </div>
       </div>
-    </Card>
+    </div>
   )
 }
 export { BudgetAlert }

@@ -1,7 +1,7 @@
 // frontend/src/features/reports/components/CategoryChart/CategoryChart.tsx
 import React, { useMemo } from "react";
 import { motion } from "framer-motion";
-import { PieChart } from "lucide-react";
+
 import { formatCurrency } from "../../../../shared/utils/formatters";
 import '../../../../styles/reports/CategoryChart.css';
 

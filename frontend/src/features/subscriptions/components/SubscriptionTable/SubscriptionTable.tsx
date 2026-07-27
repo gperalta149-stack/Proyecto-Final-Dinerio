@@ -3,8 +3,7 @@ import {
   Eye,
   Pencil,
   Trash2,
-  CreditCard,
-  CalendarDays,
+
   Tv,
   Plus,
 } from "lucide-react";
@@ -28,7 +27,7 @@ const colorFor = (seed: string) => {
   return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
 };
 
-const getNextPaymentInfo = (date: string, status: string) => {
+const getNextPaymentInfo = (date: string) => {
   const days = Math.ceil((new Date(date).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
   if (days < 0) return { text: "Vencida", color: "#ef4444" };
   if (days === 0) return { text: "Hoy", color: "#f59e0b" };
@@ -89,7 +88,7 @@ export const SubscriptionTable: React.FC<SubscriptionTableProps> = ({
             const isActive = sub.status === "active";
             const amount = sub.arsAmount ?? parseAmount(sub.amount);
             const currency = sub.arsAmount ? "ARS" : sub.currency;
-            const nextInfo = isActive ? getNextPaymentInfo(sub.next_billing_date, sub.status) : null;
+            const nextInfo = isActive ? getNextPaymentInfo(sub.next_billing_date) : null;
 
             return (
               <tr key={sub.id}>

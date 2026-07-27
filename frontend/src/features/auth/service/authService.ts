@@ -47,7 +47,7 @@ export const authService = {
     try {
       await api.get('/users/profile');
       return true;
-    } catch (error) {
+    } catch {
       return false;
     }
   }

@@ -14,14 +14,12 @@ interface CategoryData {
 
 interface CategoryTableProps {
   data: CategoryData[];
-  total: number;
   currency?: string;
   previousData?: CategoryData[];
 }
 
 export const CategoryTable: React.FC<CategoryTableProps> = ({
   data,
-  total,
   currency = "ARS",
   previousData = [],
 }) => {

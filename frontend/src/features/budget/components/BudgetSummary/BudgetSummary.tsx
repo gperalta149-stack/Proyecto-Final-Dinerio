@@ -15,9 +15,7 @@ interface BudgetSummaryProps {
 
 export const BudgetSummary: React.FC<BudgetSummaryProps> = ({
   spent,
-  budget,
   available,
-  percentageUsed,
   daysRemaining,
   activeCount,
 }) => {

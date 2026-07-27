@@ -54,10 +54,11 @@ export const groupEventsByDay = (events: CalendarEvent[]): Record<string, Calend
 export const getEventsForDay = (
   day: number,
   currentDate: Date,
-  eventsByDay: Record<string, CalendarEvent[]>
+  eventsByDay: Record<string, CalendarEvent[]>,
+  isCurrentMonth: boolean = true
 ): CalendarEvent[] => {
-  const date = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
-  const key = formatDateKey(date);
+  if (!isCurrentMonth) return [];
+  const key = formatDateKey(new Date(currentDate.getFullYear(), currentDate.getMonth(), day));
   return eventsByDay[key] || [];
 };
 

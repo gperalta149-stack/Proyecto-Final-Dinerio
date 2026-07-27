@@ -2,9 +2,9 @@
 import { useState, useCallback } from 'react';
 
 interface UseAuthFormOptions {
-  initialValues?: Record<string, any>;
-  validate?: (values: Record<string, any>) => Record<string, string>;
-  onSubmit?: (values: Record<string, any>) => Promise<void>;
+  initialValues?: Record<string, string>;
+  validate?: (values: Record<string, string>) => Record<string, string>;
+  onSubmit?: (values: Record<string, string>) => Promise<void>;
 }
 
 export const useAuthForm = (options: UseAuthFormOptions = {}) => {
@@ -61,7 +61,7 @@ export const useAuthForm = (options: UseAuthFormOptions = {}) => {
     }
   }, [validate, values, onSubmit]);
 
-  const setFieldValue = useCallback((name: string, value: any) => {
+  const setFieldValue = useCallback((name: string, value: string) => {
     setValues(prev => ({ ...prev, [name]: value }));
   }, []);
 

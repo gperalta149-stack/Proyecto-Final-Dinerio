@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { FeatureCardProps } from "../types";
 
-export const FeatureCard: React.FC<FeatureCardProps> = ({ feature, index = 0 }) => {
+export const FeatureCard: React.FC<FeatureCardProps> = ({ feature }) => {
   return (
     <motion.div
       className="feature-card"

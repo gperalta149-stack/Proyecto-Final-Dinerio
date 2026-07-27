@@ -2,7 +2,7 @@
 import React from 'react';
 import { Search, Filter, X } from 'lucide-react';
 import { NOTIFICATION_TYPE_LABELS } from '../../constants/notificationConstants';
-import type { NotificationType, NotificationPriority } from '../../types';
+import type { NotificationType } from '../../types';
 import '../../../../styles/notifications/NotificationFilters.css';
 
 interface NotificationFiltersProps {
@@ -43,7 +43,7 @@ export const NotificationFilters: React.FC<NotificationFiltersProps> = ({
           <button
             key={filter.key}
             className={`notif-filter-tab ${activeFilter === filter.key ? 'active' : ''}`}
-            onClick={() => onFilterChange(filter.key as any)}
+            onClick={() => onFilterChange(filter.key as 'all' | 'unread' | 'read')}
           >
             {filter.label}
             <span className="notif-filter-count">{counts[filter.key as keyof typeof counts]}</span>

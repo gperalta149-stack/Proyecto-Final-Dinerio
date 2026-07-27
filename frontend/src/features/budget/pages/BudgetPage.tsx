@@ -25,8 +25,6 @@ export const BudgetPage: React.FC = () => {
     available,
     percentageUsed,
     daysRemaining,
-    dailyAllowance,
-    projectedSpending,
     activeSubscriptions,
     loading,
     updateBudget,

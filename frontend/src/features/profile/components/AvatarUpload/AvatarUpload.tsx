@@ -1,6 +1,6 @@
 // frontend/src/features/profile/components/AvatarUpload/AvatarUpload.tsx
 import React, { useState, useRef } from 'react';
-import { Camera, X, Upload, Image as ImageIcon } from 'lucide-react';
+import { Camera, X, Upload } from 'lucide-react';
 import type { User } from '../../types';
 import { useToast } from '../../../../shared/hooks/useToast';
 import '../../../../styles/profile/AvatarUpload.css';
@@ -74,7 +74,7 @@ export const AvatarUpload: React.FC<AvatarUploadProps> = ({ user, onUpdate }) =>
     try {
       await onUpdate({ avatar_url: avatarUrl });
       showToast('Foto de perfil actualizada', 'success');
-    } catch (error) {
+    } catch {
       showToast('Error al actualizar la foto', 'error');
     } finally {
       setLoading(false);
@@ -87,7 +87,7 @@ export const AvatarUpload: React.FC<AvatarUploadProps> = ({ user, onUpdate }) =>
       await onUpdate({ avatar_url: '' });
       setPreviewUrl('');
       showToast('Foto de perfil eliminada', 'success');
-    } catch (error) {
+    } catch {
       showToast('Error al eliminar la foto', 'error');
     } finally {
       setLoading(false);
