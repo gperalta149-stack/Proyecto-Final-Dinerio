@@ -11,9 +11,12 @@ export const pool = new Pool({
   database: process.env.DB_NAME || "subtrack",
   user: process.env.DB_USER || "postgres",
   password: process.env.DB_PASSWORD || "",
+  ssl: {
+    rejectUnauthorized: false,
+  },
   max: 20,
   idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 2000,
+  connectionTimeoutMillis: 10000,
 })
 
 pool.on("connect", () => {
@@ -22,15 +25,21 @@ pool.on("connect", () => {
 
 pool.on("error", (err) => {
   console.error("Unexpected database error:", err)
-  process.exit(-1)
 })
 
 export const query = async (text: string, params?: unknown[]) => {
   const start = Date.now()
+
   try {
     const res = await pool.query(text, params)
     const duration = Date.now() - start
-    console.log("Executed query", { text, duration, rows: res.rowCount })
+
+    console.log("Executed query", {
+      text,
+      duration,
+      rows: res.rowCount,
+    })
+
     return res
   } catch (error) {
     console.error("Database query error:", error)
