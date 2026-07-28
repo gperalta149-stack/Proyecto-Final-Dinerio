@@ -8,12 +8,12 @@ export class NotificationGeneratorService {
       const activeSubscriptions = await pool.query(
         `SELECT s.id, s.user_id, s.name, s.amount, s.currency, s.next_billing_date,
                 u.notifications_enabled
-         FROM subscriptions s
-         JOIN users u ON s.user_id = u.id
-         WHERE s.status = 'active'
-           AND s.next_billing_date <= CURRENT_DATE + INTERVAL '3 days'
-           AND u.notifications_enabled = true
-         ORDER BY s.next_billing_date ASC`
+          FROM subscriptions s
+          JOIN users u ON s.user_id = u.id
+          WHERE s.status = 'active'
+            AND s.next_billing_date <= CURRENT_DATE + INTERVAL '3 days'
+            AND u.notifications_enabled = true
+          ORDER BY s.next_billing_date ASC`
       );
 
       console.log(`Suscripciones a procesar: ${activeSubscriptions.rows.length}`);
@@ -26,9 +26,9 @@ export class NotificationGeneratorService {
         if (daysUntilDue >= 0) {
           const existing = await pool.query(
             `SELECT id FROM notifications
-             WHERE user_id = $1 AND subscription_id = $2
-               AND type = 'payment_due'
-               AND DATE(created_at) = CURRENT_DATE`,
+              WHERE user_id = $1 AND subscription_id = $2
+                AND type = 'payment_due'
+                AND DATE(created_at) = CURRENT_DATE`,
             [sub.user_id, sub.id]
           );
           if (existing.rows.length > 0) continue;
@@ -49,7 +49,7 @@ export class NotificationGeneratorService {
 
           await pool.query(
             `INSERT INTO notifications (user_id, subscription_id, type, title, message)
-             VALUES ($1, $2, $3, $4, $5)`,
+              VALUES ($1, $2, $3, $4, $5)`,
             [sub.user_id, sub.id, 'payment_due', title, message]
           );
           console.log(`Notificación creada: ${title} - ${sub.name}`);
@@ -58,9 +58,9 @@ export class NotificationGeneratorService {
 
           const existing = await pool.query(
             `SELECT id FROM notifications
-             WHERE user_id = $1 AND subscription_id = $2
-               AND type = 'payment_overdue'
-               AND DATE(created_at) = CURRENT_DATE`,
+              WHERE user_id = $1 AND subscription_id = $2
+                AND type = 'payment_overdue'
+                AND DATE(created_at) = CURRENT_DATE`,
             [sub.user_id, sub.id]
           );
           if (existing.rows.length > 0) continue;
@@ -70,7 +70,7 @@ export class NotificationGeneratorService {
 
           await pool.query(
             `INSERT INTO notifications (user_id, subscription_id, type, title, message)
-             VALUES ($1, $2, $3, $4, $5)`,
+              VALUES ($1, $2, $3, $4, $5)`,
             [sub.user_id, sub.id, 'payment_overdue', title, message]
           );
           console.log(`Notificación creada: ${title} - ${sub.name} (${daysOverdue} día${daysOverdue !== 1 ? 's' : ''})`);

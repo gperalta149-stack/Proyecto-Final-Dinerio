@@ -117,8 +117,6 @@ export const deleteNotification = async (req: AuthRequest, res: Response): Promi
   }
 }
 
-// Creación manual de notificaciones (no estaba conectada a ninguna ruta en el código original,
-// se preserva por si el frontend la necesita)
 export const createNotification = async (req: AuthRequest, res: Response): Promise<void> => {
   const { type, title, message, subscription_id } = req.body
   try {

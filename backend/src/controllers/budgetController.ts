@@ -28,12 +28,12 @@ export const upsertBudget = async (req: AuthRequest, res: Response): Promise<voi
     const { budget_amount, alert_threshold } = req.body
     const result = await pool.query(
       `INSERT INTO monthly_budgets (user_id, year, month, budget_amount, alert_threshold)
-       VALUES ($1, $2, $3, $4, $5)
-       ON CONFLICT (user_id, year, month)
-       DO UPDATE SET budget_amount = EXCLUDED.budget_amount,
-                     alert_threshold = EXCLUDED.alert_threshold,
-                     updated_at = CURRENT_TIMESTAMP
-       RETURNING ${BUDGET_COLUMNS}`,
+        VALUES ($1, $2, $3, $4, $5)
+        ON CONFLICT (user_id, year, month)
+        DO UPDATE SET budget_amount = EXCLUDED.budget_amount,
+                      alert_threshold = EXCLUDED.alert_threshold,
+                      updated_at = CURRENT_TIMESTAMP
+        RETURNING ${BUDGET_COLUMNS}`,
       [req.user!.userId, year, month, budget_amount || 0, alert_threshold ?? 80]
     )
     res.json({ budget: result.rows[0] })

@@ -1,8 +1,5 @@
 import { pool } from "../config/database.js"
 
-// NOTA: este modelo no vino en el código original que se pasó para el refactor.
-// Se infirió a partir de cómo lo consume calendarController.ts (findByQuery / getUpcomingSubscriptions)
-// para no romper el server. Si ya existe una versión real en el repo, reemplazar este archivo por esa.
 export class SubscriptionModel {
   static async findByQuery(query: string, params: unknown[] = []) {
     const result = await pool.query(query, params)

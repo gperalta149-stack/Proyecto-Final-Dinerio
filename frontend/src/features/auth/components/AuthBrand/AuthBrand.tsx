@@ -7,7 +7,7 @@ export const AuthBrand: React.FC = () => {
   return (
     <>
       {/* Luces decorativas con animación */}
-      <motion.div 
+      <motion.div
         className="light-dot light-dot-1"
         animate={{
           scale: [1, 1.2, 1],
@@ -19,7 +19,7 @@ export const AuthBrand: React.FC = () => {
           ease: "easeInOut"
         }}
       />
-      <motion.div 
+      <motion.div
         className="light-dot light-dot-2"
         animate={{
           scale: [1, 1.3, 1],
@@ -34,7 +34,7 @@ export const AuthBrand: React.FC = () => {
       />
 
       {/* Logo */}
-      <motion.div 
+      <motion.div
         className="auth-brand-logo"
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -42,7 +42,7 @@ export const AuthBrand: React.FC = () => {
         transition={{ duration: 0.5 }}
       >
         <img src="/icons/logo.svg" width="28" height="28" alt="Dinerio" />
-        <motion.span 
+        <motion.span
           className="auth-brand-logo-text"
         >
           Dinerio
@@ -50,7 +50,7 @@ export const AuthBrand: React.FC = () => {
       </motion.div>
 
       {/* Título con efecto de brillo de izquierda a derecha */}
-      <motion.h1 
+      <motion.h1
         className="auth-brand-title"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -77,7 +77,7 @@ export const AuthBrand: React.FC = () => {
       </motion.p>
 
       {/* Features con animación escalonada */}
-      <motion.div 
+      <motion.div
         className="auth-brand-features"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -116,7 +116,7 @@ export const AuthBrand: React.FC = () => {
       </motion.div>
 
       {/* Dashboard Preview con animación */}
-      <motion.div 
+      <motion.div
         className="auth-brand-dashboard"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -154,7 +154,7 @@ export const AuthBrand: React.FC = () => {
               whileHover={{ scale: 1.05 }}
               transition={{ type: "spring", stiffness: 300 }}
             >
-              <motion.div 
+              <motion.div
                 className="auth-brand-dashboard-stat-value"
                 style={{ color: stat.isPositive ? "#22c55e" : undefined }}
                 animate={{

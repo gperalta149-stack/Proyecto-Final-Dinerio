@@ -4,7 +4,6 @@ import * as categoryController from "../controllers/categoryController.js";
 
 const router = Router();
 
-// Todas las rutas requieren autenticación
 router.use(authenticate);
 
 // CRUD de categorías

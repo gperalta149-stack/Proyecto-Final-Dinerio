@@ -1,6 +1,6 @@
 declare module 'jsonwebtoken' {
     export interface JwtPayload {
-        [key: string]: any
+        [key: string]: unknown
     }
     export function sign(
         payload: string | object | Buffer,

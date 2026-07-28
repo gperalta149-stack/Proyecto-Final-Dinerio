@@ -41,16 +41,7 @@ export function convertToARS(amount: number, currency: string): number {
 
 const monthKey = (year: number, month: number) => year * 12 + month
 
-/**
- * Cuenta cuántos ciclos de facturación de una suscripción caen dentro de
- * [rangeStartKey, rangeEndKey] (ambos como año*12+mes, inclusive), reconstruidos
- * hacia atrás/adelante desde next_billing_date y respetando start_date.
- *
- * Para un rango de un solo mes (rangeStartKey === rangeEndKey), esto reemplaza
- * el chequeo ingenuo "¿next_billing_date cae exactamente en este mes?", que
- * ignoraba suscripciones anuales/trimestrales cuyo próximo cobro no es este mes
- * pero cuyo costo mensual-equivalente sigue aplicando.
- */
+
 export function countBillingCyclesInRange(
   startDate: Date,
   nextBillingDate: Date,

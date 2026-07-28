@@ -235,10 +235,10 @@ export const getFinancialReport = async (req: AuthRequest, res: Response) => {
 
     const userResult = await pool.query(
       `SELECT mb.budget_amount as monthly_budget, u.currency
-       FROM users u
-       LEFT JOIN monthly_budgets mb ON mb.user_id = u.id
-         AND mb.year = $2 AND mb.month = $3
-       WHERE u.id = $1`,
+        FROM users u
+        LEFT JOIN monthly_budgets mb ON mb.user_id = u.id
+          AND mb.year = $2 AND mb.month = $3
+        WHERE u.id = $1`,
       [req.user!.userId, rangeEndYear, rangeEndMonth]
     )
 
@@ -307,17 +307,6 @@ export const getMonthlyEvolution = async (req: AuthRequest, res: Response) => {
     const { year = new Date().getFullYear() } = req.query;
     const targetYear = Number(year);
 
-    // NOTA: antes esta función usaba una heurística propia ("repartir el monto
-    // mensual-equivalente desde el primer mes de cobro hasta diciembre"), distinta
-    // de la que usa el reporte financiero (by_category). Eso hacía que la suma de
-    // "Evolución mensual" no coincidiera con el KPI "Total". Ahora ambas usan
-    // countBillingCyclesInRange, así son consistentes por construcción.
-    //
-    // Para que coincidan exactamente con el KPI "Total" (que solo mira suscripciones
-    // activas), acá también filtramos por status = 'active'. Esto es un cambio de
-    // comportamiento respecto a la versión anterior: las suscripciones canceladas
-    // ya no aparecen en la evolución histórica. Si preferís mantener el historial de
-    // canceladas, avisá y lo separamos en una serie aparte en vez de sumarlo al total.
     const result = await pool.query(
       `SELECT amount, currency, billing_cycle, start_date, next_billing_date
         FROM subscriptions
