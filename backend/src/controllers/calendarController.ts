@@ -1,12 +1,14 @@
 import { Response } from 'express';
-import type { AuthRequest } from '../types/index.js';
 import { SubscriptionModel } from '../models/Subscription.js';
+import { getOccurrenceDateInMonth, type BillingCycle } from '../services/BillingCycleService.js';
+import type { AuthRequest } from '../types/index.js';
 
 interface CalendarSubscriptionRow {
   id: string;
   name: string;
   amount: number;
   currency: string;
+  startDate: string;
   nextBillingDate: string;
   billingCycle: string;
   status: string;
@@ -30,12 +32,22 @@ export const getCalendarEvents = async (req: AuthRequest, res: Response) => {
   try {
     const userId = req.user!.userId;
     const { month, year } = req.query;
-    let query = `
+
+    // Trae TODAS las suscripciones activas/canceladas del usuario (sin
+    // filtrar por fecha en la consulta SQL): la proyección de qué mes le
+    // corresponde a cada una se calcula en el paso siguiente, con la misma
+    // lógica de reconstrucción de ciclos que usa el reporte financiero
+    // (billingCycleService, ver documentación técnica §5.3.9), para que
+    // una suscripción recurrente aparezca en el calendario todos los
+    // meses que efectivamente le corresponden según su ciclo --- y no solo
+    // en el mes de su próxima fecha de cobro.
+    const query = `
       SELECT
         s.id,
         s.name,
         s.amount,
         s.currency,
+        s.start_date as "startDate",
         s.next_billing_date as "nextBillingDate",
         s.billing_cycle as "billingCycle",
         s.status,
@@ -45,33 +57,46 @@ export const getCalendarEvents = async (req: AuthRequest, res: Response) => {
       FROM subscriptions s
       LEFT JOIN categories c ON s.category_id = c.id
       WHERE s.user_id = $1 AND s.status IN ('active', 'cancelled')
+      ORDER BY s.next_billing_date ASC
     `;
-    const params: (string | number)[] = [userId];
+    const result = await SubscriptionModel.findByQuery(query, [userId]);
 
-    if (month && year) {
-      const startDate = new Date(parseInt(year as string), parseInt(month as string) - 1, 1);
-      const endDate = new Date(parseInt(year as string), parseInt(month as string), 0);
+    const targetMonth = month ? Number.parseInt(month as string) : new Date().getMonth() + 1;
+    const targetYear = year ? Number.parseInt(year as string) : new Date().getFullYear();
 
-      query += ` AND s.next_billing_date BETWEEN $2 AND $3`;
-      params.push(startDate.toISOString().split('T')[0]);
-      params.push(endDate.toISOString().split('T')[0]);
-    }
-    query += ` ORDER BY s.next_billing_date ASC`;
-    const result = await SubscriptionModel.findByQuery(query, params);
+    const events = (result as CalendarSubscriptionRow[])
+      .map((sub) => {
+        const occurrence = getOccurrenceDateInMonth(
+          new Date(sub.startDate),
+          new Date(sub.nextBillingDate),
+          sub.billingCycle as BillingCycle,
+          targetYear,
+          targetMonth
+        );
+        if (!occurrence) return null;
 
-    const events = (result as CalendarSubscriptionRow[]).map((sub) => ({
-      id: sub.id,
-      title: sub.name,
-      amount: sub.amount,
-      currency: sub.currency,
-      date: sub.nextBillingDate,
-      billing_cycle: sub.billingCycle,
-      status: sub.status,
-      category_id: sub.categoryId,
-      category_name: sub.category_name,
-      category_color: sub.category_color,
-      type: 'payment' as const
-    }));
+        // Fecha local en formato YYYY-MM-DD, sin pasar por toISOString()
+        // (que convierte a UTC y puede correr el día según el huso horario).
+        const y = occurrence.getFullYear();
+        const m = String(occurrence.getMonth() + 1).padStart(2, '0');
+        const d = String(occurrence.getDate()).padStart(2, '0');
+
+        return {
+          id: sub.id,
+          title: sub.name,
+          amount: sub.amount,
+          currency: sub.currency,
+          date: `${y}-${m}-${d}`,
+          billing_cycle: sub.billingCycle,
+          status: sub.status,
+          category_id: sub.categoryId,
+          category_name: sub.category_name,
+          category_color: sub.category_color,
+          type: 'payment' as const,
+        };
+      })
+      .filter((e): e is NonNullable<typeof e> => e !== null);
+
     res.json(events);
   } catch (error) {
     console.error('Error fetching calendar events:', error);

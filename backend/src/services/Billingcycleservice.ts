@@ -1,9 +1,3 @@
-// Lógica compartida para calcular cuántas veces se factura una suscripción
-// dentro de un rango de meses. Se usa TANTO en el reporte financiero (by_category)
-// COMO en la evolución mensual, para que ambos números sean consistentes entre sí
-// por construcción (misma fórmula), en vez de dos heurísticas distintas que
-// pueden divergir.
-
 export type BillingCycle = "monthly" | "yearly" | "weekly" | "quarterly"
 
 const TARJETA_TAX_FACTOR = 1.53 // IVA 21% + PAIS 30% + IIBB 2%, ver reportController
@@ -79,4 +73,36 @@ export function countBillingCyclesInRange(
 
 export function billingKeyFromYearMonth(year: number, month: number): number {
   return monthKey(year, month)
+}
+
+
+export function getOccurrenceDateInMonth(
+  startDate: Date,
+  nextBillingDate: Date,
+  cycle: BillingCycle,
+  targetYear: number,
+  targetMonth: number
+): Date | null {
+  const startKey = monthKey(startDate.getFullYear(), startDate.getMonth() + 1)
+  const nextKey = monthKey(nextBillingDate.getFullYear(), nextBillingDate.getMonth() + 1)
+  const targetKey = monthKey(targetYear, targetMonth)
+
+  if (targetKey < startKey) return null // antes de que existiera la suscripción
+
+  const cycleMonths = getCycleMonths(cycle)
+  const diff = targetKey - nextKey
+
+  if (cycle === "weekly") {
+    // Ciclo semanal (~4 cobros por mes): se simplifica a un evento
+    // representativo por mes, en todos los meses desde el inicio.
+    // Limitación conocida: no desglosa las ~4 ocurrencias semanales
+    // individuales dentro del mes.
+  } else if (diff % cycleMonths !== 0) {
+    return null
+  }
+
+  const day = nextBillingDate.getDate()
+  const daysInTargetMonth = new Date(targetYear, targetMonth, 0).getDate()
+  const clampedDay = Math.min(day, daysInTargetMonth)
+  return new Date(targetYear, targetMonth - 1, clampedDay)
 }

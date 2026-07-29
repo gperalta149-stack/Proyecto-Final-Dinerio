@@ -32,7 +32,6 @@ export const SubscriptionsPage: React.FC = () => {
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [subscriptionPage, setSubscriptionPage] = useState(0);
   const [paidDebtsTotal, setPaidDebtsTotal] = useState(0);
-  const [paidDebtsCount, setPaidDebtsCount] = useState(0);
   const [showBudgetWarning, setShowBudgetWarning] = useState(false);
   const perPage = 5;
 
@@ -60,7 +59,6 @@ export const SubscriptionsPage: React.FC = () => {
         return sum + (d.currency === 'USD' ? ExchangeRateService.convertUSDToARS(amount) : amount);
       }, 0);
       setPaidDebtsTotal(total);
-      setPaidDebtsCount(paidThisMonth.length);
     } catch (error) {
       console.error("Error loading subscriptions:", error);
     } finally {
@@ -132,11 +130,11 @@ export const SubscriptionsPage: React.FC = () => {
   };
 
   const counts = useMemo(() => ({
-    all: subscriptions.length + paidDebtsCount,
+    all: subscriptions.length,
     active: subscriptions.filter(s => s.status === "active").length,
     paused: subscriptions.filter(s => s.status === "paused").length,
-    cancelled: subscriptions.filter(s => s.status === "cancelled").length + paidDebtsCount,
-  }), [subscriptions, paidDebtsCount]);
+    cancelled: subscriptions.filter(s => s.status === "cancelled").length,
+  }), [subscriptions]);
 
   useEffect(() => { setSubscriptionPage(0); }, [filter, search]);
 
@@ -302,7 +300,7 @@ export const SubscriptionsPage: React.FC = () => {
         </div>
 
         {showModal && (
-          <SubscriptionModal subscription={editingSubscription} categories={categories} onSave={handleSubmit} onClose={() => setShowModal(false)} onCategoriesChanged={loadAll} />
+          <SubscriptionModal subscription={editingSubscription} categories={categories} existingSubscriptions={subscriptions} onSave={handleSubmit} onClose={() => setShowModal(false)} onCategoriesChanged={loadAll} />
         )}
 
         {viewingSubscription && (

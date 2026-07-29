@@ -1,14 +1,14 @@
 // frontend/src/features/categories/pages/CategoriesPage.tsx
-import React, { useState } from 'react';
 import { Plus, Tags } from 'lucide-react';
-import { useCategories } from '../hooks';
+import React, { useState } from 'react';
 import { CategoryGrid } from '../components/CategoryGrid/CategoryGrid';
-import { CategoryForm } from '../components/CategoryForm/CategoryForm';
+import { CategoryModal } from '../components/CategoryModal/CategoryModal';
 import { CategoryStats } from '../components/CategoryStats/CategoryStats';
 import { CategoryTips } from '../components/CategoryTips/CategoryTips';
+import { useCategories } from '../hooks';
 
-import type { Category } from '../types';
 import '../../../styles/categories/categories.css';
+import type { Category } from '../types';
 
 export const CategoriesPage: React.FC = () => {
   const [showForm, setShowForm] = useState(false);
@@ -93,11 +93,11 @@ export const CategoriesPage: React.FC = () => {
 
         {/* Formulario */}
         {showForm && (
-          <CategoryForm
+          <CategoryModal
             category={editingCategory || undefined}
-            onSubmit={handleSubmit}
-            onCancel={handleCancel}
-            isOpen={showForm}
+            existingCategories={categories}
+            onSave={handleSubmit}
+            onClose={handleCancel}
           />
         )}
 

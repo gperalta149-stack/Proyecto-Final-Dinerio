@@ -6,6 +6,7 @@ import { useAuth } from "../../../shared/contexts/AuthContext";
 import { DashboardKpis } from "../components/DashboardKpis";
 import { auditService, type AuditLog } from "../../audit/service/auditService";
 import { parseAmount, formatCurrency } from "../../../shared/utils/formatters";
+import ExchangeRateService from "../../../shared/services/exchangeRateService";
 import type { Subscription } from "../../../shared/types";
 import '../../../styles/dashboard/dashboard.css';
 import '../../../styles/shared/cards.css';
@@ -13,6 +14,13 @@ import '../../../styles/shared/cards.css';
 const DONUT_RADIUS = 60;
 const DONUT_STROKE = 14;
 const DONUT_CIRCUMFERENCE = 2 * Math.PI * DONUT_RADIUS;
+
+const getAmountInARS = (sub: Subscription): number => {
+  if (sub.arsAmount) return sub.arsAmount;
+  const raw = parseAmount(sub.amount) || 0;
+  if (!sub.currency || sub.currency === "ARS") return raw;
+  return ExchangeRateService.convertUSDToARS(raw);
+};
 
 const getDaysUntil = (date: string) => {
   const diff = new Date(date).getTime() - new Date().getTime();
@@ -29,6 +37,23 @@ const getUrgencyColor = (days: number) => {
   if (days < 0) return "#ef4444";
   if (days <= 3) return "#f59e0b";
   return "var(--text-secondary)";
+};
+
+interface BillingStatus {
+  label: string;
+  className: "status-overdue" | "status-upcoming" | "status-ok";
+}
+
+// Estado de vencimiento de una suscripción activa, basado en next_billing_date.
+// El umbral de 3 días coincide con la ventana de recordatorios ya usada en
+// el resto del sistema (generatePaymentReminders, ver documentación §4.1.2 RN).
+const getBillingStatus = (sub: Subscription): BillingStatus | null => {
+  if (sub.status !== "active" || !sub.next_billing_date) return null;
+  const days = getDaysUntil(sub.next_billing_date);
+  if (days < 0) return { label: `Vencida hace ${Math.abs(days)}d`, className: "status-overdue" };
+  if (days === 0) return { label: "Vence hoy", className: "status-upcoming" };
+  if (days <= 3) return { label: `Vence en ${days}d`, className: "status-upcoming" };
+  return { label: "Al día", className: "status-ok" };
 };
 
 const getAvatarColor = (name: string) => {
@@ -293,11 +318,8 @@ export const DashboardPage: React.FC = () => {
     const cats: Record<string, number> = {};
     (subscriptions || []).forEach((sub) => {
       const category = sub.category_name || sub.category || "Otros";
-      const amount = parseAmount(sub.amount) || 0;
-      let monthly = amount;
-      if (sub.billing_cycle === "yearly") monthly = amount / 12;
-      else if (sub.billing_cycle === "weekly") monthly = amount * 4;
-      cats[category] = (cats[category] || 0) + monthly;
+      const amount = getAmountInARS(sub);
+      cats[category] = (cats[category] || 0) + amount;
     });
     return Object.entries(cats)
       .map(([name, amount]) => ({ name, amount }))
@@ -308,8 +330,7 @@ export const DashboardPage: React.FC = () => {
   const topCategory = categoryData[0];
   const topCategoryPct = totalCategory > 0 && topCategory ? (topCategory.amount / totalCategory) * 100 : 0;
   const topSubscriptions = (subscriptions || [])
-    .filter((s: Subscription) => s.status === "active")
-    .sort((a: Subscription, b: Subscription) => (parseAmount(b.amount) || 0) - (parseAmount(a.amount) || 0))
+    .sort((a: Subscription, b: Subscription) => getAmountInARS(b) - getAmountInARS(a))
     .slice(0, 3);
   const upcoming = (data.upcoming || []).filter((s: Subscription) => s.status === "active").slice(0, 3);
 
@@ -403,17 +424,26 @@ export const DashboardPage: React.FC = () => {
                 </div>
               </div>
               <div className="donut-subs-list">
-                {topSubscriptions.map((sub: Subscription) => (
-                  <div key={sub.id} className="donut-subs-item">
-                    <div className="donut-subs-avatar" style={{ background: getAvatarColor(sub.name || "") }}>
-                      {(sub.name || "?")[0].toUpperCase()}
+                {topSubscriptions.map((sub: Subscription) => {
+                  const billingStatus = getBillingStatus(sub);
+                  return (
+                    <div key={sub.id} className="donut-subs-item">
+                      <div className="donut-subs-avatar" style={{ background: getAvatarColor(sub.name || "") }}>
+                        {(sub.name || "?")[0].toUpperCase()}
+                      </div>
+                      <div className="donut-subs-info">
+                        <span className="donut-subs-name">{sub.name || "Sin nombre"}</span>
+                        <span className="donut-subs-category">{sub.category_name || sub.category || "Sin categoría"}</span>
+                      </div>
+                      <div className="donut-subs-right">
+                        <span className="donut-subs-amount">{formatCurrency(sub.arsAmount || parseAmount(sub.amount) || 0, sub.currency || "ARS")}</span>
+                        {billingStatus && (
+                          <span className={`donut-subs-status ${billingStatus.className}`}>{billingStatus.label}</span>
+                        )}
+                      </div>
                     </div>
-                    <div className="donut-subs-info">
-                      <span className="donut-subs-name">{sub.name || "Sin nombre"}</span>
-                      <span className="donut-subs-amount">{formatCurrency(sub.arsAmount || parseAmount(sub.amount) || 0, sub.currency || "ARS")}</span>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
                 {topSubscriptions.length === 0 && <div className="donut-subs-empty">Sin suscripciones</div>}
               </div>
             </div>
