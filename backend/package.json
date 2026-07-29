@@ -1,7 +1,7 @@
 {
-  "name": "subtrack-backend",
+  "name": "dinerio-backend",
   "version": "1.0.0",
-  "description": "Backend API for SubTrack subscription management",
+  "description": "Backend API for Dinerio subscription management",
   "main": "dist/server.js",
   "type": "module",
   "scripts": {
@@ -10,7 +10,7 @@
     "dev": "tsx watch src/server.ts",
     "typecheck": "tsc --noEmit",
     "lint": "eslint src --max-warnings 200",
-    "db:seed": "psql -h localhost -U postgres -d SubTrack_db -f db/seedData.sql",
+    "db:seed": "psql -h localhost -U postgres -d Dinerio_db -f db/seedData.sql",
     "seed": "tsx scripts/seed.ts",
     "db:reset": "npm run db:seed"
   },
