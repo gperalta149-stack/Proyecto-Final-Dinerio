@@ -99,7 +99,11 @@ export const SubscriptionsPage: React.FC = () => {
   const handlePayConfirm = async (paymentMethod: string) => {
     if (!payDebt) return;
     try {
-      await debtService.markAsPaid(payDebt.id, paymentMethod);
+      const amount = parseFloat(String(payDebt.amount));
+      const amountArs = payDebt.currency === 'USD'
+        ? Math.round(ExchangeRateService.convertUSDToARS(amount, 'tarjeta') * 100) / 100
+        : undefined;
+      await debtService.markAsPaid(payDebt.id, paymentMethod, amountArs);
       setPayDebt(null);
       setPaymentSuccess(true);
       await loadAll();

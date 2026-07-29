@@ -32,18 +32,22 @@ export const debtService = {
     notes?: string;
   }): Promise<Debt> {
     const response = await api.post("/debts", debt);
+    window.dispatchEvent(new CustomEvent("debts-changed"));
     return response.data.debt;
   },
 
   async markAsPaid(id: string, payment_method?: string, amount_ars?: number): Promise<void> {
     await api.put(`/debts/${id}/pay`, { payment_method, amount_ars });
+    window.dispatchEvent(new CustomEvent("debts-changed"));
   },
 
   async postpone(id: string, days: number = 7): Promise<void> {
     await api.put(`/debts/${id}/postpone`, { days });
+    window.dispatchEvent(new CustomEvent("debts-changed"));
   },
 
   async delete(id: string): Promise<void> {
     await api.delete(`/debts/${id}`);
+    window.dispatchEvent(new CustomEvent("debts-changed"));
   },
 };

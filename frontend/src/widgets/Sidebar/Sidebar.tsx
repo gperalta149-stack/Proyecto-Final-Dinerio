@@ -43,18 +43,38 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed = false, onToggle, m
   const { user, logout } = useAuth()
   const [showUserMenu, setShowUserMenu] = useState(false)
   const [pendingDebts, setPendingDebts] = useState(0)
+  const [budgetRefreshKey, setBudgetRefreshKey] = useState(0)
   const menuRef = useRef<HTMLDivElement>(null)
+
+  const refreshDebts = () => {
+    debtService.getSummary()
+      .then((s) => setPendingDebts(s.pendingCount || 0))
+      .catch(() => setPendingDebts(0))
+  }
 
   // Mismo hook que usa la página "Presupuesto" (mes actual): garantiza que
   // el ícono del sidebar refleje exactamente el mismo % que ves ahí,
   // incluyendo suscripciones Y deudas pagadas del mes.
-  const { percentageUsed: budgetPercentage, alertThreshold } = useBudget()
+  const { percentageUsed: budgetPercentage, alertThreshold } = useBudget(undefined, undefined, budgetRefreshKey)
 
   useEffect(() => {
-    debtService.getSummary()
-      .then((s) => setPendingDebts(s.pendingCount || 0))
-      .catch(() => setPendingDebts(0))
+    refreshDebts()
   }, [location.pathname])
+
+  useEffect(() => {
+    const handleChange = () => {
+      refreshDebts()
+      setBudgetRefreshKey((k) => k + 1)
+    }
+    window.addEventListener("debts-changed", handleChange)
+    window.addEventListener("subscriptions-changed", handleChange)
+    window.addEventListener("budget-changed", handleChange)
+    return () => {
+      window.removeEventListener("debts-changed", handleChange)
+      window.removeEventListener("subscriptions-changed", handleChange)
+      window.removeEventListener("budget-changed", handleChange)
+    }
+  }, [])
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {

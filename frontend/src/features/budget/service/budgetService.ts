@@ -12,10 +12,12 @@ export const budgetService = {
       budget_amount,
       alert_threshold,
     });
+    window.dispatchEvent(new CustomEvent("budget-changed"));
     return response.data.budget;
   },
 
   async deleteBudget(year: number, month: number): Promise<void> {
     await api.delete(`/budgets/${year}/${month}`);
+    window.dispatchEvent(new CustomEvent("budget-changed"));
   },
 };

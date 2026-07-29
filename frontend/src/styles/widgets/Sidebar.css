@@ -22,6 +22,10 @@
   min-width: 64px;
 }
 
+.sidebar-collapsed .sidebar-item {
+  overflow: visible;
+}
+
 /* ===== SIDEBAR TOP ===== */
 .sidebar-top {
   display: flex;
@@ -220,11 +224,15 @@
 
 .sidebar-badge-collapsed {
   position: absolute;
-  top: -4px;
-  right: -4px;
-  font-size: 0.55rem;
-  padding: 0 5px;
-  min-width: 16px;
+  top: 2px;
+  right: 2px;
+  font-size: 0.5rem;
+  padding: 0 4px;
+  min-width: 14px;
+  height: 14px;
+  line-height: 14px;
+  border-radius: 7px;
+  z-index: 2;
 }
 
 .sidebar-budget-dot {
@@ -248,9 +256,22 @@
 
 .sidebar-budget-dot-collapsed {
   position: absolute;
-  top: 6px;
+  bottom: 6px;
   right: 6px;
   margin-left: 0;
+  top: auto;
+  width: 8px;
+  height: 8px;
+}
+
+.sidebar-badge-collapsed,
+.sidebar-budget-dot-collapsed {
+  animation: sidebarBadgeFadeIn 0.15s ease-out;
+}
+
+@keyframes sidebarBadgeFadeIn {
+  from { opacity: 0; transform: scale(0.7); }
+  to { opacity: 1; transform: scale(1); }
 }
 
 /* ===== BUDGET OVERRUN LEFT BAR ===== */

@@ -22,7 +22,7 @@ interface UseBudgetReturn {
   updateBudget: (newBudget: number, threshold: number) => Promise<void>;
 }
 
-export const useBudget = (selectedMonth?: number, selectedYear?: number): UseBudgetReturn => {
+export const useBudget = (selectedMonth?: number, selectedYear?: number, refreshKey?: number): UseBudgetReturn => {
   const [monthlyBudget, setMonthlyBudget] = useState<MonthlyBudget | null>(null);
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
   const [debts, setDebts] = useState<Debt[]>([]);
@@ -125,7 +125,7 @@ export const useBudget = (selectedMonth?: number, selectedYear?: number): UseBud
       }
     };
     loadData();
-  }, [selectedMonth, selectedYear]);
+  }, [selectedMonth, selectedYear, refreshKey]);
 
   return {
     monthlyBudget,

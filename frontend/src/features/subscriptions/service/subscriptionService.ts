@@ -105,6 +105,7 @@ export const subscriptionService = {
       if (result.subscription) {
         result.subscription = await calculateSubscriptionWithConversion(result.subscription);
       }
+      window.dispatchEvent(new CustomEvent("subscriptions-changed"));
       return result;
     } catch (error: unknown) {
       const err = error as { response?: { data?: unknown }; message?: string };
@@ -130,6 +131,7 @@ export const subscriptionService = {
       console.log("📤 [SERVICE UPDATE] Sending to API:", { url: `/subscriptions/${id}`, data: subscriptionData });
 
       const response = await api.put(`/subscriptions/${id}`, subscriptionData);
+      window.dispatchEvent(new CustomEvent("subscriptions-changed"));
 
       console.log("📥 [SERVICE UPDATE] Response:", response.data);
 
@@ -155,6 +157,7 @@ export const subscriptionService = {
   async delete(id: string): Promise<void> {
     try {
       await api.delete(`/subscriptions/${id}`);
+      window.dispatchEvent(new CustomEvent("subscriptions-changed"));
     } catch (error) {
       console.error(`Error deleting subscription ${id}:`, error);
       throw error;

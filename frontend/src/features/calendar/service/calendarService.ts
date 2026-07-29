@@ -28,13 +28,48 @@ const filterByMonth = (events: CalendarEvent[], month: number, year: number) =>
     }
   });
 
+const expandYearlyEvents = (sub: Subscription): CalendarEvent[] => {
+  const amount = typeof sub.amount === 'number' ? sub.amount : parseFloat(sub.amount as string) || 0;
+  const monthlyAmount = amount / 12;
+  const billingDate = new Date(sub.next_billing_date);
+  const day = billingDate.getDate();
+  const events: CalendarEvent[] = [];
+
+  for (let i = 0; i < 12; i++) {
+    const eventDate = new Date(billingDate.getFullYear(), billingDate.getMonth() + i, day);
+    if (eventDate.getDate() !== day) continue;
+    events.push({
+      id: `${sub.id}-yearly-${i}`,
+      title: sub.name,
+      amount: monthlyAmount,
+      currency: sub.currency || 'USD',
+      date: eventDate.toISOString().split('T')[0],
+      billingCycle: 'yearly',
+      status: eventDate <= new Date() ? 'pending' : 'pending',
+      categoryName: sub.category_name || 'Sin categoría',
+      categoryColor: sub.category_color || '#6B7280',
+    });
+  }
+
+  return events;
+};
+
 export const getCalendarEvents = async (month?: number, year?: number): Promise<CalendarEvent[]> => {
     const [subRes, debtRes] = await Promise.all([
       api.get('/subscriptions?status=active').catch(() => ({ data: { subscriptions: [] } })),
       api.get('/debts').catch(() => ({ data: { debts: [] } })),
     ]);
 
-  const subEvents: CalendarEvent[] = (subRes.data.subscriptions || []).map(normalizeCalendarEvent);
+  const subscriptions: Subscription[] = subRes.data.subscriptions || [];
+  const subEvents: CalendarEvent[] = [];
+  for (const sub of subscriptions) {
+    if (sub.billing_cycle === 'yearly') {
+      subEvents.push(...expandYearlyEvents(sub));
+    } else {
+      subEvents.push(normalizeCalendarEvent(sub));
+    }
+  }
+
   const debtEvents: CalendarEvent[] = (debtRes.data.debts || []).map(normalizeDebtEvent);
 
   const seen = new Set<string>();
