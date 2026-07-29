@@ -1,5 +1,5 @@
 /* frontend/src/features/debts/styles/debts-variables.css */
-.debt-page {
+.debt-page, .subs-page, .paydebt-modal, .debt-modal-overlay {
   --debt-bg-primary: var(--bg-primary);
   --debt-bg-secondary: var(--bg-secondary);
   --debt-bg-card: var(--bg-card);

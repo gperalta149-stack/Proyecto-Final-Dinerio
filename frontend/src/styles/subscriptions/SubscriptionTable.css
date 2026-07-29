@@ -223,11 +223,19 @@
 .subs-next-date {
   font-weight: 500;
   font-size: 0.88rem;
-  line-height: 1;
-  display: inline-block;
-  vertical-align: middle;
+  line-height: 1.3;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
+}
+
+.subs-next-date-sub {
+  font-size: 0.75rem;
+  font-weight: 400;
+  opacity: 0.75;
 }
 
 /* Amount */
@@ -357,6 +365,14 @@
 .subs-action-btn.is-open {
   background: rgba(99, 102, 241, 0.1);
   color: var(--subs-accent-1);
+}
+
+.subs-action-btn.pay-btn {
+  color: var(--subs-green);
+}
+.subs-action-btn.pay-btn:hover {
+  background: rgba(34, 197, 94, 0.12);
+  color: #16a34a;
 }
 
 

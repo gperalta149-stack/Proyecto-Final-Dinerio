@@ -159,15 +159,20 @@ export const createSubscription = async (req: AuthRequest, res: Response): Promi
       console.error("Error creando notificación de suscripción:", notificationError)
     }
 
-    // Si la fecha ya pasó, crear deuda pendiente automáticamente
     if (next_billing_date && new Date(next_billing_date) < new Date(new Date().toDateString())) {
       try {
-        await pool.query(
-          `INSERT INTO debts (user_id, subscription_id, category_id, name, amount, currency, due_date, status)
-           VALUES ($1, $2, $3, $4, $5, $6, $7, 'pending')`,
-          [req.user!.userId, created.id, category_id, name, amount, currency || "USD", next_billing_date]
-        )
-        console.log(`Deuda creada automáticamente para suscripción vencida: ${name}`)
+        const existing = await pool.query(
+          `SELECT id FROM debts WHERE subscription_id = $1 AND status = 'pending'`,
+          [created.id]
+        );
+        if (existing.rows.length === 0) {
+          await pool.query(
+            `INSERT INTO debts (user_id, subscription_id, category_id, name, amount, currency, due_date, status)
+             VALUES ($1, $2, $3, $4, $5, $6, $7, 'pending')`,
+            [req.user!.userId, created.id, category_id, name, amount, currency || "USD", next_billing_date]
+          )
+          console.log(`Deuda creada automáticamente para suscripción vencida: ${name}`)
+        }
       } catch (debtError) {
         console.error("Error creando deuda automática:", debtError)
       }

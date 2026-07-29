@@ -37,7 +37,13 @@ export const getCalendarEvents = async (month?: number, year?: number): Promise<
   const subEvents: CalendarEvent[] = (subRes.data.subscriptions || []).map(normalizeCalendarEvent);
   const debtEvents: CalendarEvent[] = (debtRes.data.debts || []).map(normalizeDebtEvent);
 
-  const allEvents = [...subEvents, ...debtEvents];
+  const seen = new Set<string>();
+  const allEvents = [...subEvents, ...debtEvents].filter((e) => {
+    const key = `${e.title}|${e.date}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
 
   if (month !== undefined && year !== undefined) {
     return filterByMonth(allEvents, month, year);

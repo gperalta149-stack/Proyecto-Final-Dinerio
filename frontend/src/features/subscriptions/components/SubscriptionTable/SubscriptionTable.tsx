@@ -3,7 +3,7 @@ import {
   Eye,
   Pencil,
   Trash2,
-
+  DollarSign,
   Tv,
   Plus,
 } from "lucide-react";
@@ -17,6 +17,7 @@ interface SubscriptionTableProps {
   onDelete: (id: string) => void;
   onView: (subscription: Subscription) => void;
   onAdd: () => void;
+  onPay?: (subscription: Subscription) => void;
 }
 
 const AVATAR_COLORS = ["#8B5CF6", "#EC4899", "#3B82F6", "#10B981", "#F59E0B", "#EF4444", "#06B6D4"];
@@ -29,11 +30,12 @@ const colorFor = (seed: string) => {
 
 const getNextPaymentInfo = (date: string) => {
   const days = Math.ceil((new Date(date).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
-  if (days < 0) return { text: "Vencida", color: "#ef4444" };
-  if (days === 0) return { text: "Hoy", color: "#f59e0b" };
-  if (days <= 3) return { text: formatShortDate(date), color: "#eab308" };
-  if (days <= 7) return { text: formatShortDate(date), color: "#06b6d4" };
-  return { text: formatShortDate(date), color: "#64748b" };
+  const formatted = formatShortDate(date);
+  if (days < 0) return { text: "Vencida", date: formatted, color: "#ef4444" };
+  if (days === 0) return { text: "Hoy", date: formatted, color: "#f59e0b" };
+  if (days <= 3) return { text: formatted, color: "#eab308" };
+  if (days <= 7) return { text: formatted, color: "#06b6d4" };
+  return { text: formatted, color: "#64748b" };
 };
 
 const CATEGORY_COLORS: Record<string, string> = {
@@ -54,6 +56,7 @@ export const SubscriptionTable: React.FC<SubscriptionTableProps> = ({
   onDelete,
   onView,
   onAdd,
+  onPay,
 }) => {
   if (subscriptions.length === 0) {
     return (
@@ -113,6 +116,7 @@ export const SubscriptionTable: React.FC<SubscriptionTableProps> = ({
                   {isActive && nextInfo ? (
                     <span className="subs-next-date" style={{ color: nextInfo.color }}>
                       {nextInfo.text}
+                      {nextInfo.date ? <span className="subs-next-date-sub">{nextInfo.date}</span> : null}
                     </span>
                   ) : (
                     <span className="subs-table-muted">—</span>
@@ -136,19 +140,28 @@ export const SubscriptionTable: React.FC<SubscriptionTableProps> = ({
                 </td>
                 <td>
                   <div className="subs-table-actions">
+                    {isActive && nextInfo?.text === "Vencida" && onPay && (
+                      <button className="subs-action-btn pay-btn" onClick={() => onPay(sub)} title="Pagar">
+                        <DollarSign size={15} />
+                      </button>
+                    )}
                     <button className="subs-action-btn" onClick={() => onView(sub)} title="Ver detalle">
                       <Eye size={15} />
                     </button>
-                    <button className="subs-action-btn" onClick={() => onEdit(sub)} title="Editar">
-                      <Pencil size={15} />
-                    </button>
-                    <button
-                      className="subs-action-btn"
-                      onClick={() => onDelete(sub.id)}
-                      title="Eliminar"
-                    >
-                      <Trash2 size={15} />
-                    </button>
+                    {sub.status !== 'cancelled' && (
+                      <>
+                        <button className="subs-action-btn" onClick={() => onEdit(sub)} title="Editar">
+                          <Pencil size={15} />
+                        </button>
+                        <button
+                          className="subs-action-btn"
+                          onClick={() => onDelete(sub.id)}
+                          title="Eliminar"
+                        >
+                          <Trash2 size={15} />
+                        </button>
+                      </>
+                    )}
                   </div>
                 </td>
               </tr>

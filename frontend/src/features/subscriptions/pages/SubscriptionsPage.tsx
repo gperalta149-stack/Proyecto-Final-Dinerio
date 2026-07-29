@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useToast } from "../../../shared/hooks/useToast";
-import { Search, CreditCard, Calendar, Wallet, Layers, PauseCircle, CheckCircle, AlertTriangle, Trash2, X, DollarSign } from "lucide-react";
+import { Search, CreditCard, Calendar, Wallet, Layers, PauseCircle, CheckCircle, AlertTriangle, Trash2, X, DollarSign, CheckCircle2 } from "lucide-react";
 import { SubscriptionHeader } from "../components/SubscriptionHeader/SubscriptionHeader";
 import { SubscriptionTabs, type FilterKey } from "../components/SubscriptionTabs/SubscriptionTabs";
 import { SubscriptionTable } from "../components/SubscriptionTable/SubscriptionTable";
 import { SubscriptionModal } from "../components/SubscriptionModal/SubscriptionModal";
 import { ViewSubscriptionModal } from "../components/ViewSubscriptionModal/ViewSubscriptionModal";
+import { PayDebtModal } from "../../debts/components/PayDebtModal/PayDebtModal";
 import { KpiCard } from "../../../shared/components/ui/KpiCard";
 import { subscriptionService } from "../service/subscriptionService";
 import { categoryService } from "../../categories/service/categoryService";
@@ -33,6 +34,9 @@ export const SubscriptionsPage: React.FC = () => {
   const [subscriptionPage, setSubscriptionPage] = useState(0);
   const [paidDebtsTotal, setPaidDebtsTotal] = useState(0);
   const [showBudgetWarning, setShowBudgetWarning] = useState(false);
+  const [payDebt, setPayDebt] = useState<Debt | null>(null);
+  const [debts, setDebts] = useState<Debt[]>([]);
+  const [paymentSuccess, setPaymentSuccess] = useState(false);
   const perPage = 5;
 
   const loadAll = async () => {
@@ -45,6 +49,7 @@ export const SubscriptionsPage: React.FC = () => {
       ]);
       setSubscriptions(subsData);
       setCategories(catsData);
+      setDebts(debtsData);
 
       const today = new Date();
       const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
@@ -87,6 +92,21 @@ export const SubscriptionsPage: React.FC = () => {
   };
   const handleEdit = (sub: Subscription) => { setEditingSubscription(sub); setShowModal(true); };
   const handleView = (sub: Subscription) => { setViewingSubscription(sub); };
+  const handlePay = (sub: Subscription) => {
+    const debt = debts.find(d => d.subscription_id === sub.id && d.status === 'pending');
+    if (debt) setPayDebt(debt);
+  };
+  const handlePayConfirm = async (paymentMethod: string) => {
+    if (!payDebt) return;
+    try {
+      await debtService.markAsPaid(payDebt.id, paymentMethod);
+      setPayDebt(null);
+      setPaymentSuccess(true);
+      await loadAll();
+    } catch {
+      showToast("Error al procesar el pago", "error");
+    }
+  };
   const { showToast } = useToast();
 
   const handleDelete = (id: string) => {
@@ -282,6 +302,7 @@ export const SubscriptionsPage: React.FC = () => {
               onDelete={handleDelete}
               onView={handleView}
               onAdd={handleCreate}
+              onPay={handlePay}
             />
             {filtered.length > perPage && (
               <div className="subs-pages">
@@ -305,6 +326,28 @@ export const SubscriptionsPage: React.FC = () => {
 
         {viewingSubscription && (
           <ViewSubscriptionModal subscription={viewingSubscription} onClose={() => setViewingSubscription(undefined)} />
+        )}
+
+        {payDebt && (
+          <PayDebtModal
+            debt={payDebt}
+            onConfirm={handlePayConfirm}
+            onClose={() => setPayDebt(null)}
+          />
+        )}
+
+        {paymentSuccess && (
+          <div className="debt-modal-overlay" onClick={() => setPaymentSuccess(false)}>
+            <div className="paydebt-success-modal" onClick={(e) => e.stopPropagation()}>
+              <button className="debt-modal-close paydebt-success-close" onClick={() => setPaymentSuccess(false)}>
+                <X size={18} />
+              </button>
+              <div className="paydebt-success-icon">
+                <CheckCircle2 size={48} />
+              </div>
+              <h2 className="paydebt-success-title">Su pago se realizó correctamente</h2>
+            </div>
+          </div>
         )}
 
         {deleteError && (

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { X, CheckCircle2, CreditCard, Smartphone, Banknote, Building2 } from "lucide-react";
 import type { Debt } from "../../types";
 import { formatCurrency, parseAmount } from "../../../../shared/utils/formatters";
+import "../../../../styles/debts/DebtModal.css";
 import "../../../../styles/debts/PayDebtModal.css";
 
 const PAYMENT_METHODS = [

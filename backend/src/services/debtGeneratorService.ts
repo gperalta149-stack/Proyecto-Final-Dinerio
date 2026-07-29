@@ -11,12 +11,15 @@ export class DebtGeneratorService {
           WHERE status = 'active' AND next_billing_date < CURRENT_DATE`
       );
       for (const sub of overdue.rows) {
-        const exists = await pool.query(
+        const existingDebt = await pool.query(
           `SELECT id FROM debts
-            WHERE subscription_id = $1 AND due_date = $2`,
-          [sub.id, sub.next_billing_date]
+            WHERE subscription_id = $1 AND status = 'pending'`,
+          [sub.id]
         );
-        if (exists.rows.length > 0) continue;
+        if (existingDebt.rows.length > 0) {
+          console.log(`  ${sub.name}: ya tiene una deuda pendiente, se saltea`);
+          continue;
+        }
         await pool.query(
           `INSERT INTO debts (user_id, subscription_id, category_id, name, amount, currency, due_date, status)
             VALUES ($1, $2, $3, $4, $5, $6, $7, 'pending')`,
