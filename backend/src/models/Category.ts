@@ -1,4 +1,4 @@
-import db from '../config/database';
+import db from '../config/database.js';
 
 export interface ICategory {
     id: string;
