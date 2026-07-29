@@ -6,7 +6,7 @@ export const createAuditLog = async (
   action: string,
   entityType: string,
   entityId?: string,
-  details?: Record<string, any>,
+  details?: Record<string, unknown>,
 ) => {
   try {
     const ipAddress = req.ip || req.headers["x-forwarded-for"] || req.connection.remoteAddress

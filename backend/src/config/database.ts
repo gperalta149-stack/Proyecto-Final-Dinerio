@@ -14,13 +14,20 @@ export const pool = new Pool({
   ssl: {
     rejectUnauthorized: false,
   },
-  max: 20,
+  max: 5,
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 10000,
 })
 
 pool.on("connect", () => {
-  console.log("Database connected successfully")
+  console.log(
+    "DB client created",
+    {
+      total: pool.totalCount,
+      idle: pool.idleCount,
+      waiting: pool.waitingCount
+    }
+  )
 })
 
 pool.on("error", (err) => {
