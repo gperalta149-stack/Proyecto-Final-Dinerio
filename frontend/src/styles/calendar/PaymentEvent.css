@@ -2,6 +2,7 @@
 @import './calendar-variables.css';
 
 .payment-event {
+  min-width: 0;
   border-radius: 6px;
   padding: 4px 8px;
   cursor: pointer;
@@ -53,6 +54,7 @@
 }
 
 .payment-event-title {
+  min-width: 0;
   flex: 1;
   color: var(--calendar-text-primary);
   font-weight: 500;
