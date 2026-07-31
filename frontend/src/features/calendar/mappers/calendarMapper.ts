@@ -1,6 +1,7 @@
 // frontend/src/features/calendar/mappers/calendarMapper.ts
 import type { CalendarEvent } from '../types';
 import type { Subscription } from '../../../shared/types';
+import { toDateKey } from '../utils/date';
 
 export const normalizeCalendarEvent = (subscription: Subscription): CalendarEvent => {
   let eventStatus: 'pending' | 'paid' | 'cancelled';
@@ -25,7 +26,7 @@ export const normalizeCalendarEvent = (subscription: Subscription): CalendarEven
     title: subscription.name,
     amount,
     currency: subscription.currency || 'USD',
-    date: subscription.next_billing_date,
+    date: toDateKey(subscription.next_billing_date),
     billingCycle: subscription.billing_cycle || 'monthly',
     status: eventStatus,
     categoryName: subscription.category_name || 'Sin categoría',

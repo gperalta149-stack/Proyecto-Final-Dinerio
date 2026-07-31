@@ -1,6 +1,6 @@
 // frontend/src/features/calendar/utils/calendar.ts
 import type { CalendarEvent, CalendarDay } from '../types';
-import { getDaysInMonth, getFirstDayOfMonth, getDaysInPrevMonth, formatDateKey } from './date';
+import { getDaysInMonth, getFirstDayOfMonth, getDaysInPrevMonth, formatDateKey, toDateKey } from './date';
 
 export const buildCalendarGrid = (currentDate: Date): CalendarDay[] => {
   const daysInMonth = getDaysInMonth(currentDate);
@@ -44,7 +44,7 @@ export const buildCalendarGrid = (currentDate: Date): CalendarDay[] => {
 
 export const groupEventsByDay = (events: CalendarEvent[]): Record<string, CalendarEvent[]> => {
   return events.reduce((acc, event) => {
-    const key = formatDateKey(new Date(event.date));
+    const key = toDateKey(event.date);
     if (!acc[key]) acc[key] = [];
     acc[key].push(event);
     return acc;
@@ -69,8 +69,8 @@ export const calculateCalendarStats = (events: CalendarEvent[]) => {
 
   const total = events.length;
   const paid = events.filter(e => e.status === 'paid').length;
-  const overdue = events.filter(e => e.status === 'pending' && e.date < todayStr).length;
-  const dueToday = events.filter(e => e.status === 'pending' && e.date === todayStr).length;
+  const overdue = events.filter(e => e.status === 'pending' && toDateKey(e.date) < todayStr).length;
+  const dueToday = events.filter(e => e.status === 'pending' && toDateKey(e.date) === todayStr).length;
 
   return { total, paid, overdue, dueToday };
 };

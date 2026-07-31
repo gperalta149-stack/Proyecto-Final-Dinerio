@@ -3,7 +3,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { getCalendarEvents } from '../service/calendarService';
 import type { CalendarEvent, CalendarStats } from '../types';
 import { calculateCalendarStats, groupEventsByDay } from '../utils/calendar';
-import { isToday, isWithinNextDays, isCurrentMonth } from '../utils/date';
+import { isToday, isWithinNextDays, isCurrentMonth, parseDateString } from '../utils/date';
 
 interface UseCalendarReturn {
   events: CalendarEvent[];
@@ -42,24 +42,21 @@ export const useCalendar = (currentDate: Date): UseCalendarReturn => {
 
   const todayEvents = useMemo(() => {
     return events.filter(event => {
-      const eventDate = new Date(event.date);
-      return isToday(eventDate);
+      return isToday(parseDateString(event.date));
     });
   }, [events]);
 
   const upcomingEvents = useMemo(() => {
     return events
       .filter(event => {
-        const eventDate = new Date(event.date);
-        return isWithinNextDays(eventDate, 7);
+        return isWithinNextDays(event.date, 7);
       })
-      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+      .sort((a, b) => parseDateString(a.date).getTime() - parseDateString(b.date).getTime());
   }, [events]);
 
   const currentMonthEvents = useMemo(() => {
     return events.filter(event => {
-      const eventDate = new Date(event.date);
-      return isCurrentMonth(eventDate, currentDate);
+      return isCurrentMonth(parseDateString(event.date), currentDate);
     });
   }, [events, currentDate]);
 

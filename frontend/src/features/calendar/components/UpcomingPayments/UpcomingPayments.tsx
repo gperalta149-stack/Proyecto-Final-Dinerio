@@ -2,6 +2,7 @@
 import React from 'react';
 import { Calendar } from 'lucide-react';
 import { formatCurrency } from '../../../../shared/utils/formatters';
+import { parseDateString } from '../../utils/date';
 import type { CalendarEvent } from '../../types';
 import '../../../../styles/calendar/UpcomingPayments.css';
 
@@ -33,7 +34,7 @@ export const UpcomingPayments: React.FC<UpcomingPaymentsProps> = ({ events }) =>
                 <div>
                   <div className="upcoming-payments-name">{event.title}</div>
                   <div className="upcoming-payments-date">
-                    {new Date(event.date).toLocaleDateString('es-ES', {
+                    {parseDateString(event.date).toLocaleDateString('es-ES', {
                       day: 'numeric',
                       month: 'short'
                     })}

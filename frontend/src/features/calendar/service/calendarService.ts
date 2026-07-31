@@ -1,6 +1,7 @@
 // frontend/src/features/calendar/service/calendarService.ts
 import api from '../../../shared/services/api';
 import { normalizeCalendarEvent } from '../mappers/calendarMapper';
+import { formatDateKey, parseDateString, toDateKey } from '../utils/date';
 import type { CalendarEvent, UpcomingPayment } from '../types';
 import type { Debt } from '../../../shared/types';
 import type { Subscription } from '../../../shared/types';
@@ -10,7 +11,7 @@ const normalizeDebtEvent = (debt: Debt): CalendarEvent => ({
   title: debt.name,
   amount: Number(debt.amount) || 0,
   currency: debt.currency || 'ARS',
-  date: debt.due_date,
+  date: toDateKey(debt.due_date),
   billingCycle: 'once',
   status: debt.status === 'paid' ? 'paid' : 'pending',
   categoryName: debt.category_name || 'Sin categoría',
@@ -20,7 +21,7 @@ const normalizeDebtEvent = (debt: Debt): CalendarEvent => ({
 const filterByMonth = (events: CalendarEvent[], month: number, year: number) =>
   events.filter((event) => {
     try {
-      const d = new Date(event.date);
+      const d = parseDateString(event.date);
       return d.getMonth() + 1 === month && d.getFullYear() === year;
     } catch {
       console.warn('Fecha inválida:', event.date);
@@ -43,7 +44,7 @@ const expandYearlyEvents = (sub: Subscription): CalendarEvent[] => {
       title: sub.name,
       amount: monthlyAmount,
       currency: sub.currency || 'USD',
-      date: eventDate.toISOString().split('T')[0],
+      date: formatDateKey(eventDate),
       billingCycle: 'yearly',
       status: eventDate <= new Date() ? 'pending' : 'pending',
       categoryName: sub.category_name || 'Sin categoría',

@@ -3,6 +3,7 @@ import React from 'react';
 import { Calendar } from 'lucide-react';
 import { formatCurrency } from '../../../../shared/utils/formatters';
 import { STATUS_LABELS } from '../../constants/calendar';
+import { parseDateString } from '../../utils/date';
 import type { CalendarEvent } from '../../types';
 import '../../../../styles/calendar/PaymentsList.css';
 
@@ -28,7 +29,7 @@ export const PaymentsList: React.FC<PaymentsListProps> = ({ events, currentDate 
   }
 
   const sortedEvents = [...events].sort(
-    (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+    (a, b) => parseDateString(a.date).getTime() - parseDateString(b.date).getTime()
   );
 
   return (
@@ -51,7 +52,7 @@ export const PaymentsList: React.FC<PaymentsListProps> = ({ events, currentDate 
               <div>
                 <div className="payments-list-name">{event.title}</div>
                 <div className="payments-list-date">
-                  {new Date(event.date).toLocaleDateString('es-ES', {
+                  {parseDateString(event.date).toLocaleDateString('es-ES', {
                     weekday: 'long',
                     year: 'numeric',
                     month: 'long',
