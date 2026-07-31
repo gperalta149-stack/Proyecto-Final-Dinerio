@@ -9,6 +9,7 @@ import {
   deleteSubscription,
   getStatsSummary,
   getDashboardStats,
+  paySubscription,
 } from "../controllers/subscriptionController.js"
 
 const router = Router()
@@ -23,6 +24,7 @@ const createSubscriptionValidators = [
 ]
 
 router.get("/", getSubscriptions)
+router.post("/:id/pay", paySubscription)
 router.get("/stats/summary", getStatsSummary)
 router.get("/dashboard/stats", getDashboardStats)
 router.get("/:id", getSubscriptionById)

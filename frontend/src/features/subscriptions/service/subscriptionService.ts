@@ -164,6 +164,17 @@ export const subscriptionService = {
     }
   },
 
+  async payNow(id: string, payment_method?: string): Promise<void> {
+    try {
+      await api.post(`/subscriptions/${id}/pay`, { payment_method: payment_method || null });
+      window.dispatchEvent(new CustomEvent("subscriptions-changed"));
+      window.dispatchEvent(new CustomEvent("debts-changed"));
+    } catch (error) {
+      console.error(`Error paying subscription ${id}:`, error);
+      throw error;
+    }
+  },
+
   async getDashboardStats(): Promise<DashboardStats> {
     try {
       const response = await api.get("/subscriptions/dashboard/stats");

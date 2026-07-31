@@ -181,6 +181,13 @@
 }
 
 /* ===== FORM ===== */
+.subs-modal-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
 .subs-modal-form {
   padding: 20px 24px 24px;
   display: flex;

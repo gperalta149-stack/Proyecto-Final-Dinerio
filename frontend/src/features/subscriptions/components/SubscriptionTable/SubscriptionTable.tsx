@@ -140,7 +140,7 @@ export const SubscriptionTable: React.FC<SubscriptionTableProps> = ({
                 </td>
                 <td>
                   <div className="subs-table-actions">
-                    {isActive && nextInfo?.text === "Vencida" && onPay && (
+                    {isActive && onPay && (
                       <button className="subs-action-btn pay-btn" onClick={() => onPay(sub)} title="Pagar">
                         <DollarSign size={15} />
                       </button>

@@ -17,9 +17,10 @@ interface PayDebtModalProps {
   debt: Debt;
   onConfirm: (paymentMethod: string) => void;
   onClose: () => void;
+  loading?: boolean;
 }
 
-export const PayDebtModal: React.FC<PayDebtModalProps> = ({ debt, onConfirm, onClose }) => {
+export const PayDebtModal: React.FC<PayDebtModalProps> = ({ debt, onConfirm, onClose, loading }) => {
   const [selected, setSelected] = useState<string | null>(null);
 
   useEffect(() => {
@@ -86,10 +87,10 @@ export const PayDebtModal: React.FC<PayDebtModalProps> = ({ debt, onConfirm, onC
           </button>
           <button
             className="debt-modal-btn primary paydebt-confirm-btn"
-            disabled={!selected}
+            disabled={!selected || loading}
             onClick={handleConfirm}
           >
-            Marcar como pagada
+            {loading ? "Procesando..." : "Marcar como pagada"}
           </button>
         </div>
       </div>

@@ -35,6 +35,8 @@ export const SubscriptionsPage: React.FC = () => {
   const [paidDebtsTotal, setPaidDebtsTotal] = useState(0);
   const [showBudgetWarning, setShowBudgetWarning] = useState(false);
   const [payDebt, setPayDebt] = useState<Debt | null>(null);
+  const [paySubscription, setPaySubscription] = useState<Subscription | null>(null);
+  const [paying, setPaying] = useState(false);
   const [debts, setDebts] = useState<Debt[]>([]);
   const [paymentSuccess, setPaymentSuccess] = useState(false);
   const perPage = 5;
@@ -94,21 +96,37 @@ export const SubscriptionsPage: React.FC = () => {
   const handleView = (sub: Subscription) => { setViewingSubscription(sub); };
   const handlePay = (sub: Subscription) => {
     const debt = debts.find(d => d.subscription_id === sub.id && d.status === 'pending');
-    if (debt) setPayDebt(debt);
+    if (debt) {
+      setPaySubscription(null);
+      setPayDebt(debt);
+    } else {
+      setPayDebt(null);
+      setPaySubscription(sub);
+    }
   };
   const handlePayConfirm = async (paymentMethod: string) => {
-    if (!payDebt) return;
+    if (paying) return;
+    setPaying(true);
     try {
-      const amount = parseFloat(String(payDebt.amount));
-      const amountArs = payDebt.currency === 'USD'
-        ? Math.round(ExchangeRateService.convertUSDToARS(amount, 'tarjeta') * 100) / 100
-        : undefined;
-      await debtService.markAsPaid(payDebt.id, paymentMethod, amountArs);
-      setPayDebt(null);
+      if (paySubscription) {
+        await subscriptionService.payNow(paySubscription.id, paymentMethod);
+        setPaySubscription(null);
+      } else if (payDebt) {
+        const amount = parseFloat(String(payDebt.amount));
+        const amountArs = payDebt.currency === 'USD'
+          ? Math.round(ExchangeRateService.convertUSDToARS(amount, 'tarjeta') * 100) / 100
+          : undefined;
+        await debtService.markAsPaid(payDebt.id, paymentMethod, amountArs);
+        setPayDebt(null);
+      } else {
+        return;
+      }
       setPaymentSuccess(true);
       await loadAll();
     } catch {
       showToast("Error al procesar el pago", "error");
+    } finally {
+      setPaying(false);
     }
   };
   const { showToast } = useToast();
@@ -335,8 +353,31 @@ export const SubscriptionsPage: React.FC = () => {
         {payDebt && (
           <PayDebtModal
             debt={payDebt}
+            loading={paying}
             onConfirm={handlePayConfirm}
             onClose={() => setPayDebt(null)}
+          />
+        )}
+
+        {paySubscription && (
+          <PayDebtModal
+            debt={{
+              id: paySubscription.id,
+              user_id: paySubscription.user_id,
+              subscription_id: paySubscription.id,
+              category_id: paySubscription.category_id,
+              category_name: paySubscription.category_name,
+              name: paySubscription.name,
+              amount: paySubscription.arsAmount ?? parseAmount(paySubscription.amount),
+              currency: paySubscription.arsAmount ? 'ARS' : paySubscription.currency,
+              due_date: paySubscription.next_billing_date || new Date().toISOString().split('T')[0],
+              status: 'pending',
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+            }}
+            loading={paying}
+            onConfirm={handlePayConfirm}
+            onClose={() => setPaySubscription(null)}
           />
         )}
 

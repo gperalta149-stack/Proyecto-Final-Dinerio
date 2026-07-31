@@ -2,7 +2,10 @@ import { Response } from "express"
 import { validationResult } from "express-validator"
 import { pool } from "../config/database.js"
 import { createAuditLog } from "../middleware/auditLog.js"
+import { getExchangeRate } from "../services/exchangeRateService.js"
 import type { AuthRequest } from "../types/index.js"
+
+const VALID_PAYMENT_METHODS = ['debito', 'credito', 'billetera_virtual', 'efectivo', 'transferencia'];
 
 // Lista de suscripciones. Soporta ?status=... (por defecto solo 'active')
 export const getSubscriptions = async (req: AuthRequest, res: Response): Promise<void> => {
@@ -465,5 +468,89 @@ export const getDashboardStats = async (req: AuthRequest, res: Response): Promis
   } catch (error) {
     console.error("Get dashboard stats error:", error)
     res.status(500).json({ error: "Server error" })
+  }
+}
+
+// ── Pagar suscripción (crea la deuda ya pagada y cancela la suscripción) ──
+export const paySubscription = async (req: AuthRequest, res: Response): Promise<void> => {
+  const { id } = req.params
+  const { payment_method } = req.body
+
+  if (payment_method && !VALID_PAYMENT_METHODS.includes(payment_method)) {
+    res.status(400).json({ error: 'Método de pago inválido' })
+    return
+  }
+
+  try {
+    const subResult = await pool.query(
+      `SELECT id, category_id, name, amount, currency, next_billing_date
+        FROM subscriptions
+        WHERE id = $1 AND user_id = $2 AND status = 'active'`,
+      [id, req.user!.userId]
+    )
+
+    if (subResult.rows.length === 0) {
+      res.status(404).json({ error: 'Suscripción no encontrada o no activa' })
+      return
+    }
+    const sub = subResult.rows[0]
+
+    // Idempotencia: si ya existe una deuda para esta suscripción/ciclo, no duplicar
+    const existingDebt = await pool.query(
+      `SELECT id FROM debts WHERE subscription_id = $1 AND due_date = $2`,
+      [id, sub.next_billing_date]
+    )
+
+    if (existingDebt.rows.length === 0) {
+      const exchangeRate = await getExchangeRate()
+      const numericAmount = Number(sub.amount)
+      const amountArs = sub.currency === 'USD'
+        ? Math.round(numericAmount * exchangeRate * 100) / 100
+        : numericAmount
+
+      const debtResult = await pool.query(
+        `INSERT INTO debts (user_id, subscription_id, category_id, name, amount, currency, due_date, status, payment_method, amount_ars, paid_at)
+          VALUES ($1, $2, $3, $4, $5, $6, $7, 'paid', $8, $9, CURRENT_TIMESTAMP)
+          RETURNING id`,
+        [req.user!.userId, id, sub.category_id, sub.name, numericAmount, sub.currency, sub.next_billing_date, payment_method || null, amountArs]
+      )
+
+      await createAuditLog(req, 'UPDATE', 'subscription', id, { status: 'cancelled', payment_method, paidDebtId: debtResult.rows[0].id })
+    }
+
+    await pool.query(
+      `UPDATE subscriptions
+        SET status = 'cancelled', updated_at = CURRENT_TIMESTAMP
+        WHERE id = $1 AND user_id = $2 AND status = 'active'`,
+      [id, req.user!.userId]
+    )
+
+    try {
+      const userInfo = await pool.query(
+        `SELECT notifications_enabled FROM users WHERE id = $1`,
+        [req.user!.userId]
+      )
+      const notificationsEnabled = userInfo.rows[0]?.notifications_enabled
+      if (notificationsEnabled !== false) {
+        await pool.query(
+          `INSERT INTO notifications (user_id, subscription_id, type, title, message)
+            VALUES ($1, $2, $3, $4, $5)`,
+          [
+            req.user!.userId,
+            id,
+            'payment_paid',
+            'Pago realizado',
+            `Tu suscripción "${sub.name}" fue pagada. Monto: ${sub.currency} ${sub.amount}`,
+          ]
+        )
+      }
+    } catch (notificationError) {
+      console.error("Error creando notificación de pago:", notificationError)
+    }
+
+    res.json({ message: 'Suscripción marcada como pagada' })
+  } catch (error) {
+    console.error("Pay subscription error:", error)
+    res.status(500).json({ error: 'Error al pagar la suscripción' })
   }
 }
