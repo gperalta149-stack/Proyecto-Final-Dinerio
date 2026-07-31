@@ -1,0 +1,124 @@
+/* frontend/src/features/calendar/components/DuePayments/DuePayments.css */
+@import './calendar-variables.css';
+
+.due-payments {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.due-card {
+  background: var(--calendar-bg-card);
+  border: 1px solid var(--calendar-border-subtle);
+  border-radius: 12px;
+  padding: 14px 16px;
+  transition: all 0.25s ease;
+}
+
+.due-card:hover {
+  border-color: var(--calendar-border-soft);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.due-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.due-card-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--calendar-text-primary);
+}
+
+.due-card-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  color: var(--calendar-indigo);
+  background: rgba(99, 102, 241, 0.12);
+}
+
+.due-card-nav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.due-card-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  border: 1px solid var(--calendar-border-subtle);
+  background: var(--calendar-bg-card);
+  color: var(--calendar-text-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.due-card-arrow:hover {
+  color: var(--calendar-text-primary);
+  border-color: var(--calendar-border-soft);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.due-card-page {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--calendar-text-tertiary);
+  min-width: 28px;
+  text-align: center;
+}
+
+.due-card-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.due-card-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 7px 10px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.02);
+  transition: background 0.2s ease;
+}
+
+.due-card-item:hover {
+  background: rgba(255, 255, 255, 0.045);
+}
+
+.due-card-name {
+  font-size: 0.85rem;
+  color: var(--calendar-text-secondary);
+}
+
+.due-card-amount {
+  font-weight: 700;
+  font-size: 0.85rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.due-card-amount.pending {
+  color: var(--calendar-orange);
+}
+
+.due-card-amount.paid {
+  color: var(--calendar-green);
+}

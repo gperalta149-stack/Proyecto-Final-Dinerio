@@ -3,7 +3,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { getCalendarEvents } from '../service/calendarService';
 import type { CalendarEvent, CalendarStats } from '../types';
 import { calculateCalendarStats, groupEventsByDay } from '../utils/calendar';
-import { isToday, isWithinNextDays, isCurrentMonth, parseDateString } from '../utils/date';
+import { isToday, daysUntil, isWithinNextDays, isCurrentMonth, parseDateString } from '../utils/date';
 
 interface UseCalendarReturn {
   events: CalendarEvent[];
@@ -11,6 +11,8 @@ interface UseCalendarReturn {
   stats: CalendarStats;
   todayEvents: CalendarEvent[];
   upcomingEvents: CalendarEvent[];
+  eventsIn3Days: CalendarEvent[];
+  eventsIn7Days: CalendarEvent[];
   eventsByDay: Record<string, CalendarEvent[]>;
   refresh: () => Promise<void>;
 }
@@ -54,6 +56,27 @@ export const useCalendar = (currentDate: Date): UseCalendarReturn => {
       .sort((a, b) => parseDateString(a.date).getTime() - parseDateString(b.date).getTime());
   }, [events]);
 
+  const sortByDate = (a: CalendarEvent, b: CalendarEvent) =>
+    parseDateString(a.date).getTime() - parseDateString(b.date).getTime();
+
+  const eventsIn3Days = useMemo(() => {
+    return events
+      .filter(event => {
+        const diff = daysUntil(event.date);
+        return diff >= 1 && diff <= 3;
+      })
+      .sort(sortByDate);
+  }, [events]);
+
+  const eventsIn7Days = useMemo(() => {
+    return events
+      .filter(event => {
+        const diff = daysUntil(event.date);
+        return diff >= 4 && diff <= 7;
+      })
+      .sort(sortByDate);
+  }, [events]);
+
   const currentMonthEvents = useMemo(() => {
     return events.filter(event => {
       return isCurrentMonth(parseDateString(event.date), currentDate);
@@ -70,6 +93,8 @@ export const useCalendar = (currentDate: Date): UseCalendarReturn => {
     stats,
     todayEvents,
     upcomingEvents,
+    eventsIn3Days,
+    eventsIn7Days,
     eventsByDay,
     refresh: loadEvents,
   };

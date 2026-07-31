@@ -59,3 +59,11 @@ export const isWithinNextDays = (date: string | Date, days: number): boolean => 
   const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
   return diffDays >= 0 && diffDays <= days;
 };
+
+export const daysUntil = (date: string | Date): number => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const target = typeof date === "string" ? parseDateString(date) : new Date(date);
+  target.setHours(0, 0, 0, 0);
+  return Math.round((target.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+};

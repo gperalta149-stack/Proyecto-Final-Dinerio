@@ -4,7 +4,7 @@ import { MonthSelector } from '../components/MonthSelector/MonthSelector';
 import { CalendarView } from '../components/CalendarView/CalendarView';
 import { CalendarStats } from '../components/CalendarStats/CalendarStats';
 import { TodayPayments } from '../components/TodayPayments/TodayPayments';
-import { UpcomingPayments } from '../components/UpcomingPayments/UpcomingPayments';
+import { DuePayments } from '../components/DuePayments/DuePayments';
 import { PaymentsList } from '../components/PaymentsList/PaymentsList';
 import { useCalendar } from '../hooks/useCalendar';
 
@@ -13,7 +13,7 @@ import '../../../styles/calendar/calendar.css';
 export const CalendarPage: React.FC = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [view, setView] = useState<'month' | 'list'>('month');
-  const { events, loading, stats, todayEvents, upcomingEvents, eventsByDay } = useCalendar(currentDate);
+  const { events, loading, stats, todayEvents, eventsIn3Days, eventsIn7Days, eventsByDay } = useCalendar(currentDate);
 
   if (loading) {
     return (
@@ -69,7 +69,11 @@ export const CalendarPage: React.FC = () => {
           <div className="calendar-sidebar">
             <CalendarStats stats={stats} />
             {todayEvents.length > 0 && <TodayPayments events={todayEvents} />}
-            <UpcomingPayments events={upcomingEvents} />
+            <DuePayments
+              todayEvents={todayEvents.filter((e) => e.status === "pending")}
+              threeDayEvents={eventsIn3Days}
+              sevenDayEvents={eventsIn7Days}
+            />
           </div>
         </div>
       </div>

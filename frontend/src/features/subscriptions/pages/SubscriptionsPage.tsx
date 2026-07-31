@@ -185,6 +185,7 @@ export const SubscriptionsPage: React.FC = () => {
     if (filter === "active") list = list.filter(s => s.status === "active");
     else if (filter === "paused") list = list.filter(s => s.status === "paused");
     else if (filter === "cancelled") list = list.filter(s => s.status === "cancelled");
+    if (sortBy === "next-payment") list = list.filter(s => s.status === "active");
     if (search) {
       const q = search.toLowerCase();
       list = list.filter(s => s.name?.toLowerCase().includes(q) || s.category_name?.toLowerCase().includes(q));
