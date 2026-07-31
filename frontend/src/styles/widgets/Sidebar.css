@@ -275,11 +275,11 @@
 }
 
 /* ===== BUDGET OVERRUN LEFT BAR ===== */
-.sidebar-item-budget-overrun {
+.sidebar-item-budget-overrun.sidebar-badge-warning {
   border-left-color: #f59e0b;
 }
 
-.sidebar-item-budget-overrun.sidebar-item-active {
+.sidebar-item-budget-overrun.sidebar-badge-danger {
   border-left-color: #ef4444;
 }
 

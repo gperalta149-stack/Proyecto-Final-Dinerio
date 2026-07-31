@@ -123,7 +123,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed = false, onToggle, m
             <Link
               key={item.path}
               to={item.path}
-              className={`sidebar-item ${isActive ? "sidebar-item-active" : ""} ${showBudgetWarning ? "sidebar-item-budget-overrun" : ""}`}
+              className={`sidebar-item ${isActive ? "sidebar-item-active" : ""} ${showBudgetWarning ? `sidebar-item-budget-overrun ${budgetWarningClass}` : ""}`}
               title={collapsed ? item.label : undefined}
               onClick={onMobileClose}
             >
