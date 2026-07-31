@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from "react";
-import { DollarSign, BarChart3, Trophy, ArrowUp, TrendingDown, TrendingUp, ChevronLeft, ChevronRight, PieChart, Calendar, CalendarRange } from "lucide-react";
+import { DollarSign, BarChart3, Trophy, ArrowUp, TrendingDown, TrendingUp, ChevronLeft, ChevronRight, PieChart, Calendar, CalendarRange, Download } from "lucide-react";
 import { MonthlyEvolution } from "../../dashboard/components/MonthlyEvolution/MonthlyEvolution";
 import { AnnualDistribution } from "../components/AnnualDistribution/AnnualDistribution";
 
@@ -25,7 +25,7 @@ export const ReportsPage: React.FC = () => {
   const [range, setRange] = useState<number | null>(12);
   const [selectedCurrency, setSelectedCurrency] = useState<'ARS' | 'USD'>('ARS');
 
-  const { report, monthlyEvolution, loading, error } = useReports(selectedMonth, selectedYear, range, rangeMode);
+  const { report, monthlyEvolution, loading, error, exportCSV } = useReports(selectedMonth, selectedYear, range, rangeMode);
 
   const { monthlyTotal, byCategory, subscriptions } = useMemo(() => {
     if (!report) return { monthlyTotal: 0, byCategory: [] as CategoryData[], subscriptions: [] };
@@ -200,6 +200,11 @@ export const ReportsPage: React.FC = () => {
               )}
             </div>
 
+          </div>
+          <div className="export-actions">
+            <button className="export-btn csv-btn" onClick={() => exportCSV(selectedMonth, selectedYear)}>
+              <Download size={14} /> CSV
+            </button>
           </div>
         </div>
 
