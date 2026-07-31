@@ -24,13 +24,79 @@ interface CategoryReportRow {
   monthly_total_ars: number
 }
 
+const MONTHS_ES = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+
+const CYCLE_ES: Record<string, string> = {
+  monthly: "Mensual", yearly: "Anual", weekly: "Semanal", quarterly: "Trimestral",
+};
+
+const STATUS_ES: Record<string, string> = {
+  active: "Activa", cancelled: "Cancelada", paused: "Pausada",
+};
+
 export const exportSubscriptionsCSV = async (req: AuthRequest, res: Response) => {
   try {
     const { month, year } = req.query
     const currentMonth = month ? Number(month) : new Date().getMonth() + 1
     const currentYear = year ? Number(year) : new Date().getFullYear()
+    const periodLabel = `${MONTHS_ES[currentMonth - 1]} ${currentYear}`
 
-    const result = await pool.query(
+    const financial = await pool.query(
+      `SELECT
+        COUNT(*) as total_subs,
+        COALESCE(SUM(CASE
+          WHEN currency = 'USD' THEN
+            CASE
+              WHEN billing_cycle = 'monthly'   THEN amount * 1.53 * 1450
+              WHEN billing_cycle = 'yearly'    THEN (amount / 12) * 1.53 * 1450
+              WHEN billing_cycle = 'quarterly' THEN (amount / 3) * 1.53 * 1450
+              WHEN billing_cycle = 'weekly'    THEN (amount * 4) * 1.53 * 1450
+            END
+          ELSE
+            CASE
+              WHEN billing_cycle = 'monthly'   THEN amount
+              WHEN billing_cycle = 'yearly'    THEN amount / 12
+              WHEN billing_cycle = 'quarterly' THEN amount / 3
+              WHEN billing_cycle = 'weekly'    THEN amount * 4
+            END
+        END), 0) as monthly_total,
+        COALESCE(SUM(CASE
+          WHEN currency = 'USD' THEN
+            CASE
+              WHEN billing_cycle = 'monthly'   THEN amount * 1.53 * 1450 * 12
+              WHEN billing_cycle = 'yearly'    THEN amount * 1.53 * 1450
+              WHEN billing_cycle = 'quarterly' THEN (amount / 3) * 1.53 * 1450 * 12
+              WHEN billing_cycle = 'weekly'    THEN (amount * 4) * 1.53 * 1450 * 12
+            END
+          ELSE
+            CASE
+              WHEN billing_cycle = 'monthly'   THEN amount * 12
+              WHEN billing_cycle = 'yearly'    THEN amount
+              WHEN billing_cycle = 'quarterly' THEN (amount / 3) * 12
+              WHEN billing_cycle = 'weekly'    THEN amount * 4 * 12
+            END
+        END), 0) as yearly_total
+      FROM subscriptions
+      WHERE user_id = $1 AND status = 'active'
+        AND EXTRACT(MONTH FROM next_billing_date) = $2
+        AND EXTRACT(YEAR FROM next_billing_date) = $3`,
+      [req.user!.userId, currentMonth, currentYear]
+    )
+
+    const byCategory = await pool.query(
+      `SELECT c.name, c.color, COUNT(s.id) as count,
+              COALESCE(SUM(CASE WHEN s.currency = 'USD' THEN s.amount * 1.53 * 1450 ELSE s.amount END), 0) as total
+        FROM subscriptions s
+        LEFT JOIN categories c ON s.category_id = c.id
+        WHERE s.user_id = $1 AND s.status = 'active'
+          AND EXTRACT(MONTH FROM s.next_billing_date) = $2
+          AND EXTRACT(YEAR FROM s.next_billing_date) = $3
+        GROUP BY c.id, c.name, c.color
+        ORDER BY total DESC`,
+      [req.user!.userId, currentMonth, currentYear]
+    )
+
+    const subscriptions = await pool.query(
       `SELECT s.name, s.amount, s.currency, s.billing_cycle, s.status,
               s.next_billing_date, c.name as category, s.payment_method
         FROM subscriptions s
@@ -42,22 +108,42 @@ export const exportSubscriptionsCSV = async (req: AuthRequest, res: Response) =>
       [req.user!.userId, currentMonth, currentYear]
     )
 
-    const headers = ["Nombre", "Monto", "Moneda", "Ciclo", "Estado", "Próximo Pago", "Categoría", "Método de Pago"]
-    const rows = result.rows.map((row) => [
-      row.name,
-      row.amount,
-      row.currency,
-      row.billing_cycle,
-      row.status,
-      new Date(row.next_billing_date).toLocaleDateString("es-ES"),
-      row.category || "Sin categoría",
-      row.payment_method || "No especificado",
-    ])
+    const lines: string[] = []
+    const esc = (v: string | number) => `"${String(v).replace(/"/g, '""')}"`
 
-    const csv = [headers.join(","), ...rows.map((row) => row.map((cell) => `"${cell}"`).join(","))].join("\n")
+    lines.push(`"=== RESUMEN FINANCIERO ==="`)
+    lines.push(`"Período",${esc(periodLabel)}`)
+    lines.push(`"Suscripciones activas",${esc(financial.rows[0].total_subs)}`)
+    lines.push(`"Gasto mensual",${esc('$ ' + Number(financial.rows[0].monthly_total).toLocaleString('es-AR', { minimumFractionDigits: 2 }))}`)
+    lines.push(`"Gasto anual proyectado",${esc('$ ' + Number(financial.rows[0].yearly_total).toLocaleString('es-AR', { minimumFractionDigits: 2 }))}`)
+    lines.push(``)
+
+    lines.push(`"=== GASTO POR CATEGORÍA ==="`)
+    lines.push(`"Categoría","Monto","Suscripciones"`)
+    for (const cat of byCategory.rows) {
+      lines.push(`${esc(cat.name || "Sin categoría")},${esc('$ ' + Number(cat.total).toLocaleString('es-AR', { minimumFractionDigits: 2 }))},${esc(cat.count)}`)
+    }
+    lines.push(``)
+
+    lines.push(`"=== SUSCRIPCIONES ==="`)
+    lines.push(`"Nombre","Monto","Moneda","Ciclo","Estado","Próximo Pago","Categoría","Método de Pago"`)
+    for (const sub of subscriptions.rows) {
+      lines.push([
+        esc(sub.name),
+        esc(sub.amount),
+        esc(sub.currency),
+        esc(CYCLE_ES[sub.billing_cycle] || sub.billing_cycle),
+        esc(STATUS_ES[sub.status] || sub.status),
+        esc(new Date(sub.next_billing_date).toLocaleDateString("es-ES")),
+        esc(sub.category || "Sin categoría"),
+        esc(sub.payment_method || "No especificado"),
+      ].join(","))
+    }
+
+    const csv = lines.join("\n")
 
     res.setHeader("Content-Type", "text/csv; charset=utf-8")
-    res.setHeader("Content-Disposition", `attachment; filename=suscripciones-${currentMonth}-${currentYear}.csv`)
+    res.setHeader("Content-Disposition", `attachment; filename=reporte-${currentMonth}-${currentYear}.csv`)
     res.send("\uFEFF" + csv)
   } catch (error) {
     console.error("Export CSV error:", error)

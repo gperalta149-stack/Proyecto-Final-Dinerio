@@ -29,8 +29,6 @@ app.get("/health", (_req, res) => {
     environment: process.env.NODE_ENV || "development"
   })
 })
-
-
 // API Routes
 app.use("/api/auth", authRoutes)
 app.use("/api/subscriptions", subscriptionRoutes)
@@ -63,8 +61,8 @@ const startServer = async () => {
       console.log(`   • /api/reports`)
       console.log(`   • /api/upload`)
       console.log(`   • /api/calendar`)
-      console.log(`   • /api/budgets`)
       console.log(`   • /api/debts`)
+      console.log(`   • /api/budgets`)
     })
   } catch (error) {
     console.error("❌ Error al iniciar servidor:", error)

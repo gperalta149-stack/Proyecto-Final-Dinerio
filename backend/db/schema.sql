@@ -78,6 +78,7 @@ CREATE TABLE debts (
   due_date DATE NOT NULL,
   status VARCHAR(20) DEFAULT 'pending' CHECK (status IN ('pending', 'paid')),
   payment_method VARCHAR(30) CHECK (payment_method IN ('debito', 'credito', 'billetera_virtual', 'efectivo', 'transferencia')),
+  amount_ars DECIMAL(12,2),
   paid_at TIMESTAMP,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP

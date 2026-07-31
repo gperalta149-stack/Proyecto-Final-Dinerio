@@ -90,7 +90,7 @@ const [paymentSuccess, setPaymentSuccess] = useState(false);
       setActionLoading(true);
       const amount = parseFloat(String(payingDebt.amount));
       const amountArs = payingDebt.currency === 'USD'
-        ? Math.round(ExchangeRateService.convertUSDToARS(amount, 'tarjeta') * 100) / 100
+        ? (payingDebt.amount_ars ?? Math.round(ExchangeRateService.convertUSDToARS(amount, 'tarjeta') * 100) / 100)
         : amount;
       await markAsPaid(payingDebt.id, paymentMethod, amountArs);
       setPayingDebt(null);

@@ -93,11 +93,17 @@ export const createManualDebt = async (req: AuthRequest, res: Response): Promise
   }
 
   try {
+    const exchangeRate = await getExchangeRate();
+    const numericAmount = Number(amount);
+    const amountArs = currency === 'USD'
+      ? Math.round(numericAmount * exchangeRate * 100) / 100
+      : numericAmount;
+
     const result = await pool.query(
-      `INSERT INTO debts (user_id, name, amount, currency, due_date, category_id, status)
-        VALUES ($1, $2, $3, $4, $5, $6, 'pending')
+      `INSERT INTO debts (user_id, name, amount, currency, due_date, category_id, status, amount_ars)
+        VALUES ($1, $2, $3, $4, $5, $6, 'pending', $7)
         RETURNING id`,
-      [req.user!.userId, name.trim(), Number(amount), currency, due_date, category_id || null]
+      [req.user!.userId, name.trim(), numericAmount, currency, due_date, category_id || null, amountArs]
     );
 
     const full = await pool.query(`${DEBT_WITH_CATEGORY} WHERE d.id = $1`, [result.rows[0].id]);

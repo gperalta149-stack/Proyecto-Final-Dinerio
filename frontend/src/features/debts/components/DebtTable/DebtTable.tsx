@@ -101,7 +101,11 @@ export const DebtTable: React.FC<DebtTableProps> = ({
                   {debt.currency === 'USD' ? (
                     <div className="debt-amount-dual">
                       <span>{formatCurrency(parseAmount(debt.amount), 'USD')}</span>
-                      <span className="debt-amount-ars">{formatCurrency(ExchangeRateService.convertUSDToARS(parseAmount(debt.amount)), 'ARS')}</span>
+                      <span className="debt-amount-ars">
+                        {debt.amount_ars
+                          ? formatCurrency(Number(debt.amount_ars), 'ARS')
+                          : formatCurrency(ExchangeRateService.convertUSDToARS(parseAmount(debt.amount)), 'ARS')}
+                      </span>
                     </div>
                   ) : (
                     formatCurrency(parseAmount(debt.amount), debt.currency)
