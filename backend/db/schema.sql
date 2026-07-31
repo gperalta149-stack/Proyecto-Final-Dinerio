@@ -81,7 +81,8 @@ CREATE TABLE debts (
   amount_ars DECIMAL(12,2),
   paid_at TIMESTAMP,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT unique_subscription_due_date UNIQUE (subscription_id, due_date)
 );
 -- Tabla de Logs de Auditoría
 CREATE TABLE audit_logs (
