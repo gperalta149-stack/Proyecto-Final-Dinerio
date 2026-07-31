@@ -344,6 +344,13 @@
   padding: 0;
 }
 
+.sidebar-collapsed .sidebar-profile-menu {
+  left: calc(100% + var(--space-2));
+  right: auto;
+  bottom: var(--space-2);
+  min-width: 200px;
+}
+
 .sidebar-profile-name {
   font-size: var(--text-sm);
   font-weight: var(--font-medium);
