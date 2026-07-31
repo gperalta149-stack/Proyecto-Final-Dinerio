@@ -1,6 +1,6 @@
 // frontend/src/features/categories/components/CategoryModal/CategoryModal.tsx
 import React, { useState, useEffect, useMemo } from "react";
-import { X, Check } from "lucide-react";
+import { X, Check, Tag } from "lucide-react";
 import { DEFAULT_COLORS } from "../../constants/categoryColors";
 import { getCategoryIcon } from "../../utils/getCategoryIcon";
 import type { Category, CategoryFormData } from "../../types";
@@ -94,7 +94,17 @@ export const CategoryModal: React.FC<CategoryModalProps> = ({
     <div className="cat-modal-overlay" onClick={onClose}>
       <div className="cat-modal" onClick={(e) => e.stopPropagation()}>
         <div className="cat-modal-header">
-          <h2 className="cat-modal-title">{isEditing ? "Editar categoría" : "Nueva categoría"}</h2>
+          <div className="cat-modal-header-info">
+            <span className="cat-modal-header-icon">
+              <Tag size={18} />
+            </span>
+            <div>
+              <h2 className="cat-modal-title">{isEditing ? "Editar categoría" : "Nueva categoría"}</h2>
+              <p className="cat-modal-subtitle">
+                {isEditing ? "Actualizá el nombre y el color" : "Organizá tus gastos por color e ícono"}
+              </p>
+            </div>
+          </div>
           <button className="cat-modal-close" onClick={onClose} aria-label="Cerrar" type="button">
             <X size={18} />
           </button>
@@ -103,7 +113,8 @@ export const CategoryModal: React.FC<CategoryModalProps> = ({
         <div className="cat-modal-scroll">
           {/* Preview en vivo: mismo patrón que SubscriptionModal */}
           <div className="cat-preview-card">
-            <div className="cat-preview-icon" style={{ backgroundColor: `${formData.color}22`, color: formData.color }}>
+            <span className="cat-preview-label">Vista previa</span>
+            <div className="cat-preview-icon" style={{ backgroundColor: `${formData.color}1f`, color: formData.color }}>
               {getCategoryIcon(formData.name || "otros")}
             </div>
             <span className="cat-preview-name">{previewName}</span>
@@ -150,12 +161,14 @@ export const CategoryModal: React.FC<CategoryModalProps> = ({
         </div>
 
         <div className="cat-modal-actions">
-          <button type="button" onClick={onClose} className="cat-modal-btn secondary" disabled={loading}>
-            Cancelar
-          </button>
-          <button type="submit" form="cat-modal-form" className="cat-modal-btn primary" disabled={loading}>
-            {loading ? "Guardando..." : isEditing ? "Guardar cambios" : "Crear categoría"}
-          </button>
+          <div className="cat-modal-actions-buttons">
+            <button type="button" onClick={onClose} className="cat-modal-btn secondary" disabled={loading}>
+              Cancelar
+            </button>
+            <button type="submit" form="cat-modal-form" className="cat-modal-btn primary" disabled={loading}>
+              {loading ? "Guardando..." : isEditing ? "Guardar cambios" : "Crear categoría"}
+            </button>
+          </div>
         </div>
       </div>
     </div>

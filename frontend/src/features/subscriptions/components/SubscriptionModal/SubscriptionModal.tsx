@@ -26,20 +26,6 @@ const STATUS_OPTIONS = [
   { value: "cancelled", label: "Pagada", color: "#22c55e" },
 ];
 
-// Servicios más comunes en Argentina para autocompletar de un toque.
-// suggestedCategory es el "name" de una categoría default (ajustar a los nombres reales que uses).
-const POPULAR_SERVICES = [
-  { name: "Netflix", suggestedCategory: "entretenimiento" },
-  { name: "Spotify", suggestedCategory: "entretenimiento" },
-  { name: "Disney+", suggestedCategory: "entretenimiento" },
-  { name: "YouTube Premium", suggestedCategory: "entretenimiento" },
-  { name: "HBO Max", suggestedCategory: "entretenimiento" },
-  { name: "Amazon Prime", suggestedCategory: "entretenimiento" },
-  { name: "Google One", suggestedCategory: "tecnologia" },
-  { name: "iCloud+", suggestedCategory: "tecnologia" },
-  { name: "ChatGPT Plus", suggestedCategory: "tecnologia" },
-];
-
 const normalize = (value: string) =>
   value.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
@@ -152,19 +138,6 @@ export const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
 
   const setField = (name: keyof Subscription, value: string) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const applyPopularService = (service: { name: string; suggestedCategory: string }) => {
-    if (takenNames.has(normalize(service.name))) return; // ya existe, no hacer nada
-    setNameError(null);
-    const matchedCategory = externalCategories.find(
-      (c) => normalize(c.name || "") === normalize(service.suggestedCategory)
-    );
-    setFormData((prev) => ({
-      ...prev,
-      name: service.name,
-      category_id: matchedCategory?.id || prev.category_id,
-    }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -418,32 +391,6 @@ export const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
           </div>
 
           <form onSubmit={handleSubmit} className="subs-modal-form" id="subs-form">
-
-            {/* Selector rápido de servicios populares, solo al crear */}
-            {!isEditing && (
-              <div className="subs-form-group">
-                <label className="subs-form-label">Elegí un servicio rápido (opcional)</label>
-                <div className="subs-quickpick-grid">
-                  {POPULAR_SERVICES.map((service) => {
-                    const taken = takenNames.has(normalize(service.name));
-                    const active = normalize(formData.name || "") === normalize(service.name);
-                    return (
-                      <button
-                        type="button"
-                        key={service.name}
-                        disabled={taken}
-                        onClick={() => applyPopularService(service)}
-                        className={`subs-quickpick-chip${active ? ' active' : ''}${taken ? ' taken' : ''}`}
-                        title={taken ? "Ya agregada" : service.name}
-                      >
-                        {taken && <Check size={12} />}
-                        {service.name}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
 
             <div className="subs-form-group">
               <label className="subs-form-label" htmlFor="subs-name">

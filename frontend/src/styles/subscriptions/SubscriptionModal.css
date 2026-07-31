@@ -20,7 +20,9 @@
   width: 100%;
   max-width: 520px;
   max-height: 90vh;
-  overflow-y: auto;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
   box-shadow: 0 30px 90px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(99, 102, 241, 0.06) inset;
   animation: modalSlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -547,6 +549,92 @@
   color: #ef4444;
 }
 
+/* ===== CATEGORY PICKER VIEW ===== */
+.subs-modal-back {
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  border: 1px solid var(--subs-border-soft);
+  background: var(--subs-bg-primary);
+  color: var(--subs-text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+}
+
+.subs-modal-back:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--subs-text-primary);
+  border-color: rgba(255, 255, 255, 0.16);
+}
+
+.subs-category-search-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 18px 24px 0;
+  padding: 10px 14px;
+  background: linear-gradient(145deg, var(--bg-card) 0%, var(--bg-secondary) 100%);
+  border: 1px solid var(--subs-border-subtle);
+  border-radius: 12px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  flex-shrink: 0;
+}
+
+.subs-category-search-wrapper:focus-within {
+  border-color: var(--subs-accent-1);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+
+.subs-category-search-icon {
+  color: var(--subs-text-tertiary);
+  flex-shrink: 0;
+}
+
+.subs-category-search-input {
+  flex: 1;
+  min-width: 0;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--subs-text-primary);
+  font-size: 0.9rem;
+  font-family: inherit;
+}
+
+.subs-category-search-input::placeholder {
+  color: var(--subs-text-tertiary);
+}
+
+.subs-category-fullist {
+  margin: 12px 24px 0;
+  padding: 2px;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.subs-category-fullist .subs-category-option {
+  padding: 10px 12px;
+}
+
+.subs-category-empty {
+  padding: 24px 12px;
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--subs-text-tertiary);
+}
+
+.subs-modal-btn.full {
+  width: 100%;
+}
+
 /* ===== CATEGORY TRIGGER BUTTON (form view) ===== */
 .subs-category-trigger-btn {
   display: flex;
@@ -748,8 +836,9 @@
 .subs-modal-actions {
   display: flex;
   justify-content: flex-end;
-  padding-top: 16px;
+  padding: 16px 24px 24px;
   border-top: 1px solid var(--subs-border-subtle);
+  flex-shrink: 0;
   position: sticky;
   bottom: 0;
   background: var(--subs-bg-secondary);

@@ -151,6 +151,36 @@ export const markDebtAsPaid = async (req: AuthRequest, res: Response): Promise<v
       );
     }
 
+    // Notificación cuando una suscripción/deuda fue pagada
+    try {
+      const paidInfo = await pool.query(
+        `SELECT d.name, d.amount, d.currency, u.notifications_enabled,
+                s.name as subscription_name
+          FROM debts d
+          JOIN users u ON u.id = d.user_id
+          LEFT JOIN subscriptions s ON d.subscription_id = s.id
+          WHERE d.id = $1`,
+        [id]
+      );
+      const info = paidInfo.rows[0];
+      if (info && info.notifications_enabled !== false) {
+        const label = info.subscription_name || info.name;
+        await pool.query(
+          `INSERT INTO notifications (user_id, subscription_id, type, title, message)
+            VALUES ($1, $2, $3, $4, $5)`,
+          [
+            req.user!.userId,
+            subId,
+            'payment_paid',
+            'Pago realizado',
+            `Tu suscripción "${label}" fue pagada. Monto: ${info.currency} ${info.amount}`,
+          ]
+        );
+      }
+    } catch (notificationError) {
+      console.error("Error creando notificación de pago:", notificationError);
+    }
+
     await createAuditLog(req, 'UPDATE', 'debt', id, { status: 'paid', payment_method });
 
     res.json({ message: 'Deuda marcada como pagada' });
