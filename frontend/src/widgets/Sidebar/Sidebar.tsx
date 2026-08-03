@@ -118,8 +118,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed = false, onToggle, m
           {collapsed ? <ChevronsRight size={18} /> : <ChevronsLeft size={18} />}
         </button>
       </div>
-// Genera la navegación: por cada ítem calcula el estado activo según la
-//   URL actual, el badge de deudas y la advertencia de presupuesto sobrepasado.
+
       {/* Menu */}
       <nav className="sidebar-menu">
 
