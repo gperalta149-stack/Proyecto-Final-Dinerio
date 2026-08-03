@@ -4,7 +4,6 @@ import {
   billingKeyFromYearMonth,
   convertToARS,
   countBillingCyclesInRange,
-  getMonthlyEquivalent,
   type BillingCycle,
 } from "../services/BillingCycleService.js"
 import type { AuthRequest } from "../types/index.js"
@@ -254,7 +253,6 @@ export const getFinancialReport = async (req: AuthRequest, res: Response) => {
       const amount = Number(sub.amount)
       const isUSD = sub.currency === "USD"
       const cycle = sub.billing_cycle as BillingCycle
-      const monthlyAmount = getMonthlyEquivalent(amount, cycle)
 
       const next = new Date(sub.next_billing_date)
       const subStart = new Date(sub.start_date)
@@ -268,7 +266,7 @@ export const getFinancialReport = async (req: AuthRequest, res: Response) => {
       const count = countBillingCyclesInRange(subStart, next, cycle, rangeStartKey, rangeEndKey)
       if (count === 0) continue
 
-      const total = monthlyAmount * count
+      const total = amount * count
       if (isUSD) catAcc[catId].usd += total
       else catAcc[catId].ars += total
       catAcc[catId].subCount++
@@ -426,7 +424,6 @@ export const getMonthlyEvolution = async (req: AuthRequest, res: Response) => {
       const cycle = row.billing_cycle as BillingCycle
       const amount = Number(row.amount);
       const isUSD = row.currency === "USD";
-      const monthlyAmount = getMonthlyEquivalent(amount, cycle);
       const startDate = new Date(row.start_date);
       const nextBillingDate = new Date(row.next_billing_date);
 
@@ -435,8 +432,8 @@ export const getMonthlyEvolution = async (req: AuthRequest, res: Response) => {
         const count = countBillingCyclesInRange(startDate, nextBillingDate, cycle, monthKey, monthKey);
         if (count === 0) continue;
 
-        const rawTotal = monthlyAmount * count;
-        const arsTotal = convertToARS(monthlyAmount, row.currency) * count;
+        const rawTotal = amount * count;
+        const arsTotal = convertToARS(amount, row.currency) * count;
         const isPaid = monthKey <= todayKey;
 
         monthlyTotals[m - 1] += arsTotal;

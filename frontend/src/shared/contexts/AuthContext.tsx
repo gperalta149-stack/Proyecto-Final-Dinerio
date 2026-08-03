@@ -55,7 +55,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }
 
-  // Registro: mismo patrón que login, crea la cuenta y deja la sesión iniciada.
+  // Registro: crea la cuenta pero NO inicia la sesión. El usuario debe
+  // loguearse después, por eso no se persiste el token ni el estado (el
+  // RegisterForm redirige a /login). Devuelve { success } para que la UI lo maneje.
   const register = async (
     email: string,
     password: string,
@@ -63,9 +65,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     lastName: string
   ): Promise<{ success: boolean; error?: string }> => {
     try {
-      const { user, token } = await authService.register(email, password, firstName, lastName)
-      localStorage.setItem("token", token)
-      setUser(user)
+      await authService.register(email, password, firstName, lastName)
       return { success: true }
     } catch (error: unknown) {
       const err = error as { response?: { data?: { error?: string; message?: string } } };

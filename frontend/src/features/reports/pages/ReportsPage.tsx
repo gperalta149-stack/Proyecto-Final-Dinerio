@@ -212,8 +212,8 @@ export const ReportsPage: React.FC = () => {
         {(stats || monthlyTotal > 0) && (
           <div className="analysis-kpis-container">
             <div className="dashboard-kpis">
-              <KpiCard title="Total" value={rangeMode === 'date' ? formatCurrency(monthlyTotal, "ARS") : formatCurrency(monthlyTotal, "ARS")} icon={<DollarSign size={16} />} color="spent" />
-              <KpiCard title="Promedio mensual" value={monthsWithData >= 3 ? formatCurrency(monthlyTotal / (range || 12), "ARS") : '—'} icon={<BarChart3 size={16} />} color="subscriptions" />
+              <KpiCard title="Total" value={rangeMode === 'date' ? formatCurrency(monthlyTotal, "ARS") : formatCurrency(stats ? stats.totalYearly : monthlyTotal, "ARS")} icon={<DollarSign size={16} />} color="spent" />
+              <KpiCard title="Promedio mensual" value={monthsWithData >= 3 && stats ? formatCurrency(stats.avgMonthly, "ARS") : '—'} icon={<BarChart3 size={16} />} color="subscriptions" />
               <KpiCard title="Mayor pago" value={monthsWithData >= 3 && stats ? formatCurrency(stats.highestPayment, "ARS") : '—'} icon={<Trophy size={16} />} color="warning" />
               <KpiCard title="Mes más caro" value={monthsWithData >= 3 && stats ? (stats.mostExpensive?.monthName || "—") : '—'} subtitle={monthsWithData >= 3 && stats ? formatCurrency(stats.mostExpensive?._total || 0, "ARS") : undefined} icon={<ArrowUp size={16} />} color="danger" />
               <KpiCard title="Variación mensual" value={monthsWithData >= 3 && stats ? `${stats.monthlyVariation >= 0 ? "+" : ""}${stats.monthlyVariation.toFixed(1)}%` : '—'} icon={<TrendingDown size={16} />} color={stats ? (stats.monthlyVariation > 0 ? "danger" : "success") : "spent"} />
