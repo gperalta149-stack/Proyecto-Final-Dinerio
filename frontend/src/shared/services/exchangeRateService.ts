@@ -13,8 +13,13 @@ export interface ExchangeRates {
   lastUpdate: Date;
 }
 
+// Servicio Singleton para obtener el tipo de cambio en el frontend.
+// Usa métodos estáticos y mantiene las cotizaciones en memoria + localStorage,
+// con refresco periódico (15 min) y cálculo del dolar tarjeta por fórmula.
 class ExchangeRateService {
 
+  // Valores por defecto en memoria: se usan hasta la primera
+  //   actualización real y sirven de "fallback" ante fallas de red.
   private static currentRates: ExchangeRates = {
     oficial: 1450,
     oficialCompra: 1420,
@@ -38,6 +43,9 @@ class ExchangeRateService {
     return current > previous ? 'up' : 'down';
   }
 
+  // updateRates: intenta fuentes externas (Bluelytics, luego DolarAPI)
+//   con fallback a valores fijos si ambas fallan. La tendencia (up/down/same)
+//   se calcula comparando con la cotización anterior.
   static async updateRates(): Promise<ExchangeRates> {
     try {
       let oficialCompra = 0;
@@ -45,6 +53,8 @@ class ExchangeRateService {
       let tarjetaCompra = 0;
       let tarjetaVenta = 0;
 
+      // Intento 1: API de Bluelytics. Un try/catch aislado evita
+      //   que un fallo de esta API rompa todo el flujo.
       try {
         const response = await fetch('https://api.bluelytics.com.ar/v2/latest');
         if (response.ok) {
@@ -56,6 +66,7 @@ class ExchangeRateService {
         console.warn('Bluelytics falló, intentando DolarAPI...');
       }
 
+      // Intento 2: si Bluelytics no dio valor, cae a DolarAPI.
       if (!oficialVenta) {
         const oficialResponse = await fetch('https://dolarapi.com/v1/dolares/oficial');
 
@@ -66,6 +77,8 @@ class ExchangeRateService {
         }
       }
 
+      // Último recurso: valores fijos para que la app siga funcionando
+      //   aunque las APIs externas estén caídas.
       if (!oficialVenta) {
         oficialCompra = oficialCompra || 1420;
         oficialVenta = oficialVenta || 1450;
@@ -101,6 +114,8 @@ class ExchangeRateService {
     }
   }
 
+  // getRates: solo actualiza si pasaron 15 min desde la última vez
+//   (evita golpear APIs externas a cada rato). Si está fresco, lee la cache.
   static async getRates(_type: 'oficial' | 'tarjeta' = 'oficial'): Promise<ExchangeRates> {
     const shouldUpdate = this.shouldUpdate();
 
@@ -122,6 +137,8 @@ class ExchangeRateService {
     return rates[type];
   }
 
+  // Convierte USD a ARS usando la cotización vigente en memoria
+//   (se usa para estimar gastos de suscripciones en dólares).
   static convertUSDToARS(amountUSD: number, type: 'oficial' | 'tarjeta' = 'tarjeta'): number {
     const rate = this.currentRates[type];
     return Math.round(amountUSD * rate * 100) / 100;
@@ -131,12 +148,15 @@ class ExchangeRateService {
     return this.currentRates.tarjeta;
   }
 
+  // Verifica si pasó el intervalo de 15 min desde la última actualización.
   private static shouldUpdate(): boolean {
     const lastUpdate = this.currentRates.lastUpdate;
     const timeSinceUpdate = new Date().getTime() - lastUpdate.getTime();
     return timeSinceUpdate > this.UPDATE_INTERVAL;
   }
 
+  // Persistencia: guarda y lee las cotizaciones en localStorage para
+//   que no se pierdan al recargar la página.
   private static saveToStorage(): void {
     localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.currentRates));
   }
@@ -162,6 +182,8 @@ class ExchangeRateService {
     return await this.updateRates();
   }
 
+  // initialize: se ejecuta al cargar el servicio. Lee la cache y,
+//   si está vieja, la actualiza; además programa refrescos cada 15 min.
   static initialize() {
     this.loadFromStorage();
 

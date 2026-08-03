@@ -8,6 +8,7 @@ interface BudgetAlertProps {
   stats?: DashboardStats
 }
 
+// Helper defensivo: convierte montos (number o string) a número, evitando NaN.
 const safeParseNumber = (value: unknown): number => {
   if (typeof value === 'number') return value
   if (typeof value === 'string') {
@@ -28,6 +29,8 @@ export default function BudgetAlert({ totalSpent, budget, stats }: BudgetAlertPr
   if (monthlyBudget <= 0) {
     return null
   }
+  // Helper defensivo: Alerta condicional de presupuesto: solo se renderiza cuando se supera el 80%
+  // (warning) o el 100% (danger). Devuelve null en los demás casos para no ocupar espacio.
   const percentage = (spent / monthlyBudget) * 100
   const isWarning = percentage >= 80
   const isDanger = percentage >= 100

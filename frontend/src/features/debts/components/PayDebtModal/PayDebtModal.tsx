@@ -5,6 +5,7 @@ import { formatCurrency, parseAmount } from "../../../../shared/utils/formatters
 import "../../../../styles/debts/DebtModal.css";
 import "../../../../styles/debts/PayDebtModal.css";
 
+// Catálogo fijo de métodos de pago disponibles para registrar el pago de una deuda.
 const PAYMENT_METHODS = [
   { value: "debito", label: "Débito", icon: CreditCard, desc: "Visa, Mastercard, etc." },
   { value: "credito", label: "Crédito", icon: CreditCard, desc: "Visa, Mastercard, etc." },
@@ -31,6 +32,8 @@ export const PayDebtModal: React.FC<PayDebtModalProps> = ({ debt, onConfirm, onC
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [onClose]);
 
+  // Modal controlado: el usuario elige un método de pago (estado local) y el botón de
+  // confirmar queda deshabilitado hasta que haga una selección. Delega el pago vía onConfirm.
   const handleConfirm = () => {
     if (selected) onConfirm(selected);
   };

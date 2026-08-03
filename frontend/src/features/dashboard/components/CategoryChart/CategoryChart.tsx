@@ -22,6 +22,8 @@ export const CategoryChart: React.FC<CategoryChartProps> = ({
   subscriptions, 
   currency = "ARS" 
 }) => {
+  // Agrupa el gasto por categoría, normalizando el ciclo de facturación a un costo
+  // mensual (anual/12, semanal*4). Devuelve las categorías ordenadas y su total para el donut.
   const { categoryData, total } = useMemo(() => {
     const categories: Record<string, number> = {};
     
@@ -55,6 +57,8 @@ export const CategoryChart: React.FC<CategoryChartProps> = ({
     );
   }
 
+  // Donut multi-segmento dibujado con SVG: cada categoría ocupa una porción del arco
+  // proporcional a su porcentaje (strokeDasharray/offset), acumulando el avance entre segmentos.
   let accumulatedPercent = 0;
 
   return (

@@ -12,6 +12,8 @@ interface RecentSubscriptionsProps {
 }
 
 export const RecentSubscriptions: React.FC<RecentSubscriptionsProps> = ({ subscriptions }) => {
+  // Lista las 5 suscripciones más recientes, ordenadas por fecha de creación
+  // (descendente). Es un componente puramente presentacional: recibe datos y los muestra.
   const recent = useMemo(() => {
     return [...subscriptions]
       .sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime())

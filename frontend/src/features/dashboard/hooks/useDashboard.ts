@@ -12,6 +12,8 @@ interface UseDashboardReturn {
 }
 
 export const useDashboard = (): UseDashboardReturn => {
+  // Hook que expone el estado del dashboard: stats del backend, listado de
+  // suscripciones, flags de loading/error y una función refresh para recargar datos.
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
   const [loading, setLoading] = useState(true);
@@ -22,7 +24,8 @@ export const useDashboard = (): UseDashboardReturn => {
       setLoading(true);
       setError(null);
       
-      // Traer TODAS las suscripciones (incluyendo paused, cancelled)
+      // Dos llamadas en paralelo: stats agregadas del backend y todas las suscripciones
+      // (con 'all' se incluyen paused/cancelled para mostrar el estado completo).
       const [statsData, subscriptionsData] = await Promise.all([
         subscriptionService.getDashboardStats(),
         subscriptionService.getAll('all'), // Pasar 'all' para traer todas
@@ -31,12 +34,15 @@ export const useDashboard = (): UseDashboardReturn => {
       setStats(statsData);
       setSubscriptions(subscriptionsData);
     } catch (err) {
+      // Manejo de error: se guarda el mensaje para mostrarlo en la UI en lugar de
+      // romper la app; el finally garantiza que loading vuelva a false siempre.
       setError(err instanceof Error ? err.message : 'Error al cargar el dashboard');
     } finally {
       setLoading(false);
     }
   };
 
+  // useEffect con dependencias vacías ejecuta la carga inicial al montar el componente.
   useEffect(() => {
     loadData();
   }, []);

@@ -3,6 +3,9 @@ import api from "../../../shared/services/api";
 import type { Subscription, DashboardStats, Category, SubscriptionOrResponse } from "../../../shared/types";
 import ExchangeRateService from "../../../shared/services/exchangeRateService";
 
+// Capa de servicios (API). Esta función normaliza el monto de una suscripción: si la
+  // moneda es USD la convierte a ARS usando el tipo de cambio "tarjeta" (vía el ExchangeRateService)
+  // y agrega campos derivados (arsAmount, totalWithTax, etc.) que el frontend usa sin recalcular.
 const calculateSubscriptionWithConversion = async (subscription: Subscription): Promise<Subscription> => {
   const amount = typeof subscription.amount === 'string' ?
     parseFloat(subscription.amount) : subscription.amount;
@@ -52,6 +55,8 @@ export const subscriptionService = {
       
       const response = await api.get("/subscriptions", { params });
 
+      // Validación defensiva de la respuesta: la API puede devolver el listado en
+      // response.data.subscriptions o directamente como array, y se contemplan ambos formatos.
       let subscriptions: Subscription[] = [];
 
       if (response.data && Array.isArray(response.data.subscriptions)) {
@@ -63,12 +68,15 @@ export const subscriptionService = {
         return [];
       }
 
+      // Se normalizan todas las suscripciones en paralelo (conversión USD→ARS) antes
+      // de devolverlas, para que los componentes siempre reciban montos en ARS.
       const subscriptionsWithConversion = await Promise.all(
         subscriptions.map(calculateSubscriptionWithConversion)
       );
 
       return subscriptionsWithConversion;
     } catch (error) {
+      // En caso de error el servicio no rompe la app: loguea y devuelve lista vacía.
       console.error("Error fetching subscriptions:", error);
       return [];
     }
@@ -105,6 +113,8 @@ export const subscriptionService = {
       if (result.subscription) {
         result.subscription = await calculateSubscriptionWithConversion(result.subscription);
       }
+      // Dispara un evento global para notificar a otros componentes (dashboard,
+      // calendario) que los datos cambiaron y deben recargarse. Patrón pub/sub con CustomEvent.
       window.dispatchEvent(new CustomEvent("subscriptions-changed"));
       return result;
     } catch (error: unknown) {
@@ -133,14 +143,12 @@ export const subscriptionService = {
       const response = await api.put(`/subscriptions/${id}`, subscriptionData);
       window.dispatchEvent(new CustomEvent("subscriptions-changed"));
 
-      console.log("📥 [SERVICE UPDATE] Response:", response.data);
-
+      // Si el backend no devuelve el category_name en la respuesta (por no hacer join
+      // de categorías), se re-fetch de la suscripción completa para garantizar datos consistentes.
       if (response.data.subscription && response.data.subscription.category_name) {
         return response.data;
       } else {
-        console.log("🔄 [SERVICE UPDATE] No category_name in response, fetching complete subscription...");
         const completeSubscription = await this.getById(id);
-        console.log("✅ [SERVICE UPDATE] Complete subscription fetched:", completeSubscription);
         return {
           message: response.data.message || "Subscription updated successfully",
           subscription: completeSubscription
@@ -166,6 +174,8 @@ export const subscriptionService = {
 
   async payNow(id: string, payment_method?: string): Promise<void> {
     try {
+      // Endpoint específico para marcar el pago: además de refrescar suscripciones,
+      // dispara "debts-changed" porque pagar una suscripción puede generar/afectar deudas.
       await api.post(`/subscriptions/${id}/pay`, { payment_method: payment_method || null });
       window.dispatchEvent(new CustomEvent("subscriptions-changed"));
       window.dispatchEvent(new CustomEvent("debts-changed"));
@@ -200,6 +210,8 @@ export const subscriptionService = {
         return [];
       }
 
+      // Elimina duplicados de categorías por nombre (case-insensitive) usando findIndex,
+      // para evitar opciones repetidas en los selectores.
       const uniqueCategories = categories.filter((category, index, self) =>
         index === self.findIndex(c =>
           c.name.trim().toLowerCase() === category.name.trim().toLowerCase()

@@ -14,6 +14,7 @@ import uploadRoutes from "./routes/upload.js"
 import calendarRoutes from "./routes/calendar.js"
 import debtRoutes from "./routes/debts.js"
 import budgetRoutes from "./routes/budgets.js"
+// Carga las variables de entorno (.env) y crea la instancia de Express, la app central.
 dotenv.config()
 const app = express()
 const PORT = process.env.PORT || 3000
@@ -21,6 +22,7 @@ const PORT = process.env.PORT || 3000
 app.use(corsMiddleware)
 app.use(express.json({ limit: '10mb' }))
 app.use(express.urlencoded({ extended: true }))
+// Endpoint de verificación de vida del servidor: devuelve estado y ambiente actual.
 // Health check
 app.get("/health", (_req, res) => {
   res.json({
@@ -29,6 +31,7 @@ app.get("/health", (_req, res) => {
     environment: process.env.NODE_ENV || "development"
   })
 })
+// Monta cada grupo de rutas bajo un prefijo URL (/api/...). Cada módulo define sus propias rutas y controladores.
 // API Routes
 app.use("/api/auth", authRoutes)
 app.use("/api/subscriptions", subscriptionRoutes)
@@ -41,9 +44,11 @@ app.use("/api/upload", uploadRoutes)
 app.use('/api/calendar', calendarRoutes);
 app.use('/api/debts', debtRoutes);
 app.use('/api/budgets', budgetRoutes);
+// Manejo de errores: primero se capturan rutas inexistentes (404) y luego los errores generales (500/status de cada error).
 // Manejo de errores
 app.use(notFoundHandler)
 app.use(errorHandler)
+// Función de arranque: pone a escuchar la app en el puerto configurado. Si falla, corta el proceso.
 // Iniciar el servidor
 const startServer = async () => {
   try {
@@ -69,6 +74,7 @@ const startServer = async () => {
     process.exit(1)
   }
 }
+// Programa una tarea automática (job): ejecuta el job de notificaciones al inicio y luego cada hora (setInterval), usando import dinámico.
 // Función para iniciar el job de notificaciones
 const startNotificationJob = async () => {
   try {
@@ -90,6 +96,7 @@ const startNotificationJob = async () => {
     console.error("Error iniciando job de notificaciones:", error)
   }
 }
+// Arranca el servidor y, cuando está listo, inicia el job de notificaciones en segundo plano.
 startServer().then(() => {
   startNotificationJob()
 })

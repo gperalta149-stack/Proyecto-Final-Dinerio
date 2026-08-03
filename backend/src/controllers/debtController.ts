@@ -4,6 +4,7 @@ import { createAuditLog } from '../middleware/auditLog.js';
 import type { AuthRequest } from '../types/index.js';
 import { getExchangeRate } from '../services/exchangeRateService.js';
 
+// Reutiliza un SELECT con LEFT JOIN a categorías para los turnos de las deudas.
 const DEBT_WITH_CATEGORY = `
   SELECT
     d.*,
@@ -13,7 +14,8 @@ const DEBT_WITH_CATEGORY = `
   LEFT JOIN categories c ON d.category_id = c.id
 `;
 
-// ── Listar deudas ────────────────────────────────────────────
+// Listar deudas
+// Lista las deudas del usuario autenticado; las pendientes primero y por fecha de vencimiento.
 export const getDebts = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const result = await pool.query(
@@ -29,7 +31,9 @@ export const getDebts = async (req: AuthRequest, res: Response): Promise<void> =
   }
 };
 
-// ── Resumen (para cards de la página) ────────────────────────
+// Resumen (para cards de la página)
+// Resumen para las cards: total pendiente por moneda (ARS/USD), convierte USD a ARS
+// con el tipo de cambio y calcula la deuda más antigua (días de atraso) y pagos del mes actual.
 export const getDebtsSummary = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const pendingResult = await pool.query(
@@ -75,7 +79,9 @@ export const getDebtsSummary = async (req: AuthRequest, res: Response): Promise<
   }
 };
 
-// ── Registrar deuda manual ───────────────────────────────────
+// Registrar deuda manual
+// Deuda manual: valida nombre, monto > 0 y fecha de vencimiento.
+// Convierte USD→ARS y la inserta como 'pending' (queries filtradas por user_id).
 export const createManualDebt = async (req: AuthRequest, res: Response): Promise<void> => {
   const { name, amount, currency = 'ARS', due_date, category_id } = req.body;
 
@@ -117,7 +123,9 @@ export const createManualDebt = async (req: AuthRequest, res: Response): Promise
   }
 };
 
-// ── Marcar como pagada ───────────────────────────────────────
+// Marcar como pagada 
+// Marca la deuda como 'paid' (solo del usuario autenticado) y, si venía de una
+// suscripción, cancela esa suscripción. Luego notifica el pago y registra auditoría.
 export const markDebtAsPaid = async (req: AuthRequest, res: Response): Promise<void> => {
   const { id } = req.params;
   const { payment_method, amount_ars } = req.body;
@@ -152,6 +160,7 @@ export const markDebtAsPaid = async (req: AuthRequest, res: Response): Promise<v
     }
 
     // Notificación cuando una suscripción/deuda fue pagada
+    // Crea la notificación de pago solo si el usuario tiene activas las notificaciones.
     try {
       const paidInfo = await pool.query(
         `SELECT d.name, d.amount, d.currency, u.notifications_enabled,
@@ -190,7 +199,8 @@ export const markDebtAsPaid = async (req: AuthRequest, res: Response): Promise<v
   }
 };
 
-// ── Posponer (mueve el vencimiento 7 días) ───────────────────
+// Posponer (mueve el vencimiento 7 días)
+// Pospone el vencimiento de una deuda pendiente: suma N días (default 7) al due_date.
 export const postponeDebt = async (req: AuthRequest, res: Response): Promise<void> => {
   const { id } = req.params;
   const days = req.body?.days ? Number(req.body.days) : 7;
@@ -216,7 +226,8 @@ export const postponeDebt = async (req: AuthRequest, res: Response): Promise<voi
   }
 };
 
-// ── Eliminar deuda ───────────────────────────────────────────
+// Eliminar deuda
+// Elimina la deuda (DELETE filtrado por id y user_id, aislamiento por usuario).
 export const deleteDebt = async (req: AuthRequest, res: Response): Promise<void> => {
   const { id } = req.params;
 

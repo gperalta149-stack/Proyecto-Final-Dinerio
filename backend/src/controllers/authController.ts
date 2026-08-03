@@ -6,6 +6,8 @@ import { pool } from "../config/database.js"
 import type { AuthRequest } from "../types/index.js"
 
 // Se genera token JWT
+// Genera el token JWT con jwt.sign: el payload lleva userId, email y nombre.
+// La firma usa el secreto JWT_SECRET del entorno y expira según JWT_EXPIRES_IN (default 7 días).
 const generateToken = (userId: string, email: string, name?: string): string => {
   const jwtSecret = process.env.JWT_SECRET
   if (!jwtSecret) {
@@ -18,6 +20,9 @@ const generateToken = (userId: string, email: string, name?: string): string => 
 }
 
 // Acá va el registro de usuario
+// Registro: valida que el email no exista, hashea la contraseña con bcrypt
+// (salt de 10 rondas) y guarda el usuario en la base. Nunca se almacena el password en texto plano.
+// Tras insertar, firma un token y devuelve 201 con el usuario y el JWT autenticado.
 export const register = async (req: AuthRequest, res: Response): Promise<void> => {
   const { email, password, first_name, last_name } = req.body
 
@@ -33,6 +38,8 @@ export const register = async (req: AuthRequest, res: Response): Promise<void> =
     }
 
     // Esta parte es el Hash de la contraseña
+    // Hash de la contraseña con bcryptjs: se genera un salt aleatorio (10 rondas)
+    // y se deriva el hash. Así las contraseñas se guardan de forma segura (one-way).
     const salt = await bcrypt.genSalt(10)
     const passwordHash = await bcrypt.hash(password, salt)
 
@@ -64,6 +71,8 @@ export const register = async (req: AuthRequest, res: Response): Promise<void> =
   }
 }
 
+// Flujo de login: busca el usuario por email, compara el hash con
+// bcrypt.compare y, si coincide, firma un JWT nuevo para las próximas peticiones.
 export const login = async (req: AuthRequest, res: Response): Promise<void> => {
   const { email, password } = req.body
 
@@ -102,6 +111,7 @@ export const login = async (req: AuthRequest, res: Response): Promise<void> => {
 
     // Verificar contraseña
     console.log("Comparing passwords...")
+    // bcrypt.compare verifica el password ingresado contra el hash almacenado.
     const isValidPassword = await bcrypt.compare(password, user.password)
 
     if (!isValidPassword) {
@@ -133,10 +143,12 @@ export const login = async (req: AuthRequest, res: Response): Promise<void> => {
 }
 
 // Obtener perfil del usuario
+// Perfil: consulta al usuario autenticado por req.user.userId (inyectado por el middleware JWT).
+// No devuelve la contraseña: solo datos seguros (email, nombre, presupuesto, fechas).
 export const getProfile = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     if (!req.user?.userId) {
-      res.status(401).json({ error: "User not authenticated" })
+      res.status(401).json({ error: "Usuario no autenticado" })
       return
     }
 
@@ -168,12 +180,13 @@ export const getProfile = async (req: AuthRequest, res: Response): Promise<void>
   }
 }
 
+// Actualiza solo el presupuesto mensual del usuario autenticado (UPDATE filtrado por id).
 export const updateBudget = async (req: AuthRequest, res: Response): Promise<void> => {
   const { monthlyBudget } = req.body
 
   try {
     if (!req.user?.userId) {
-      res.status(401).json({ error: "User not authenticated" })
+      res.status(401).json({ error: "Usuario no autenticado" })
       return
     }
 
@@ -192,6 +205,8 @@ export const updateBudget = async (req: AuthRequest, res: Response): Promise<voi
   }
 }
 
+// Reset de contraseña: genera un token aleatorio (crypto.randomBytes, 32 bytes)
+// con expiración de 1 hora y lo guarda en password_reset_tokens. Respuesta idéntica exista o no el email (anti-enumeración).
 export const requestPasswordReset = async (req: AuthRequest, res: Response): Promise<void> => {
   const { email } = req.body
 
@@ -220,6 +235,8 @@ export const requestPasswordReset = async (req: AuthRequest, res: Response): Pro
   }
 }
 
+// Disponibilidad de email: consulta si el email ya está registrado
+// y devuelve `available` para validar el formulario en tiempo real.
 export const checkAvailability = async (req: AuthRequest, res: Response): Promise<void> => {
   const { email } = req.query
 

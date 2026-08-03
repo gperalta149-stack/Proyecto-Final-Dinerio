@@ -1,9 +1,14 @@
 import axios from 'axios';
 
+// Instancia única de Axios con la URL base del backend.
+// VITE_API_URL se configura en el .env y se lee con import.meta.env de Vite.
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3000/api',
 });
 
+// Interceptor de REQUEST: se ejecuta antes de cada petición.
+//     Si hay un token guardado, lo agrega al header Authorization como Bearer,
+//     para que el backend identifique al usuario (middleware de auth).
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
@@ -17,6 +22,9 @@ api.interceptors.request.use(
   }
 );
 
+// Interceptor de RESPONSE: manejo centralizado de errores.
+//     Si el backend responde 401 (sesión vencida), limpia el token y
+//     redirige al login en forma automática.
 api.interceptors.response.use(
   (response) => {
     return response;

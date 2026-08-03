@@ -15,6 +15,8 @@ interface DashboardKpisProps {
   badgeForNextPayment?: { text: string; color: string };
 }
 
+// Panel de 4 indicadores clave (gasto mensual, suscripciones activas, próximo pago y
+// presupuesto). Recibe los valores ya calculados y solo los presenta con formato/tema de color.
 export const DashboardKpis: React.FC<DashboardKpisProps> = ({
   totalMonthly,
   activeSubscriptions,

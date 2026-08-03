@@ -1,6 +1,8 @@
 import { pool } from "../config/database.js"
 import type { AuthRequest } from "../types/index.js"
 
+// Registro de auditoría: guarda en la tabla audit_logs qué usuario, con qué acción y sobre qué entidad operó.
+// Captura la IP de la solicitud y detalles extra en JSON. Si falla el registro, no rompe la petición principal.
 export const createAuditLog = async (
   req: AuthRequest,
   action: string,

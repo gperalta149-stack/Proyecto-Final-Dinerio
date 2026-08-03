@@ -32,6 +32,8 @@ export const MonthlyEvolution: React.FC<MonthlyEvolutionProps> = ({
   const range = externalRange !== undefined ? externalRange : internalRange;
 
 
+  // Filtra y ordena cronológicamente los meses a graficar. Con un rango definido, usa
+  // una clave numérica año*12+mes para quedarse solo con los últimos N meses cerrados.
   const filtered = useMemo(() => {
     if (range === null) {
       return [...data]
@@ -59,6 +61,8 @@ export const MonthlyEvolution: React.FC<MonthlyEvolutionProps> = ({
       });
   }, [data, range]);
 
+  // El gráfico se dibuja con SVG puro (sin librería): normaliza cada monto contra el
+  // máximo para escalar la altura, y genera la línea/área/etiquetas del eje Y.
   const maxAmount = Math.max(...filtered.map((d) => d.amount), 1);
   const chartHeight = large ? 500 : 240;
   const padding = large ? 50 : 36;

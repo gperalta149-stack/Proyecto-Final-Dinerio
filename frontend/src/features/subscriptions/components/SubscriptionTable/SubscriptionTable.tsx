@@ -28,6 +28,8 @@ const colorFor = (seed: string) => {
   return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
 };
 
+// Genera el estado visual del próximo cobro: calcula los días hasta la fecha de
+  // facturación y asigna un texto/color según la urgencia (vencida, hoy, ≤3, ≤7 días).
 const getNextPaymentInfo = (date: string) => {
   const days = Math.ceil((new Date(date).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
   const formatted = formatShortDate(date);
@@ -72,6 +74,9 @@ export const SubscriptionTable: React.FC<SubscriptionTableProps> = ({
     );
   }
 
+  // La tabla es un componente controlado: solo renderiza filas a partir de las props
+  // (filtrar/ordenar ya ocurrió en la página) y delega acciones (editar/ver/eliminar/pagar)
+  // mediante callbacks. Se muestran montos duales USD/ARS cuando corresponde.
   return (
     <div className="subs-table-wrapper">
       <table className="subs-table">

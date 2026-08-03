@@ -9,14 +9,19 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 // NOTA: este archivo no vino incluido en lo que se pasó para el refactor.
 // Se construyó tomando authService.ts como base, respetando la firma
 // { success, error } que ya esperan LoginPage, RegisterForm, RegisterPage y App.tsx.
+// Estado global de sesión: guarda el usuario y el flag "loading".
+// loading evita destellos de pantallas mientras se verifica el token al iniciar.
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
 
+  // Al montar la app se valida la sesión existente (token en localStorage).
   useEffect(() => {
     checkAuth()
   }, [])
 
+  // Si hay token, pide el usuario actual al backend; si la petición
+  // falla (token vencido) limpia el token y el usuario.
   const checkAuth = async () => {
     try {
       const token = localStorage.getItem("token")
@@ -35,6 +40,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }
 
+  // Login: delega en authService, persiste el token en localStorage
+  // y actualiza el estado. Devuelve { success } para que la UI maneje el error.
   const login = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
     try {
       const { user, token } = await authService.login(email, password)
@@ -48,6 +55,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }
 
+  // Registro: mismo patrón que login, crea la cuenta y deja la sesión iniciada.
   const register = async (
     email: string,
     password: string,
@@ -66,6 +74,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }
 
+  // Logout: avisa al backend y siempre limpia el token y el usuario
+  // en un "finally" implícito, garantizando cerrar la sesión local.
   const logout = () => {
     authService.logout().finally(() => {
       localStorage.removeItem("token")
@@ -73,6 +83,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     })
   }
 
+  // Actualiza el presupuesto mensual: tras persistir en el backend,
+  // refleja el cambio en el estado global para que lo vean todos los módulos.
   const updateBudget = async (monthlyBudget: number): Promise<{ success: boolean; error?: string }> => {
     try {
       const { user: updatedUser } = await authService.updateBudget(monthlyBudget)
@@ -85,10 +97,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }
 
+  // Actualización optimista del usuario en memoria
+  // (ej. avatar) sin esperar al servidor.
   const updateUser = (data: Partial<User>) => {
     setUser(prev => prev ? { ...prev, ...data } : null);
   }
 
+  // Valor expuesto por el contexto: reúne el estado y las acciones;
+  // isAuthenticated deriva de la existencia del usuario.
   const value: AuthContextType = {
     user,
     login,

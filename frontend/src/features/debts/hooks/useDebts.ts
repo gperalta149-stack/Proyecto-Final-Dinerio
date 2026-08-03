@@ -11,10 +11,13 @@ export const useDebts = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Hook de deudas: carga lista + resumen en paralelo y expone operaciones CRUD.
+  // useCallback con deps vacías hace que la función sea estable entre renders.
   const fetchDebts = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
+      // Promise.all obtiene las deudas y su resumen en una sola tanda.
       const [debtsData, summaryData] = await Promise.all([
         debtService.getAll(),
         debtService.getSummary(),
@@ -29,10 +32,13 @@ export const useDebts = () => {
     }
   }, []);
 
+  // Carga inicial al montar; al depender de fetchDebts (estable) no se repite.
   useEffect(() => {
     fetchDebts();
   }, [fetchDebts]);
 
+  // Las mutaciones llaman a la API y después recargan todo (fetchDebts) para que
+  // el listado y el resumen queden siempre sincronizados con el backend.
   const createDebt = async (data: { 
     name: string; 
     amount: number; 
@@ -61,6 +67,8 @@ export const useDebts = () => {
     await fetchDebts();
   };
 
+  // Vistas derivadas: separa las deudas según su estado (pendiente/pagada) para
+  // alimentar distintas secciones de la UI sin recalcular en cada render.
   const pendingDebts = debts.filter(d => d.status === 'pending');
   const paidDebts = debts.filter(d => d.status === 'paid');
 

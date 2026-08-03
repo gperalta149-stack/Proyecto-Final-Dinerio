@@ -18,12 +18,16 @@ export function useDashboardData(stats: DashboardStats | null, subscriptions: Su
   const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
   const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
 
+  // Este hook centraliza la lógica de cálculo del dashboard: levanta datos de
+  // varios servicios (reportes, deudas y presupuesto) en paralelo y los transforma en KPIs.
   useEffect(() => {
     const load = async () => {
       try {
         setEvolutionLoading(true);
         const currentYear = new Date().getFullYear();
         const currentMonth = new Date().getMonth() + 1;
+        // Promise.all dispara 3 fetch simultáneos al backend para no bloquear la UI
+        // mientras se esperan respuesta de cada servicio por separado.
         const [data, debtsData, budgetData] = await Promise.all([
           reportService.getMonthlyEvolution(currentYear),
           debtService.getAll(),
@@ -32,11 +36,15 @@ export function useDashboardData(stats: DashboardStats | null, subscriptions: Su
         setMonthlyEvolution(data.monthlyEvolution || []);
         setBudgetAmount(budgetData?.budget_amount || 0);
 
+        // Se filtran las deudas pagadas dentro del mes actual (rango [inicio, fin] del mes)
+        // y se suman para incorporarlas al total mensual gastado.
         const paidThisMonth = debtsData.filter((d: Debt) => {
           if (d.status !== 'paid' || !d.paid_at) return false;
           const paidDate = new Date(d.paid_at);
           return paidDate >= startOfMonth && paidDate < endOfMonth;
         });
+        // Normalización de moneda: si la deuda está en USD se convierte a ARS con el
+        // servicio de tipos de cambio para sumar montos en una única moneda.
         const total = paidThisMonth.reduce((sum: number, d: Debt) => {
           const amount = parseAmount(d.amount);
           return sum + (d.currency === 'USD' ? ExchangeRateService.convertUSDToARS(amount) : amount);
@@ -51,6 +59,8 @@ export function useDashboardData(stats: DashboardStats | null, subscriptions: Su
     load();
   }, []);
 
+  // Total mensual proyectado: suma el gasto en suscripciones activas cuyo próximo
+  // cobro cae en este mes (o ya venció) más lo pagado en deudas durante el mes.
   const totalMonthly =
     subscriptions
       .filter(sub => {
@@ -67,6 +77,8 @@ export function useDashboardData(stats: DashboardStats | null, subscriptions: Su
   const activeSubscriptions = subscriptions.filter((s) => s.status === "active").length;
   const pausedSubscriptions = subscriptions.filter((s) => s.status === "paused").length;
 
+  // useMemo agrupa el gasto por categoría y calcula la principal. Normaliza el ciclo de
+  // facturación: convierte planes anuales/cuatrimestrales a su equivalente mensual para comparar.
   const topCategory = useMemo(() => {
     const cats: Record<string, number> = {};
     subscriptions.forEach((sub) => {
@@ -85,6 +97,8 @@ export function useDashboardData(stats: DashboardStats | null, subscriptions: Su
       : { name: "", amount: 0, percentage: 0 };
   }, [subscriptions, totalMonthly]);
 
+  // Próximos pagos: solo suscripciones activas ordenadas por fecha de cobro
+  // ascendente; el primero de la lista es el "nextPayment" que alimenta los badges del dashboard.
   const upcoming = useMemo(
     () =>
       subscriptions
@@ -96,6 +110,8 @@ export function useDashboardData(stats: DashboardStats | null, subscriptions: Su
   const upcomingTotal = upcoming.reduce((sum, sub) => sum + parseAmount(sub.amount), 0);
   const nextPayment = upcoming.length > 0 ? upcoming[0] : null;
 
+  // Convierte la distancia en días hasta el próximo cobro en un texto y color de
+  // urgencia (vencido/rojo, hoy/ámbar, ≤7 días/ciano, resto/azul).
   const nextPaymentInfo = useMemo(() => {
     if (!nextPayment) return { text: "Sin pagos", color: undefined as string | undefined };
     const days = Math.ceil((new Date(nextPayment.next_billing_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
@@ -106,9 +122,13 @@ export function useDashboardData(stats: DashboardStats | null, subscriptions: Su
     return { text: `Faltan ${days} días`, color: "#3b82f6" };
   }, [nextPayment]);
 
+  // Porcentaje del presupuesto consumido: compara el total mensual gastado contra el
+  // presupuesto definido (el del mes o el general de las stats).
   const budget = budgetAmount || stats?.monthlyBudget || 0;
   const budgetPercentage = budget > 0 ? (totalMonthly / budget) * 100 : 0;
 
+  // Mapea la evolución mensual cruda del backend a la forma que espera el gráfico,
+  // derivando el nombre del mes a partir del índice numérico.
   const evolutionData = useMemo(() => {
     if (!monthlyEvolution || monthlyEvolution.length === 0) return [];
     return monthlyEvolution.map((item: MonthlyEvolutionData) => ({

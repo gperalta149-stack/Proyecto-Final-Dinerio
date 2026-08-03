@@ -14,6 +14,8 @@ export const SavingsOpportunities: React.FC<SavingsOpportunitiesProps> = ({
   subscriptions,
   currency = "ARS",
 }) => {
+  // useMemo que detecta oportunidades de ahorro con 4 heurísticas: suscripciones caras,
+  // duplicadas, inactivas (sin uso >120 días) y planes mensuales que conviene pasar a anual.
   const opportunities = useMemo(() => {
     const ops: Array<{
       id: string;
@@ -94,7 +96,7 @@ export const SavingsOpportunities: React.FC<SavingsOpportunitiesProps> = ({
       }
     });
 
-    // Limit to 3 best opportunities
+    // Ordena por ahorro potencial descendente y muestra solo las 3 mejores.
     return ops
       .sort((a, b) => b.potentialSavings - a.potentialSavings)
       .slice(0, 3);

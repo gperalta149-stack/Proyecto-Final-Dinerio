@@ -34,6 +34,9 @@ const STATUS_ES: Record<string, string> = {
   active: "Activa", cancelled: "Cancelada", paused: "Pausada",
 };
 
+// Exportación CSV del reporte del mes: arma el archivo en memoria (líneas escapadas con `esc`)
+// desde tres consultas (resumen financiero, gasto por categoría, suscripciones) filtradas por user_id
+// y el período elegido. Envía el CSV con BOM UTF-8 y cabeceras de descarga.
 export const exportSubscriptionsCSV = async (req: AuthRequest, res: Response) => {
   try {
     const { month, year } = req.query
@@ -151,6 +154,10 @@ export const exportSubscriptionsCSV = async (req: AuthRequest, res: Response) =>
   }
 }
 
+// Reporte financiero financiero del mes o rango elegido. Convierte USD a ARS
+// con impuestos (ofc * 1.53 * 1450) y normaliza cada ciclo a equivalente mensual/anual.
+// Acumula el gasto por categoría contando los ciclos de cada suscripción dentro del rango
+// (reconstrucción con billingCycleService) y suma las deudas pagadas del período (requieren category_id).
 export const getFinancialReport = async (req: AuthRequest, res: Response) => {
   try {
     const { month, year, range, rangeMode } = req.query
@@ -363,6 +370,8 @@ export const getFinancialReport = async (req: AuthRequest, res: Response) => {
     const monthlyBudget = Number.parseFloat(userResult.rows[0].monthly_budget)
     const budgetUsage = monthlyBudget > 0 ? (monthlyTotal / monthlyBudget) * 100 : 0
 
+    // Respuesta final: resumen (incluye % de presupuesto usado), desglose por categoría y suscripciones detalladas.
+
     res.json({
       month: currentMonth,
       year: currentYear,
@@ -388,6 +397,9 @@ const monthNames = [
   "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
 ];
 
+// Evolución mensual: proyecta el gasto de cada suscripción activa en los 12 meses
+// del año, contando los ciclos por mes (billingCycleService). Separa ARS/USD y marca como
+// "pagado" solo lo anterior al mes actual. Suma además las deudas pagadas de cada mes.
 export const getMonthlyEvolution = async (req: AuthRequest, res: Response) => {
   try {
     const { year = new Date().getFullYear() } = req.query;

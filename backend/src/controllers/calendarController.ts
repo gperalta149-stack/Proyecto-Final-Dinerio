@@ -28,6 +28,9 @@ interface UpcomingPaymentRow {
   category_color: string | null;
 }
 
+// Eventos del calendario: trae las suscripciones del usuario (activas o canceladas)
+// y proyecta en qué mes toca cada cobro según su ciclo. Así las recurrentes aparecen todos
+// los meses que corresponden, reutilizando la lógica de billingCycleService.
 export const getCalendarEvents = async (req: AuthRequest, res: Response) => {
   try {
     const userId = req.user!.userId;
@@ -37,7 +40,7 @@ export const getCalendarEvents = async (req: AuthRequest, res: Response) => {
     // filtrar por fecha en la consulta SQL): la proyección de qué mes le
     // corresponde a cada una se calcula en el paso siguiente, con la misma
     // lógica de reconstrucción de ciclos que usa el reporte financiero
-    // (billingCycleService, ver documentación técnica §5.3.9), para que
+    // (billingCycleService, ver documentación técnica 5.3.9), para que
     // una suscripción recurrente aparezca en el calendario todos los
     // meses que efectivamente le corresponden según su ciclo --- y no solo
     // en el mes de su próxima fecha de cobro.
@@ -77,6 +80,7 @@ export const getCalendarEvents = async (req: AuthRequest, res: Response) => {
 
         // Fecha local en formato YYYY-MM-DD, sin pasar por toISOString()
         // (que convierte a UTC y puede correr el día según el huso horario).
+        // Formatea la fecha en hora local (YYYY-MM-DD) para que el día no cambie por zonas horarias.
         const y = occurrence.getFullYear();
         const m = String(occurrence.getMonth() + 1).padStart(2, '0');
         const d = String(occurrence.getDate()).padStart(2, '0');
@@ -104,6 +108,8 @@ export const getCalendarEvents = async (req: AuthRequest, res: Response) => {
   }
 };
 
+// Próximos pagos: devuelve las suscripciones con cobro dentro de N días (default 30)
+// usando un método del modelo Subscription (getUpcomingSubscriptions), aislado por userId.
 export const getUpcomingPayments = async (req: AuthRequest, res: Response) => {
   try {
     const userId = req.user!.userId;

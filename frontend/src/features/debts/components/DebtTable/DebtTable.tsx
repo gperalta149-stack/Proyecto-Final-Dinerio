@@ -28,6 +28,8 @@ const colorFor = (seed: string) => {
   return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
 };
 
+// Deriva el estado visual de la deuda: pagada (verde), vencida (rojo), vence hoy
+  // (ámbar) o pendiente (azul), calculando los días hasta el vencimiento.
 const getStatusInfo = (debt: Debt) => {
   const isPending = debt.status === 'pending';
   if (!isPending) return { text: "Pagada", color: "#22c55e", class: "paid" };
@@ -98,6 +100,8 @@ export const DebtTable: React.FC<DebtTableProps> = ({
                   )}
                 </td>
                 <td className="debt-table-amount">
+                  {/* Montos duales para deudas en USD: muestra valor original y su
+                    equivalente en ARS (usando el valor guardado o convirtiendo en el momento). */}
                   {debt.currency === 'USD' ? (
                     <div className="debt-amount-dual">
                       <span>{formatCurrency(parseAmount(debt.amount), 'USD')}</span>

@@ -8,6 +8,8 @@ import type { AuthRequest } from "../types/index.js"
 const VALID_PAYMENT_METHODS = ['debito', 'credito', 'billetera_virtual', 'efectivo', 'transferencia'];
 
 // Lista de suscripciones. Soporta ?status=... (por defecto solo 'active')
+// Lista suscripciones SIEMPRE filtradas por user_id ($1), aislando los datos por usuario.
+// ?status filtra por estado (default 'active'); ordena por próxima fecha de cobro.
 export const getSubscriptions = async (req: AuthRequest, res: Response): Promise<void> => {
   const { status } = req.query
 
@@ -42,6 +44,7 @@ export const getSubscriptions = async (req: AuthRequest, res: Response): Promise
   }
 }
 
+// Detalle de una suscripción por id, restringido al usuario autenticado (user_id = $2).
 export const getSubscriptionById = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params
@@ -65,6 +68,9 @@ export const getSubscriptionById = async (req: AuthRequest, res: Response): Prom
   }
 }
 
+// Creación: valida campos con express-validator, exige categoría y evita
+// nombres duplicados (ILIKE) dentro del mismo usuario.
+// Valida que la categoría exista y pertenezca al usuario (o sea global: user_id IS NULL).
 export const createSubscription = async (req: AuthRequest, res: Response): Promise<void> => {
   const {
     name,
@@ -148,6 +154,7 @@ export const createSubscription = async (req: AuthRequest, res: Response): Promi
     await createAuditLog(req, "CREATE", "subscription", created.id, { name, amount, billing_cycle })
 
     // Notificación automática de suscripción creada
+    // Genera una notificación automática de bienvenida/creación (servicio de notificaciones).
     try {
       const { NotificationGeneratorService } = await import("../services/notificationService.js")
       await NotificationGeneratorService.createSubscriptionNotification(
@@ -162,6 +169,8 @@ export const createSubscription = async (req: AuthRequest, res: Response): Promi
       console.error("Error creando notificación de suscripción:", notificationError)
     }
 
+    // Si la fecha de cobro ya venció, crea automáticamente una deuda pendiente
+    // asociada a la suscripción (verifica antes que no exista otra pendiente para no duplicar).
     if (next_billing_date && new Date(next_billing_date) < new Date(new Date().toDateString())) {
       try {
         const existing = await pool.query(
@@ -171,7 +180,7 @@ export const createSubscription = async (req: AuthRequest, res: Response): Promi
         if (existing.rows.length === 0) {
           await pool.query(
             `INSERT INTO debts (user_id, subscription_id, category_id, name, amount, currency, due_date, status)
-             VALUES ($1, $2, $3, $4, $5, $6, $7, 'pending')`,
+              VALUES ($1, $2, $3, $4, $5, $6, $7, 'pending')`,
             [req.user!.userId, created.id, category_id, name, amount, currency || "USD", next_billing_date]
           )
           console.log(`Deuda creada automáticamente para suscripción vencida: ${name}`)
@@ -191,6 +200,8 @@ export const createSubscription = async (req: AuthRequest, res: Response): Promi
   }
 }
 
+// Actualización: primero verifica que la suscripción exista y sea del usuario;
+// valida categoría y evita duplicados de nombre. Usa COALESCE para actualizar solo los campos enviados.
 export const updateSubscription = async (req: AuthRequest, res: Response): Promise<void> => {
   const { id } = req.params
   const {
@@ -323,6 +334,8 @@ export const deleteSubscription = async (req: AuthRequest, res: Response): Promi
     const today = new Date()
     today.setHours(0, 0, 0, 0)
 
+    // Eliminación con protecciones: no borra suscripciones activas con pago pendiente
+    // ni con deudas sin pagar (consistencia del historial financiero).
     if (status === 'active' && billingDate >= today) {
       res.status(400).json({ error: "No se puede eliminar una suscripción activa con pagos pendientes. Cambiá el estado a pagada o esperá a que el ciclo finalice." })
       return
@@ -339,12 +352,14 @@ export const deleteSubscription = async (req: AuthRequest, res: Response): Promi
     }
 
     // Desvincular deudas pagadas para preservar historial
+    // Las deudas pagadas se desvinculan (subscription_id = NULL) para conservar el historial.
     await pool.query(
       "UPDATE debts SET subscription_id = NULL WHERE subscription_id = $1 AND user_id = $2 AND status = 'paid'",
       [id, req.user!.userId]
     )
 
     // Eliminar deudas pendientes (no debería haber, pero por seguridad)
+    // Se eliminan las deudas pendientes restantes y luego la suscripción (ambas con filtro de usuario).
     await pool.query("DELETE FROM debts WHERE subscription_id = $1 AND user_id = $2", [id, req.user!.userId])
 
     const result = await pool.query(
@@ -366,6 +381,7 @@ export const deleteSubscription = async (req: AuthRequest, res: Response): Promi
   }
 }
 
+// Resumen de estadísticas básicas (total, gasto mensual/anual promediado y activos) del usuario.
 export const getStatsSummary = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const result = await pool.query(
@@ -386,6 +402,8 @@ export const getStatsSummary = async (req: AuthRequest, res: Response): Promise<
   }
 }
 
+// Dashboard: normaliza cada ciclo a gasto mensual/anual en una sola query SQL.
+// Además calcula gasto por categoría, pagos próximos (7 días) y presupuesto/deudas del mes actual.
 export const getDashboardStats = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const statsQuery = `
@@ -472,6 +490,9 @@ export const getDashboardStats = async (req: AuthRequest, res: Response): Promis
 }
 
 // ── Pagar suscripción (crea la deuda ya pagada y cancela la suscripción) ──
+// Pagar: valida el método de pago y que la suscripción exista, esté activa y sea del usuario.
+// Convierte USD→ARS usando el tipo de cambio real, registra la deuda como 'paid'
+// y cancela la suscripción (fin del ciclo). Idempotente: no duplica deudas del mismo ciclo.
 export const paySubscription = async (req: AuthRequest, res: Response): Promise<void> => {
   const { id } = req.params
   const { payment_method } = req.body
@@ -496,6 +517,7 @@ export const paySubscription = async (req: AuthRequest, res: Response): Promise<
     const sub = subResult.rows[0]
 
     // Idempotencia: si ya existe una deuda para esta suscripción/ciclo, no duplicar
+    // Índice de idempotencia: si ya hay una deuda para este subscription_id + due_date, se salta la creación.
     const existingDebt = await pool.query(
       `SELECT id FROM debts WHERE subscription_id = $1 AND due_date = $2`,
       [id, sub.next_billing_date]
@@ -525,6 +547,7 @@ export const paySubscription = async (req: AuthRequest, res: Response): Promise<
       [id, req.user!.userId]
     )
 
+    // Genera una notificación 'payment_paid' al usuario (respetando su preferencia notifications_enabled).
     try {
       const userInfo = await pool.query(
         `SELECT notifications_enabled FROM users WHERE id = $1`,

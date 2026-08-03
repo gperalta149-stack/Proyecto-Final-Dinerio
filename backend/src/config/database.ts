@@ -5,6 +5,7 @@ dotenv.config()
 
 const { Pool } = pg
 
+// Pool de conexiones a PostgreSQL: reutiliza varias conexiones (max: 5) en lugar de abrir una por consulta.
 export const pool = new Pool({
   host: process.env.DB_HOST || "localhost",
   port: Number.parseInt(process.env.DB_PORT || "5432"),
@@ -19,6 +20,7 @@ export const pool = new Pool({
   connectionTimeoutMillis: 10000,
 })
 
+// Eventos del pool: se ejecutan cuando se crea una conexión o cuando ocurre un error inesperado a nivel de pool.
 pool.on("connect", () => {
   console.log(
     "DB client created",
@@ -34,6 +36,8 @@ pool.on("error", (err) => {
   console.error("Unexpected database error:", err)
 })
 
+// Helper de query: ejecuta la consulta con parámetros ($1, $2...), mide su duración para logging
+// y propaga el error hacia el controlador si falla. Usa parámetros para evitar inyección SQL.
 export const query = async (text: string, params?: unknown[]) => {
   const start = Date.now()
 

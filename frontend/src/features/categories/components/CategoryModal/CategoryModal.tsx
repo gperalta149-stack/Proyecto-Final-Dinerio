@@ -48,7 +48,7 @@ export const CategoryModal: React.FC<CategoryModalProps> = ({
 
   // Nombres ya usados (excluye la propia categoría cuando se está editando).
   // Esto es solo feedback inmediato en el cliente; el backend igual valida
-  // con la constraint unique_user_category (ver documentación §4.2.2).
+  // con la constraint unique_user_category (ver documentación 4.2.2).
   const takenNames = useMemo(() => {
     return new Set(
       existingCategories

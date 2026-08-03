@@ -34,6 +34,8 @@ const [paymentSuccess, setPaymentSuccess] = useState(false);
     categoryService.getAll().then(setCategories).catch(() => setCategories([]));
   }, []);
 
+  // Filtrado derivado: según el filtro activo (pendientes, pagadas, vencidas, hoy o
+  // todas) selecciona la base de datos y aplica búsqueda por texto + orden por fecha de vencimiento.
   const filteredDebts = useMemo(() => {
     let debts: Debt[];
 
@@ -71,6 +73,7 @@ const [paymentSuccess, setPaymentSuccess] = useState(false);
     });
   }, [pendingDebts, paidDebts, activeFilter, searchTerm]);
 
+  // Contadores por estado para las pestañas del filtro, calculados una sola vez con useMemo.
   const counts = useMemo(() => ({
     all: pendingDebts.length + paidDebts.length,
     pending: pendingDebts.length,
@@ -84,6 +87,8 @@ const [paymentSuccess, setPaymentSuccess] = useState(false);
     if (debt) setPayingDebt(debt);
   };
 
+  // Confirmación de pago: si la deuda está en USD, convierte el monto a ARS con el tipo
+  // de cambio "tarjeta" (o reutiliza amount_ars ya guardado) antes de marcar como pagada.
   const handlePayConfirm = async (paymentMethod: string) => {
     if (!payingDebt) return;
     try {

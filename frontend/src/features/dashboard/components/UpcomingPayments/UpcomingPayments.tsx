@@ -11,10 +11,12 @@ interface UpcomingPaymentsProps {
   currency?: string;
 }
 
-export const UpcomingPayments: React.FC<UpcomingPaymentsProps> = ({ 
-  subscriptions, 
-  currency = "ARS" 
+export const UpcomingPayments: React.FC<UpcomingPaymentsProps> = ({
+  subscriptions,
+  currency = "ARS"
 }) => {
+  // Filtra las suscripciones activas y las ordena por fecha de cobro ascendente,
+  // quedándose con las 5 más cercanas para el widget de próximos pagos.
   const upcoming = useMemo(() => {
     return subscriptions
       .filter((s) => s.status === "active")
@@ -27,6 +29,8 @@ export const UpcomingPayments: React.FC<UpcomingPaymentsProps> = ({
     return Math.ceil(diff / (1000 * 60 * 60 * 24));
   };
 
+  // Clasifica la urgencia en 5 niveles (vencido/hoy/pronto/en 7 días/lejos) para
+  // aplicar una clase CSS distinta a cada ítem.
   const getUrgencyColor = (days: number) => {
     if (days < 0) return "overdue";
     if (days === 0) return "today";

@@ -26,6 +26,8 @@ const STATUS_OPTIONS = [
   { value: "cancelled", label: "Pagada", color: "#22c55e" },
 ];
 
+// Helper de normalización: pasa a minúsculas y elimina tildes/acentos, usado para
+  // comparar nombres (de suscripciones y categorías) ignorando diferencias de mayúsculas.
 const normalize = (value: string) =>
   value.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
@@ -69,6 +71,8 @@ export const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
     description: "",
   });
 
+  // Al editar, precarga el formulario con los datos existentes. Si la suscripción se
+  // guardó originalmente en USD, se muestra el monto en su moneda original en lugar del convertido.
   useEffect(() => {
     if (subscription) {
       const isUSDOriginal = subscription.originalCurrency === 'USD' && subscription.originalAmount;
@@ -118,7 +122,8 @@ export const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
     return () => document.removeEventListener("click", handleClick);
   }, [showCurrencyDropdown]);
 
-  // Nombres ya usados (excluye la propia suscripción cuando se está editando)
+  // Conjunto de nombres ya usados (normalizados) para validar duplicados. Excluye la
+  // propia suscripción cuando se edita, para permitir conservar el mismo nombre.
   const takenNames = useMemo(() => {
     return new Set(
       existingSubscriptions
@@ -140,6 +145,8 @@ export const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  // Validación del formulario antes de guardar: nombre obligatorio y sin duplicados,
+  // categoría y fecha de próximo pago requeridas. Devuelve temprano con un toast de error.
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -224,6 +231,8 @@ export const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
   const selectedCategory = externalCategories.find((c) => c.id === formData.category_id);
   const amount = Number(formData.amount) || 0;
 
+  // Vista previa en vivo: si la moneda es USD se convierte a ARS con el tipo de cambio
+  // "tarjeta" para mostrar el equivalente aproximado dentro del formulario.
   const convertedAmount = useMemo(() => {
     if (formData.currency === "USD" && amount > 0) {
       return ExchangeRateService.convertUSDToARS(amount, 'tarjeta');

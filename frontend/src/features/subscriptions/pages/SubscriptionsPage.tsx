@@ -41,9 +41,12 @@ export const SubscriptionsPage: React.FC = () => {
   const [paymentSuccess, setPaymentSuccess] = useState(false);
   const perPage = 5;
 
+  // Carga inicial en paralelo de suscripciones, categorías y deudas. Además calcula el
+  // total pagado en deudas durante el mes (con conversión USD→ARS) para el KPI de gasto mensual.
   const loadAll = async () => {
     try {
       setLoading(true);
+      // Promise.all ejecuta los 3 fetch a la vez y espera a que terminen todos.
       const [subsData, catsData, debtsData] = await Promise.all([
         subscriptionService.getAll("all"),
         categoryService.getAll().catch(() => [] as Category[]),
@@ -61,6 +64,7 @@ export const SubscriptionsPage: React.FC = () => {
         const paidDate = new Date(d.paid_at);
         return paidDate >= startOfMonth && paidDate < endOfMonth;
       });
+      // Suma de deudas pagadas en el mes, normalizando la moneda a ARS.
       const total = paidThisMonth.reduce((sum: number, d: Debt) => {
         const amount = parseAmount(d.amount);
         return sum + (d.currency === 'USD' ? ExchangeRateService.convertUSDToARS(amount) : amount);
@@ -73,8 +77,11 @@ export const SubscriptionsPage: React.FC = () => {
     }
   };
 
+  // useEffect con dependencia vacía ejecuta loadAll una sola vez al montar la página.
   useEffect(() => { loadAll(); }, []);
 
+  // Regla de negocio: antes de crear una suscripción se verifica que exista un
+  // presupuesto mensual; si no, se muestra una advertencia (sin bloquear al usuario).
   const handleCreate = async () => {
     try {
       const now = new Date();
@@ -94,6 +101,8 @@ export const SubscriptionsPage: React.FC = () => {
   };
   const handleEdit = (sub: Subscription) => { setEditingSubscription(sub); setShowModal(true); };
   const handleView = (sub: Subscription) => { setViewingSubscription(sub); };
+  // Lógica de pago inteligente: si la suscripción tiene una deuda pendiente registrada
+  // se abre el modal de pago de deuda; si no, se paga la suscripción directamente.
   const handlePay = (sub: Subscription) => {
     const debt = debts.find(d => d.subscription_id === sub.id && d.status === 'pending');
     if (debt) {
@@ -113,6 +122,7 @@ export const SubscriptionsPage: React.FC = () => {
         setPaySubscription(null);
       } else if (payDebt) {
         const amount = parseFloat(String(payDebt.amount));
+        // Si la deuda está en USD se convierte a ARS antes de marcarla como pagada.
         const amountArs = payDebt.currency === 'USD'
           ? Math.round(ExchangeRateService.convertUSDToARS(amount, 'tarjeta') * 100) / 100
           : undefined;
@@ -131,6 +141,8 @@ export const SubscriptionsPage: React.FC = () => {
   };
   const { showToast } = useToast();
 
+  // Regla de negocio: no se permite eliminar suscripciones activas (pueden tener
+  // pagos pendientes); solo se habilita el borrado para estados pausadas/pagadas.
   const handleDelete = (id: string) => {
     const sub = subscriptions.find(s => s.id === id);
     if (!sub) return;
@@ -180,6 +192,8 @@ export const SubscriptionsPage: React.FC = () => {
 
   useEffect(() => { setSubscriptionPage(0); }, [filter, search]);
 
+  // Pipeline de filtrado/ordenamiento: combina el filtro por tab (estado), la búsqueda
+  // por texto y el criterio de ordenamiento, aplicados en cadena sobre una copia del array.
   const filtered = useMemo(() => {
     let list = [...subscriptions];
     if (filter === "active") list = list.filter(s => s.status === "active");
@@ -206,6 +220,8 @@ export const SubscriptionsPage: React.FC = () => {
   const totalPages = Math.max(1, Math.ceil(filtered.length / perPage));
   const displayList = filtered.slice(subscriptionPage * perPage, (subscriptionPage + 1) * perPage);
 
+  // Total mensual: suscripciones activas que cobran este mes (o vencidas) más el total
+  // de deudas pagadas en el mes; alimenta los KPIs de gasto.
   const totalMonthly = useMemo(() => {
     const today = new Date();
     const currentMonth = today.getMonth();

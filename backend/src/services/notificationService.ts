@@ -1,10 +1,16 @@
 import { pool } from "../config/database.js"
 
+// Servicio que genera notificaciones a partir de eventos del sistema
+// (recordatorios de pago, alertas de presupuesto, limpieza y avisos de suscripción).
 export class NotificationGeneratorService {
+  // Genera recordatorios de pago para suscripciones próximas a vencer
+  // (dentro de los próximos 3 días) y para las ya vencidas.
   static async generatePaymentReminders(): Promise<void> {
     try {
       console.log("Generando recordatorios de pago...");
 
+      // Trae suscripciones activas con vencimiento en hasta 3 días,
+      // de usuarios que tienen habilitadas las notificaciones.
       const activeSubscriptions = await pool.query(
         `SELECT s.id, s.user_id, s.name, s.amount, s.currency, s.next_billing_date,
                 u.notifications_enabled
@@ -19,11 +25,15 @@ export class NotificationGeneratorService {
       console.log(`Suscripciones a procesar: ${activeSubscriptions.rows.length}`);
 
       for (const sub of activeSubscriptions.rows) {
+        // Calcula cuántos días faltan para vencer (negativo si ya está vencida),
+        // usando el inicio del día para comparar fechas completas.
         const daysUntilDue = Math.ceil(
           (new Date(sub.next_billing_date).getTime() - new Date().setHours(0, 0, 0, 0)) / (1000 * 60 * 60 * 24)
         );
 
         if (daysUntilDue >= 0) {
+          // Rama de pago por vencer: primero chequea que hoy no exista ya una
+          // notificación del tipo 'payment_due' para esa suscripción (no duplicar).
           const existing = await pool.query(
             `SELECT id FROM notifications
               WHERE user_id = $1 AND subscription_id = $2
@@ -36,6 +46,8 @@ export class NotificationGeneratorService {
           let title: string;
           let message: string;
 
+          // Según la cantidad de días, el recordatorio cambia el texto:
+          // hoy, mañana o en N días. Caso borde: '0' significa que vence justo hoy.
           if (daysUntilDue === 0) {
             title = "Pago vence hoy";
             message = `Tu suscripción "${sub.name}" vence hoy. Monto: ${sub.currency} ${sub.amount}`;
@@ -54,6 +66,8 @@ export class NotificationGeneratorService {
           );
           console.log(`Notificación creada: ${title} - ${sub.name}`);
         } else {
+          // Rama de pago ya vencido: daysUntilDue negativo, se toma el valor
+          // absoluto para los días de atraso y se busca/no-duplica con tipo 'payment_overdue'.
           const daysOverdue = Math.abs(daysUntilDue);
 
           const existing = await pool.query(
@@ -83,13 +97,19 @@ export class NotificationGeneratorService {
     }
   }
 
+  // Genera alertas cuando el gasto mensual de un usuario supera su presupuesto
+  // del mes (compara el total de suscripciones activas contra el monto del budget).
   static async generateBudgetAlerts(): Promise<void> {
     try {
       console.log("Verificando alertas de presupuesto...")
 
+      // Se toma el mes/año actuales para evaluar el presupuesto del período vigente.
       const currentYear = new Date().getFullYear()
       const currentMonth = new Date().getMonth() + 1
 
+      // Query de usuarios que exceden su presupuesto: suma las suscripciones activas
+      // convirtiendo cada ciclo a su equivalente mensual (la misma lógica de BillingCycleService)
+      // y filtra con HAVING los que superan el monto presupuestado.
       const usersExceedingBudget = await pool.query(
         `SELECT
           mb.user_id,
@@ -126,8 +146,10 @@ export class NotificationGeneratorService {
         const monthlyTotal = Number(user.monthly_total);
         const monthlyBudget = Number(user.monthly_budget);
 
+        // Calcula el porcentaje del presupuesto usado para mostrarlo en la alerta.
         const usagePercentage = Math.round((monthlyTotal / monthlyBudget) * 100)
 
+        // Evita duplicar: si ya existe una alerta de presupuesto hoy, se saltea.
         const existingAlert = await pool.query(
           `SELECT id FROM notifications
             WHERE user_id = $1 AND type = 'budget_alert'
@@ -136,6 +158,7 @@ export class NotificationGeneratorService {
         )
 
         if (existingAlert.rows.length === 0) {
+          // Crea la notificación de "presupuesto excedido" con total y porcentaje.
           await pool.query(
             `INSERT INTO notifications (user_id, type, title, message)
               VALUES ($1, $2, $3, $4)`,
@@ -158,6 +181,8 @@ export class NotificationGeneratorService {
   }
 
   // Método para crear notificaciones al crear suscripciones
+  // Elimina notificaciones con más de 7 días de antigüedad para mantener
+  // la tabla acotada y no acumular historial innecesario.
   static async cleanupOldNotifications(): Promise<void> {
     try {
       const result = await pool.query(
@@ -171,6 +196,8 @@ export class NotificationGeneratorService {
     }
   }
 
+  // Notificación que se genera al crear una nueva suscripción (evento de alta),
+  // mostrando el nombre y el monto con su descriptor de periodicidad.
   static async createSubscriptionNotification(
     userId: string,
     subscriptionId: string,
@@ -182,9 +209,11 @@ export class NotificationGeneratorService {
     try {
       console.log(`Creando notificación para nueva suscripción: ${subscriptionName}`)
 
+      // Traduce el ciclo a su etiqueta en español para el mensaje.
       const cycleLabel = billingCycle === "monthly" ? "/mes" : billingCycle === "yearly" ? "/año" : billingCycle === "quarterly" ? "/trimestre" : billingCycle === "weekly" ? "/semana" : ""
       const message = `Has agregado "${subscriptionName}" por ${currency} ${amount}${cycleLabel}`
 
+      // Inserta la notificación con tipo 'subscription_created' y marca el momento exacto.
       await pool.query(
         `INSERT INTO notifications (user_id, subscription_id, type, title, message, created_at)
           VALUES ($1, $2, $3, $4, $5, NOW())`,

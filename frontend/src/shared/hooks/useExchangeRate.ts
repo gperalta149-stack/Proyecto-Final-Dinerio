@@ -1,7 +1,10 @@
 import { useState, useEffect } from 'react';
 import ExchangeRateService, { ExchangeRates } from '../services/exchangeRateService';
 
+// Hook que encapsula el estado del tipo de cambio para la UI.
+//   Expone las cotizaciones, el loading y el error de forma declarativa.
 export const useExchangeRate = (type: 'oficial' | 'tarjeta' = 'oficial') => {
+  // Estado inicial con valores por defecto mientras se cargan datos reales.
   const [rates, setRates] = useState<ExchangeRates>({
     oficial: 1470,
     oficialCompra: 1440,
@@ -16,6 +19,7 @@ export const useExchangeRate = (type: 'oficial' | 'tarjeta' = 'oficial') => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Carga las cotizaciones desde el servicio y actualiza el estado local.
   const loadRates = async () => {
     setLoading(true);
     setError(null);
@@ -44,12 +48,15 @@ export const useExchangeRate = (type: 'oficial' | 'tarjeta' = 'oficial') => {
     }
   };
 
+  // Al montar el hook carga las cotizaciones y programa un refresco
+//   automático cada 30 min. Se limpia el intervalo al desmontar.
   useEffect(() => {
     loadRates();
     const interval = setInterval(loadRates, 30 * 60 * 1000);
     return () => clearInterval(interval);
   }, [type]);
 
+  // Helper de conversión USD a ARS usando la cotización del tipo elegido.
   const convertUSDToARS = (amountUSD: number): number => {
     return ExchangeRateService.convertUSDToARS(amountUSD, type);
   };

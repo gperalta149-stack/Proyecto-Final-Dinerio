@@ -25,6 +25,8 @@ export const KpiCard: React.FC<KpiCardProps> = ({
   badge,
   actions,
 }) => {
+  // El componente es reutilizable y 100% controlado por props: el color define su tema
+  // (fondo, ícono y barra de progreso) mediante este mapa de estilos.
   const colorMap = {
     spent: { bg: "rgba(99, 102, 241, 0.1)", icon: "#6366f1", bar: "#6366f1" },
     subscriptions: { bg: "rgba(139, 92, 246, 0.1)", icon: "#8b5cf6", bar: "#8b5cf6" },

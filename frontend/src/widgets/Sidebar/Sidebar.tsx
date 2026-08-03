@@ -21,6 +21,8 @@ import { debtService } from "../../features/debts/service/debtService"
 import { useBudget } from "../../features/budget/hooks/useBudget"
 import '../../styles/widgets/Sidebar.css'
 
+// Navegación principal: lista declarativa de rutas con sus íconos.
+//   NAV_ITEMS se recorre con .map() para generar los <Link> dinámicamente.
 const NAV_ITEMS = [
   { path: "/dashboard", label: "Inicio", icon: Home },
   { path: "/subscriptions", label: "Suscripciones", icon: CreditCard },
@@ -40,12 +42,15 @@ interface SidebarProps {
 export const Sidebar: React.FC<SidebarProps> = ({ collapsed = false, onToggle, mobileOpen = false, onMobileClose }) => {
   const location = useLocation()
   const navigate = useNavigate()
+  // useAuth provee el usuario y la acción logout desde el contexto global.
   const { user, logout } = useAuth()
   const [showUserMenu, setShowUserMenu] = useState(false)
   const [pendingDebts, setPendingDebts] = useState(0)
   const [budgetRefreshKey, setBudgetRefreshKey] = useState(0)
   const menuRef = useRef<HTMLDivElement>(null)
 
+  // Carga la cantidad de deudas pendientes para mostrarlas como badge
+  //   en el link "Deudas".
   const refreshDebts = () => {
     debtService.getSummary()
       .then((s) => setPendingDebts(s.pendingCount || 0))
@@ -57,10 +62,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed = false, onToggle, m
   // incluyendo suscripciones Y deudas pagadas del mes.
   const { percentageUsed: budgetPercentage, alertThreshold } = useBudget(undefined, undefined, budgetRefreshKey)
 
+  // Al cambiar de ruta (location.pathname) se refrescan las deudas pendientes.
   useEffect(() => {
     refreshDebts()
   }, [location.pathname])
 
+  // Escucha eventos personalizados del DOM (disparados por otros módulos)
+  //   para actualizar el sidebar cuando cambian deudas, suscripciones o presupuesto.
   useEffect(() => {
     const handleChange = () => {
       refreshDebts()
@@ -76,6 +84,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed = false, onToggle, m
     }
   }, [])
 
+  // Cierra el menú de usuario al hacer clic fuera de él (click-away).
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
@@ -112,6 +121,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed = false, onToggle, m
 
       {/* Menu */}
       <nav className="sidebar-menu">
+        // Genera la navegación: por cada ítem calcula el estado activo según la
+//   URL actual, el badge de deudas y la advertencia de presupuesto sobrepasado.
         {NAV_ITEMS.map((item) => {
           const isActive = location.pathname === item.path || 
             (item.path === "/dashboard" && location.pathname === "/")

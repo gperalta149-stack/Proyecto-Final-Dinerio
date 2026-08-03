@@ -17,6 +17,8 @@ interface UseCalendarReturn {
   refresh: () => Promise<void>;
 }
 
+// useCalendar agrupa los eventos del mes: calcula con daysUntil cuántos días faltan y
+  // arma los paneles Hoy / en 3 días / en 7 días. Recibe la fecha seleccionada para recargar.
 export const useCalendar = (currentDate: Date): UseCalendarReturn => {
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [loading, setLoading] = useState(true);
@@ -24,6 +26,7 @@ export const useCalendar = (currentDate: Date): UseCalendarReturn => {
   const loadEvents = async () => {
     try {
       setLoading(true);
+      // Pide los eventos de suscripciones y deudas para el mes/año seleccionados.
       const monthEvents = await getCalendarEvents(
         currentDate.getMonth() + 1,
         currentDate.getFullYear()
@@ -36,18 +39,21 @@ export const useCalendar = (currentDate: Date): UseCalendarReturn => {
     }
   };
 
+  // Re-carga cada vez que cambia la fecha seleccionada del calendario.
   useEffect(() => {
     loadEvents();
   }, [currentDate]);
 
   const stats = useMemo(() => calculateCalendarStats(events), [events]);
 
+  // Eventos con fecha igual al día de hoy (comparación por clave local).
   const todayEvents = useMemo(() => {
     return events.filter(event => {
       return isToday(parseDateString(event.date));
     });
   }, [events]);
 
+  // Próximos pagos a 7 días, filtrados y ordenados cronológicamente.
   const upcomingEvents = useMemo(() => {
     return events
       .filter(event => {
@@ -59,6 +65,7 @@ export const useCalendar = (currentDate: Date): UseCalendarReturn => {
   const sortByDate = (a: CalendarEvent, b: CalendarEvent) =>
     parseDateString(a.date).getTime() - parseDateString(b.date).getTime();
 
+  // Franjas de urgencia usando daysUntil: de 1 a 3 días (próximos) y de 4 a 7 días.
   const eventsIn3Days = useMemo(() => {
     return events
       .filter(event => {

@@ -15,6 +15,8 @@ const DONUT_RADIUS = 60;
 const DONUT_STROKE = 14;
 const DONUT_CIRCUMFERENCE = 2 * Math.PI * DONUT_RADIUS;
 
+// Normaliza el monto de cada suscripción a pesos argentinos: si el backend ya la
+// guardó en ARS la usa directo, y si viene en USD la convierte con el tipo de cambio.
 const getAmountInARS = (sub: Subscription): number => {
   if (sub.arsAmount) return sub.arsAmount;
   const raw = parseAmount(sub.amount) || 0;
@@ -22,17 +24,21 @@ const getAmountInARS = (sub: Subscription): number => {
   return ExchangeRateService.convertUSDToARS(raw);
 };
 
+// Cálculo de días restantes: resta el timestamp actual al de la fecha de cobro y
+// redondea hacia arriba para expresar la diferencia en días enteros.
 const getDaysUntil = (date: string) => {
   const diff = new Date(date).getTime() - new Date().getTime();
   return Math.ceil(diff / (1000 * 60 * 60 * 24));
 };
 
+// Traduce los días calculados a un texto amigable en español (vencido / hoy / Nd).
 const getDaysText = (days: number) => {
   if (days < 0) return `${Math.abs(days)}d vencido`;
   if (days === 0) return "Hoy";
   return `${days}d`;
 };
 
+// Semáforo visual: rojo si está vencido, ámbar si vence dentro de 3 días, gris si no.
 const getUrgencyColor = (days: number) => {
   if (days < 0) return "#ef4444";
   if (days <= 3) return "#f59e0b";
@@ -46,7 +52,7 @@ interface BillingStatus {
 
 // Estado de vencimiento de una suscripción activa, basado en next_billing_date.
 // El umbral de 3 días coincide con la ventana de recordatorios ya usada en
-// el resto del sistema (generatePaymentReminders, ver documentación §4.1.2 RN).
+// el resto del sistema (generatePaymentReminders, ver documentación 4.1.2 RN).
 const getBillingStatus = (sub: Subscription): BillingStatus | null => {
   if (sub.status !== "active" || !sub.next_billing_date) return null;
   const days = getDaysUntil(sub.next_billing_date);
@@ -56,6 +62,8 @@ const getBillingStatus = (sub: Subscription): BillingStatus | null => {
   return { label: "Al día", className: "status-ok" };
 };
 
+// Asigna un color estable a cada suscripción calculando un hash del nombre: así el
+// avatar siempre tiene el mismo color para el mismo nombre (consistencia visual).
 const getAvatarColor = (name: string) => {
   const colors = ["#8b5cf6", "#ec4899", "#3b82f6", "#10b981", "#f59e0b", "#ef4444"];
   let hash = 0;
@@ -69,6 +77,9 @@ interface TipData {
   priority: number;
 }
 
+// Motor de sugerencias inteligentes: analiza los datos agregados (vencimientos de hoy,
+// esta semana, suscripción más cara, presupuesto consumido, categoría dominante) y arma una
+// lista de tips ordenada por prioridad; devuelve solo el más urgente.
 const getSmartTip = (
   upcoming: Subscription[],
   budgetPercentage: number,
@@ -263,6 +274,8 @@ interface ActivityItem {
   time: string;
 }
 
+// Traduce el registro de auditoría a un evento legible: lee el nombre desde los detalles
+// y mapea la acción (CREATE/UPDATE/DELETE) a un texto e ícono con su antigüedad.
 const logToActivity = (log: AuditLog): ActivityItem => {
   const details = log.details || {};
   const name = typeof details === 'object' && details !== null ? (details as Record<string, unknown>).name as string || "" : "";
@@ -300,6 +313,8 @@ export const DashboardPage: React.FC = () => {
   const totalPages = Math.max(1, Math.ceil(activities.length / perPage));
   const displayActivities = activities.slice(activityPage * perPage, (activityPage + 1) * perPage);
 
+// Polling de actividad reciente: carga los últimos logs de auditoría al montar y luego
+// cada 30 segundos, manteniendo el feed "vivo" sin recargar toda la página.
   useEffect(() => {
     const load = async () => {
       try {
@@ -314,6 +329,8 @@ export const DashboardPage: React.FC = () => {
     return () => clearInterval(interval);
   }, []);
 
+  // Agrupa las suscripciones por categoría sumando sus montos en ARS y ordena las
+  // categorías de mayor a menor gasto, para alimentar el donut y los tips.
   const categoryData = React.useMemo(() => {
     const cats: Record<string, number> = {};
     (subscriptions || []).forEach((sub) => {
@@ -329,6 +346,8 @@ export const DashboardPage: React.FC = () => {
   const totalCategory = categoryData.reduce((s, c) => s + c.amount, 0);
   const topCategory = categoryData[0];
   const topCategoryPct = totalCategory > 0 && topCategory ? (topCategory.amount / totalCategory) * 100 : 0;
+  // Top 3 de suscripciones por monto mensual (para el panel lateral) y próximos pagos
+  // activos ordenados, limitados a 3 ítems para el resumen.
   const topSubscriptions = (subscriptions || [])
     .sort((a: Subscription, b: Subscription) => getAmountInARS(b) - getAmountInARS(a))
     .slice(0, 3);

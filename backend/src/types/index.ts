@@ -1,5 +1,6 @@
 import type { Request } from "express"
 
+// Interfaz del usuario: describe la estructura de un registro de la tabla users tal como se usa en el backend.
 export interface User {
   id: string
   email: string
@@ -71,6 +72,8 @@ export interface Debt {
   category_color?: string
 }
 
+// Payload del JWT: los datos que se codifican dentro del token (quién es el usuario). AuthRequest extiende Request
+// para que los controladores tengan acceso tipado a req.user después del middleware de autenticación.
 export interface JWTPayload {
   userId: string
   email: string

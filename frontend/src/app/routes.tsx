@@ -22,6 +22,8 @@ import { PrivateRoute, PublicRoute } from "./protectedRoute"
 export const AppRoutes: React.FC = () => {
   return (
     <Routes>
+      {/* Las rutas públicas (home, login, registro) se envuelven en PublicRoute:
+      si ya hay sesión no se muestran, redirigen al dashboard. */}
       <Route path="/" element={<PublicRoute><HomePage /></PublicRoute>} />
 
       <Route
@@ -44,6 +46,7 @@ export const AppRoutes: React.FC = () => {
       <Route
         path="/dashboard"
         element={
+          
           <PrivateRoute>
             <Layout>
               <DashboardPage />
@@ -124,6 +127,8 @@ export const AppRoutes: React.FC = () => {
       />
 
       <Route path="/home" element={<Navigate to="/dashboard" />} />
+      {/* Ruta comodín "*": captura cualquier URL no declarada y
+          muestra una página 404 personalizada en lugar de una pantalla vacía. */}
       <Route
         path="*"
         element={
