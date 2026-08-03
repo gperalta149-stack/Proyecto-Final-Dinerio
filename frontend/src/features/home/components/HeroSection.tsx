@@ -1,7 +1,7 @@
 import React from "react"
 import { Link } from "react-router-dom"
 import { motion } from "framer-motion"
-import { ArrowRight, Play, Sparkles } from "lucide-react"
+import { ArrowRight, Sparkles } from "lucide-react"
 import { STATS } from "../data/homeData"
 import '../../../styles/home/hero.css'
 
@@ -60,10 +60,6 @@ export const HeroSection: React.FC = () => {
           <Link to="/register" className="hero-btn-primary">
             Comenzar gratis
             <ArrowRight size={16} />
-          </Link>
-          <Link to="/demo" className="hero-btn-secondary">
-            <Play size={14} />
-            Ver demo
           </Link>
         </motion.div>
 

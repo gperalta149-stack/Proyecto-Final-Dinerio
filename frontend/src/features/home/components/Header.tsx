@@ -6,7 +6,6 @@ import '../../../styles/home/header.css'
 const NAV_LINKS = [
   { href: "#features", label: "Características" },
   { href: "#how-it-works", label: "Cómo funciona" },
-  { href: "#pricing", label: "Precios" },
 ]
 
 export const Header: React.FC = () => {
