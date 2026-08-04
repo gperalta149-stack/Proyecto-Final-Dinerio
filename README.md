@@ -22,9 +22,10 @@
 
 ## 🚀 Demo
 
-> 🚧 Próximamente — enlace a la demo en vivo.
->
-> Mientras tanto, puedes ejecutar el proyecto localmente siguiendo los pasos de [Instalación](#-instalación).
+- **Frontend:** [https://proyecto-dinerio.vercel.app](https://proyecto-dinerio.vercel.app)
+- **Backend API:** [https://dinerio-backend.onrender.com](https://dinerio-backend.onrender.com) (`/health` para health check)
+
+> También puedes ejecutar el proyecto localmente siguiendo los pasos de [Instalación](#-instalación).
 
 ---
 
@@ -112,9 +113,9 @@ React → Axios → Express → PostgreSQL
 | Compilación TypeScript (`tsc --noEmit`) | ✅ 0 errores | ✅ 0 errores |
 | Build de producción | ✅ | ✅ |
 | ESLint | ✅ 0 errores (20 warnings `any`) | ✅ 0 errores (161 warnings `any`) |
-| Tests unitarios (Vitest) | — | ✅ 8/8 pasando |
+| Tests unitarios (Vitest) | — | ✅ 16/16 pasando |
 | Requerimientos funcionales cubiertos | 19/19 (100%) | |
-| Endpoints probados manualmente | 42/42 | |
+| Endpoints probados manualmente | 49/49 | |
 
 > Los warnings de ESLint son usos de `any` y variables sin usar; no bloquean el build ni afectan el funcionamiento. Quedan documentados como mejora de tipado en el backlog.
 
@@ -129,7 +130,7 @@ React → Axios → Express → PostgreSQL
 | React | ^18.3.1 | UI library |
 | TypeScript | ^5.6.3 | Tipado estático |
 | Vite | ^7.2.2 | Build tool |
-| React Router DOM | ^6.21.1 | SPA routing |
+| React Router DOM | 6.21.1 | SPA routing |
 | Axios | ^1.6.5 | HTTP client |
 | Framer Motion | ^12.42.2 | Animaciones |
 | Lucide React | ^1.23.0 | Iconos |
@@ -224,9 +225,10 @@ dinerio/
 ├── frontend/                         # SPA (React + TypeScript + Vite)
 │   ├── src/
 │   │   ├── app/                      # Routing, providers, protected routes
-│   │   ├── features/                 # Módulos funcionales (10 features)
+│   │   ├── features/                 # Módulos funcionales (12 features)
 │   │   │   ├── auth/                 # Login, registro
-│   │   │   ├── budget/               # Presupuesto
+│   │   │   ├── audit/               # Auditoría
+│   │   │   ├── budget/             # Presupuesto
 │   │   │   ├── calendar/             # Calendario de pagos
 │   │   │   ├── categories/           # CRUD categorías
 │   │   │   ├── dashboard/            # Dashboard principal
@@ -398,11 +400,11 @@ cd ../frontend && npm install
 cd ..
 
 # 3. Base de datos
-psql -h localhost -U postgres -c "CREATE DATABASE SubTrack_db;"
-psql -h localhost -U postgres -d SubTrack_db -f backend/db/schema.sql
+psql -h localhost -U postgres -c "CREATE DATABASE Dinerio_db;"
+psql -h localhost -U postgres -d Dinerio_db -f backend/db/schema.sql
 
 # 4. (Opcional) Datos de demostración
-psql -h localhost -U postgres -d SubTrack_db -f backend/db/seedData.sql
+psql -h localhost -U postgres -d Dinerio_db -f backend/db/seedData.sql
 
 # 5. Variables de entorno
 cp backend/.env.example backend/.env
@@ -422,7 +424,7 @@ DB_USER=postgres
 DB_PASSWORD=tu_contraseña
 DB_HOST=localhost
 DB_PORT=5432
-DB_NAME=SubTrack_db
+DB_NAME=Dinerio_db
 JWT_SECRET=genera_un_secreto_largo_y_aleatorio_aqui
 JWT_EXPIRES_IN=7d
 PORT=3000
@@ -438,7 +440,7 @@ openssl rand -hex 32
 Para el frontend en producción, crear `frontend/.env`:
 
 ```env
-VITE_API_URL=https://tu-backend.onrender.com/api
+VITE_API_URL=https://dinerio-backend.onrender.com/api
 ```
 
 Si no se define, el frontend usa `http://localhost:3000/api` por defecto (ver `frontend/src/shared/services/api.ts`).
@@ -449,7 +451,7 @@ Si no se define, el frontend usa `http://localhost:3000/api` por defecto (ver `f
 |----------|-----------|---------|-------------|
 | `DB_HOST` | Sí | `localhost` | Host PostgreSQL |
 | `DB_PORT` | Sí | `5432` | Puerto PostgreSQL |
-| `DB_NAME` | Sí | `SubTrack_db` | Nombre BD |
+| `DB_NAME` | Sí | `Dinerio_db` | Nombre BD |
 | `DB_USER` | Sí | `postgres` | Usuario BD |
 | `DB_PASSWORD` | Sí | `""` | Contraseña BD |
 | `JWT_SECRET` | Sí | — | Secreto JWT |
@@ -524,8 +526,19 @@ npm run typecheck    # TypeScript check (0 errores esperados)
 | POST | `/api/auth/register` | — | Registro |
 | POST | `/api/auth/login` | — | Login |
 | POST | `/api/auth/password-reset` | — | Reset contraseña |
+| GET | `/api/auth/check-availability` | — | Verificar email disponible |
 | GET | `/api/auth/profile` | Sí | Perfil |
 | PUT | `/api/auth/budget` | Sí | Actualizar presupuesto |
+
+### Usuarios (`/api/users`)
+
+| Método | Endpoint | Auth | Descripción |
+|--------|----------|------|-------------|
+| GET | `/api/users/profile` | Sí | Perfil del usuario |
+| PUT | `/api/users/profile` | Sí | Actualizar perfil |
+| PUT | `/api/users/settings` | Sí | Actualizar ajustes |
+| PUT | `/api/users/password` | Sí | Cambiar contraseña |
+| PUT | `/api/users/budget` | Sí | Actualizar presupuesto |
 
 ### Suscripciones (`/api/subscriptions`)
 
@@ -534,6 +547,7 @@ npm run typecheck    # TypeScript check (0 errores esperados)
 | GET | `/api/subscriptions` | Sí | Listar (filtro status) |
 | GET | `/api/subscriptions/stats/summary` | Sí | Estadísticas |
 | GET | `/api/subscriptions/dashboard/stats` | Sí | Stats dashboard |
+| POST | `/api/subscriptions/:id/pay` | Sí | Marcar suscripción como pago |
 | GET | `/api/subscriptions/:id` | Sí | Obtener una |
 | POST | `/api/subscriptions` | Sí | Crear |
 | PUT | `/api/subscriptions/:id` | Sí | Actualizar |
@@ -612,7 +626,19 @@ npm run typecheck    # TypeScript check (0 errores esperados)
 
 ## 📦 Despliegue
 
-### Opción 1: Cloud (recomendado)
+### Producción actual
+
+La aplicación está desplegada con un esquema desacoplado:
+
+| Componente | Servicio | URL |
+|------------|----------|-----|
+| Backend | Render | https://dinerio-backend.onrender.com |
+| Frontend | Vercel | https://proyecto-dinerio.vercel.app |
+| Base de datos | Supabase | — |
+
+> En Vercel se define `VITE_API_URL=https://dinerio-backend.onrender.com/api` como variable de entorno. Las variables del backend se configuran en el dashboard de Render (ver [Configuración](#-configuración)).
+
+### Opción 1: Cloud (alternativa)
 
 | Componente | Servicio |
 |------------|----------|
