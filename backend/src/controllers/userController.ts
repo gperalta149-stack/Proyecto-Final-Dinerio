@@ -123,7 +123,18 @@ export const changePassword = async (req: AuthRequest, res: Response): Promise<v
       return;
     }
 
-    console.log("[BACKEND] Saltando verificación de contraseña actual (modo testing)");
+    // Verificar que la contraseña actual ingresada coincida con la almacenada.
+    // Sin esto, cualquiera con la sesión abierta podría cambiar la contraseña
+    // sin conocer la actual. Se compara el hash guardado con bcrypt.compare.
+    const isValidCurrentPassword = user.password
+      ? await bcrypt.compare(currentPassword, user.password)
+      : false;
+
+    if (!isValidCurrentPassword) {
+      console.log("[BACKEND] Contraseña actual incorrecta");
+      res.status(400).json({ error: "La contraseña actual es incorrecta" });
+      return;
+    }
 
     const salt = await bcrypt.genSalt(10);
     const passwordHash = await bcrypt.hash(newPassword, salt);

@@ -6,7 +6,7 @@ import type { AuthContextType, User } from "../types"
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
-// NOTA: este archivo no vino incluido en lo que se pasó para el refactor.
+// Este archivo no vino incluido en lo que se pasó para el refactor.
 // Se construyó tomando authService.ts como base, respetando la firma
 // { success, error } que ya esperan LoginPage, RegisterForm, RegisterPage y App.tsx.
 // Estado global de sesión: guarda el usuario y el flag "loading".
@@ -100,7 +100,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Actualización optimista del usuario en memoria
   // (ej. avatar) sin esperar al servidor.
   const updateUser = (data: Partial<User>) => {
-    setUser(prev => prev ? { ...prev, ...data } : null);
+    setUser(prev => {
+      if (!prev) return null;
+      const updated = { ...prev, ...data };
+      // Si cambió el nombre o el apellido, recalcular el nombre completo
+      // (name) para que el Sidebar y el resto de la UI lo reflejen al instante.
+      if (data.first_name !== undefined || data.last_name !== undefined) {
+        const firstName = data.first_name ?? prev.first_name ?? prev.name?.split(' ')[0] ?? '';
+        const lastName = data.last_name ?? prev.last_name ?? prev.name?.split(' ').slice(1).join(' ') ?? '';
+        const fullName = `${firstName} ${lastName}`.trim();
+        if (fullName) updated.name = fullName;
+      }
+      return updated;
+    });
   }
 
   // Valor expuesto por el contexto: reúne el estado y las acciones;

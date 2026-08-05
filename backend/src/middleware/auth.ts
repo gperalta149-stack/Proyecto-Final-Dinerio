@@ -2,7 +2,8 @@ import type { Response, NextFunction } from "express"
 import jwt from "jsonwebtoken"
 import type { AuthRequest, JWTPayload } from "../types/index.js"
 
-// Middleware de autenticación: protege las rutas privadas verificando el token JWT antes de llegar al controlador.
+// Middleware de autenticación: protege las rutas privadas
+//  verificando el token JWT antes de llegar al controlador.
 export const authenticate = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
     // Extrae el token del header Authorization en formato "Bearer <token>". Si no existe o no es válido, responde 401.

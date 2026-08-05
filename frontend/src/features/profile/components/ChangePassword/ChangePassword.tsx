@@ -10,7 +10,9 @@ export const ChangePassword: React.FC = () => {
     newPassword: '',
     confirmPassword: '',
   });
-  const [showPassword, setShowPassword] = useState(false);
+  const [showCurrent, setShowCurrent] = useState(false);
+  const [showNew, setShowNew] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
 
@@ -66,7 +68,7 @@ export const ChangePassword: React.FC = () => {
           <label className="form-label">Contraseña actual</label>
           <div className="password-input-wrapper">
             <input
-              type={showPassword ? 'text' : 'password'}
+              type={showCurrent ? 'text' : 'password'}
               value={formData.currentPassword}
               onChange={(e) => setFormData(prev => ({ ...prev, currentPassword: e.target.value }))}
               className="form-input"
@@ -76,9 +78,9 @@ export const ChangePassword: React.FC = () => {
             <button
               type="button"
               className="password-toggle"
-              onClick={() => setShowPassword(!showPassword)}
+              onClick={() => setShowCurrent(!showCurrent)}
             >
-              {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+              {showCurrent ? <EyeOff size={16} /> : <Eye size={16} />}
             </button>
           </div>
         </div>
@@ -87,7 +89,7 @@ export const ChangePassword: React.FC = () => {
           <label className="form-label">Nueva contraseña</label>
           <div className="password-input-wrapper">
             <input
-              type={showPassword ? 'text' : 'password'}
+              type={showNew ? 'text' : 'password'}
               value={formData.newPassword}
               onChange={(e) => setFormData(prev => ({ ...prev, newPassword: e.target.value }))}
               className="form-input"
@@ -95,6 +97,13 @@ export const ChangePassword: React.FC = () => {
               required
               minLength={6}
             />
+            <button
+              type="button"
+              className="password-toggle"
+              onClick={() => setShowNew(!showNew)}
+            >
+              {showNew ? <EyeOff size={16} /> : <Eye size={16} />}
+            </button>
           </div>
           <span className="form-help">Mínimo 6 caracteres</span>
         </div>
@@ -103,13 +112,20 @@ export const ChangePassword: React.FC = () => {
           <label className="form-label">Confirmar nueva contraseña</label>
           <div className="password-input-wrapper">
             <input
-              type={showPassword ? 'text' : 'password'}
+              type={showConfirm ? 'text' : 'password'}
               value={formData.confirmPassword}
               onChange={(e) => setFormData(prev => ({ ...prev, confirmPassword: e.target.value }))}
               className="form-input"
               placeholder="••••••••"
               required
             />
+            <button
+              type="button"
+              className="password-toggle"
+              onClick={() => setShowConfirm(!showConfirm)}
+            >
+              {showConfirm ? <EyeOff size={16} /> : <Eye size={16} />}
+            </button>
           </div>
         </div>
 
